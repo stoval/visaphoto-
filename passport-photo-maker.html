@@ -298,7 +298,7 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
       </div>
       <div class="tog-row">
         <span>显示对齐剪影 (Beta)</span>
-        <label class="toggle"><input type="checkbox" id="silChk" onchange="S.showSil=this.checked;drawEdit()"><div class="t-tr"></div></label>
+        <label class="toggle"><input type="checkbox" id="silChk" checked onchange="S.showSil=this.checked;drawEdit()"><div class="t-tr"></div></label>
       </div>
       <div class="guide-legend" id="guideLegend">
         <div class="gl-item"><div class="gl-dot" style="background:rgba(200,50,40,0.35)"></div>禁区（头顶/下巴不得进入红色区）</div>
@@ -306,6 +306,7 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
         <div class="gl-item"><div class="gl-dot" style="background:rgba(40,160,80,0.3)"></div>下巴目标区（距底边 7–14mm）</div>
         <div class="gl-item"><div class="gl-dot" style="border:1.5px solid rgba(40,160,80,0.8)"></div>脸宽外边界（最大 22mm）</div>
         <div class="gl-item"><div class="gl-dot" style="border:1.5px dashed rgba(200,160,20,0.8)"></div>垂直中心线（HH线，对齐鼻梁）</div>
+        <div class="gl-item"><div class="gl-dot" style="border:1.5px solid var(--gold);border-radius:50%"></div>人像剪影（对齐头顶与眼睛基准）</div>
         <div class="gl-item" style="color:var(--ink3);font-style:italic">↑ 规格因所选证件而变化</div>
       </div>
     </div>
@@ -510,7 +511,7 @@ const S = {
   noBgImg: null,
   useNoBg: false,
   tx:0, ty:0, scale:1, rotate:0,
-  showGuides: true, showSil: false,
+  showGuides: true, showSil: true,
   dragging:false, dx0:0, dy0:0, tx0:0, ty0:0,
   pinchDist:0, pinchScale:1,
   resultDataUrl: null,
@@ -896,24 +897,29 @@ function drawSilhouette(ctx, ox, oy, fw, fh) {
   
   ctx.save();
   ctx.beginPath(); ctx.rect(ox,oy,fw,fh); ctx.clip();
-  ctx.strokeStyle='rgba(30,78,140,0.5)';
+  ctx.strokeStyle='rgba(184, 136, 42, 0.7)'; // 这里的色值对应 var(--gold)
   ctx.lineWidth=2;
   
   // Outer head oval (approx 70-80% height)
-  const headW=mX(pw*0.65), headH=mY(ph*0.7);
-  const cx=ox+fw/2, cy=oy+mY(5 + ph*0.35); // top margin approx 5mm
+  // 标准人像：头顶距上边约 3.5mm，眼睛距下边约 55-60% 高度
+  const headW=mX(pw*0.6); 
+  const headH=mY(ph*0.75);
+  // cy 定位在眼睛高度，通常在头部椭圆的中心微偏下
+  const cx=ox+fw/2;
+  const topBuffer=mY(5);
+  const cy=oy + topBuffer + headH/2; 
   
   ctx.beginPath();
   ctx.ellipse(cx, cy, headW/2, headH/2, 0, 0, Math.PI*2);
   ctx.stroke();
   
-  // Eye line
+  // Eye line (horizontal through the oval center approx)
   ctx.lineWidth=1;
-  ctx.setLineDash([5,5]);
+  ctx.setLineDash([6,4]);
   ctx.beginPath(); ctx.moveTo(ox, cy); ctx.lineTo(ox+fw, cy); ctx.stroke();
   
-  // Chin indicator
-  ctx.beginPath(); ctx.arc(cx, oy+mY(ph-10), 5, 0, Math.PI, true); ctx.stroke();
+  // Middle vertical line (face axis)
+  ctx.beginPath(); ctx.moveTo(cx, cy-headH/2); ctx.lineTo(cx, cy+headH/2); ctx.stroke();
   
   ctx.restore();
 }
