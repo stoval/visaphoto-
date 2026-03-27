@@ -786,6 +786,8 @@ function loadFile(file) {
       document.getElementById('btnToggle').style.display='none';
       document.getElementById('emptyMsg').style.display='none';
       setStep(3);
+      updateOffscreen();
+      requestDraw();
       saveDraft();
     };
     img.src = e.target.result;
@@ -808,7 +810,8 @@ function resetPos(imgSrc) {
   S.ty = oy + (fh - src.height*S.scale)/2;
   S.rotate = 0;
   const rotEl = document.getElementById('rotLbl'); if(rotEl) rotEl.textContent='0°';
-  drawEdit();
+  updateOffscreen();
+  requestDraw();
   saveDraft();
 }
 function onDs(e) {
@@ -853,10 +856,15 @@ async function restoreDraft() {
     
     // Restore metadata
     S.preset = PRESETS.find(p => p.id === draft.presetId) || PRESETS[0];
-    S.bgColor = draft.bgColor;
-    S.bright = draft.bright; S.contrast = draft.contrast; S.sat = draft.sat;
-    S.tx = draft.tx; S.ty = draft.ty; S.scale = draft.scale; S.rotate = draft.rotate;
-    S.useNoBg = draft.useNoBg;
+    S.bgColor = draft.bgColor || '#FFFFFF';
+    S.bright = draft.bright ?? 100; 
+    S.contrast = draft.contrast ?? 100; 
+    S.sat = draft.sat ?? 100;
+    S.tx = draft.tx ?? 0; 
+    S.ty = draft.ty ?? 0; 
+    S.scale = draft.scale ?? 1; 
+    S.rotate = draft.rotate ?? 0;
+    S.useNoBg = !!draft.useNoBg;
     
     // Restore images
     S.origImg = await blobToImg(draft.origBlob);
@@ -1233,14 +1241,16 @@ async function doRemoveBg() {
     img.onload = () => {
       S.noBgImg=img; S.useNoBg=true;
       
-      // Smart Auto-Align
+      // Auto Align
       smartAlign();
       
       setStep(3);
-      document.getElementById('btnToggle').style.display='';
-      document.getElementById('btnToggle').textContent='查看原图';
+      document.getElementById('btnToggle').style.display = 'inline-flex';
+      document.getElementById('btnToggle').textContent = '显示原图';
       document.getElementById('clothesSect').style.display = 'block';
       toast('✓ 抠图成功！已尝试为您智能对齐');
+      updateOffscreen();
+      requestDraw();
       saveDraft();
     };
     img.onerror = () => { throw new Error('图片加载失败'); };
@@ -1276,58 +1286,90 @@ function generate() {
   if (!src) return;
   setLdr(true,'生成证件照…'); setStep(4);
 
-  setTimeout(()=>{
-    const {w:pw,h:ph,dpi}=S.preset;
-    const oW=mm2px(pw,dpi), oH=mm2px(ph,dpi);
-    const off=document.createElement('canvas'); off.width=oW; off.height=oH;
-    const octx=off.getContext('2d');
+  setTimeout(async ()=>{
+    try {
+      const {w:pw,h:ph,dpi}=S.preset;
+      const oW=mm2px(pw,dpi), oH=mm2px(ph,dpi);
+      const off=document.createElement('canvas'); off.width=oW; off.height=oH;
+      const octx=off.getContext('2d');
 
-    if(S.bgColor!=='transparent'){octx.fillStyle=S.bgColor;octx.fillRect(0,0,oW,oH);}
-
-    const cv=document.getElementById('editCanvas');
-    const CW=cv.width,CH=cv.height, asp=pw/ph;
-    let fw=CW,fh=CW/asp; if(fh>CH){fh=CH;fw=CH*asp;}
-    const ox=(CW-fw)/2,oy=(CH-fh)/2;
-    const sc=oW/fw;
-
-    octx.filter=getFilter();
-    octx.save();
-    const imgCX=(S.tx-ox)*sc+src.width*S.scale*sc/2, imgCY=(S.ty-oy)*sc+src.height*S.scale*sc/2;
-    octx.translate(imgCX,imgCY); octx.rotate(S.rotate*Math.PI/180);
-    octx.drawImage(src,-src.width*S.scale*sc/2,-src.height*S.scale*sc/2,src.width*S.scale*sc,src.height*S.scale*sc);
-    octx.restore();
-    octx.filter='none';
-
-    // File size limit
-    const maxKB=parseInt(document.getElementById('maxKB').value)||0;
-    if(maxKB>0){
-      let q=0.95, data=off.toDataURL('image/jpeg',q);
-      let lo=0.1,hi=0.95;
-      const b64bytes=d=>Math.round(d.split(',')[1].length*0.75);
-      if(b64bytes(data)>maxKB*1024){
-        for(let i=0;i<9;i++){const mid=(lo+hi)/2;data=off.toDataURL('image/jpeg',mid);if(b64bytes(data)<=maxKB*1024)lo=mid;else hi=mid;}
-        data=off.toDataURL('image/jpeg',lo);
+      // BG
+      if(S.bgColor==='transparent'){
+        octx.clearRect(0,0,oW,oH);
+      } else {
+        octx.fillStyle=S.bgColor; octx.fillRect(0,0,oW,oH);
       }
-      S.resultDataUrl=data;
-    } else {
-      S.resultDataUrl=off.toDataURL('image/jpeg',.95);
-    }
 
-    const fileSizeKB = Math.round(S.resultDataUrl.split(',')[1].length * 0.75 / 1024);
-    document.getElementById('resultPrev').src=S.resultDataUrl;
-    document.getElementById('infoTbl').innerHTML=`
-      <tr><td>规格</td><td>${S.preset.name}</td></tr>
-      <tr><td>尺寸</td><td>${pw}×${ph} mm</td></tr>
-      <tr><td>像素</td><td>${oW}×${oH} px</td></tr>
-      <tr><td>分辨率</td><td>${dpi} dpi</td></tr>
-      <tr><td>文件大小</td><td>${fileSizeKB} KB</td></tr>
-      <tr><td>背景</td><td>${S.bgColor==='transparent'?'透明':S.bgColor.toUpperCase()}</td></tr>
-      <tr><td>抠图</td><td>${S.useNoBg?'✓ AI 抠图':'原图背景'}</td></tr>`;
-    document.getElementById('prevBox').classList.add('show');
-    document.getElementById('printBox').classList.add('show');
-    document.getElementById('dlBox').classList.add('show');
-    updatePrint(); setLdr(false); toast('✓ 证件照已生成');
-  },30);
+      const cv=document.getElementById('editCanvas');
+      const CW=cv.width,CH=cv.height, asp=pw/ph;
+      let fw=CW,fh=CW/asp; if(fh>CH){fh=CH;fw=CH*asp;}
+      const ox=(CW-fw)/2,oy=(CH-fh)/2;
+      const sc=oW/fw;
+
+      octx.save();
+      const imgCX=(S.tx-ox)*sc+src.width*S.scale*sc/2, imgCY=(S.ty-oy)*sc+src.height*S.scale*sc/2;
+      const targetW = src.width*S.scale*sc, targetH = src.height*S.scale*sc;
+      octx.translate(imgCX,imgCY); octx.rotate(S.rotate*Math.PI/180);
+      octx.filter=getFilter();
+      octx.drawImage(src,-targetW/2,-targetH/2,targetW,targetH);
+      octx.filter='none';
+
+      // Render Sticker in high-res
+      if (S.sticker && STICKER_IMGS[S.sticker]) {
+        const sImg = STICKER_IMGS[S.sticker];
+        const sw = targetW * 1.1; 
+        const sh = sw * (sImg.height / sImg.width);
+        const sy = targetH * 0.3 + (S.stickerY * sc); 
+        octx.drawImage(sImg, -sw/2, sy, sw, sh);
+      }
+      octx.restore();
+
+      const format = document.getElementById('fmtPng').checked ? 'image/png' : 'image/jpeg';
+      const maxKB=parseInt(document.getElementById('maxKB').value)||0;
+      
+      let finalData = '';
+      if(maxKB > 0 && format === 'image/jpeg') {
+        let q=0.95, data=off.toDataURL(format, q);
+        let lo=0.1, hi=0.95;
+        const getSz=d=>Math.round((d.split(',')[1]||'').length*0.75);
+        if(getSz(data) > maxKB*1024) {
+          for(let i=0; i<9; i++) {
+            const mid=(lo+hi)/2; data=off.toDataURL(format, mid);
+            if(getSz(data)<=maxKB*1024) lo=mid; else hi=mid;
+          }
+          data=off.toDataURL(format, lo);
+        }
+        finalData = data;
+      } else {
+        finalData = off.toDataURL(format, 0.95);
+      }
+
+      S.resultDataUrl = finalData;
+      const fileSizeKB = Math.round((S.resultDataUrl.split(',')[1]||'').length * 0.75 / 1024);
+      const bgDisplay = S.bgColor === 'transparent' ? '透明' : (S.bgColor || '#FFFFFF').toUpperCase();
+      
+      document.getElementById('resultPrev').src = S.resultDataUrl;
+      document.getElementById('infoTbl').innerHTML = `
+        <tr><td>规格</td><td>${S.preset.name}</td></tr>
+        <tr><td>尺寸</td><td>${pw}×${ph} mm</td></tr>
+        <tr><td>像素</td><td>${oW}×${oH} px</td></tr>
+        <tr><td>分辨率</td><td>${dpi} dpi</td></tr>
+        <tr><td>文件大小</td><td>${fileSizeKB} KB</td></tr>
+        <tr><td>背景</td><td>${bgDisplay}</td></tr>
+        <tr><td>抠图</td><td>${S.useNoBg?'✓ AI 抠图':'原图背景'}</td></tr>`;
+      
+      document.getElementById('prevBox').classList.add('show');
+      document.getElementById('printBox').classList.add('show');
+      document.getElementById('dlBox').classList.add('show');
+      updatePrint();
+      toast('✓ 证件照已生成');
+    } catch(e) {
+      console.error(e);
+      toast('生成失败: ' + e.message);
+    } finally {
+      setLdr(false);
+    }
+  }, 100);
 }
 
 // Smart default print layout based on photo size vs 6-inch paper (152x101mm)
