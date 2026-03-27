@@ -207,6 +207,36 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 .fs-row { display: flex; align-items: center; gap: 6px; width: 100%; font-size: 11px; color: var(--ink2); }
 .fs-inp { width: 64px; background: white; border: 1px solid var(--bg2); border-radius: 5px; padding: 4px 6px; font-size: 12px; font-family: 'DM Mono', monospace; text-align: center; color: var(--ink); outline: none; }
 .fs-inp:focus { border-color: var(--gold); }
+
+/* COLLAPSIBLE AI BOX */
+.api-box-toggle { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+.api-box-toggle .api-title { margin-bottom: 0; }
+.api-box-body { margin-top: 8px; }
+.api-box-chevron { font-size: 10px; color: var(--blue); transition: transform .2s; }
+.api-box-chevron.open { transform: rotate(180deg); }
+
+/* PRIVACY MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(26,25,22,0.55); z-index: 200; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+.modal-overlay.hidden { display: none; }
+.modal-box { background: white; border-radius: 14px; padding: 28px 24px; max-width: 420px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+.modal-box h2 { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--ink); }
+.modal-box p { font-size: 12px; color: var(--ink2); line-height: 1.7; margin-bottom: 10px; }
+.modal-box .modal-btns { display: flex; gap: 8px; margin-top: 18px; }
+.modal-box .modal-btns button { flex: 1; padding: 9px; border-radius: 7px; font-size: 13px; font-family: 'Noto Sans SC', sans-serif; cursor: pointer; border: 1.5px solid transparent; transition: all .14s; }
+.modal-accept { background: var(--ink); color: white; border-color: var(--ink) !important; }
+.modal-accept:hover { background: #333; }
+.modal-decline { background: transparent; color: var(--ink2); border-color: var(--bg2) !important; }
+.modal-decline:hover { border-color: var(--ink) !important; }
+
+/* RESPONSIVE */
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+  .panel { border-right: none; border-bottom: 1px solid var(--bg2); }
+  .panel-r { border-left: none; border-top: 1px solid var(--bg2); }
+  .center { padding: 16px 12px; }
+  #editCanvas { width: 100% !important; height: auto !important; }
+  .drop-zone { aspect-ratio: 3/2; }
+}
 </style>
 </head>
 <body>
@@ -225,19 +255,27 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
     <div class="sect">
       <div class="sect-lbl">AI 抠图</div>
       <div class="api-box">
-        <div class="api-title">🔑 remove.bg API Key</div>
-        <p>免费账号每月可处理 50 张，无需付费。<br>没有 Key？直接跳过也可手动换背景色。</p>
-        <a href="https://www.remove.bg/zh/api" target="_blank">→ 免费注册获取 Key</a>
-        <input class="api-inp" type="password" id="apiInp" placeholder="粘贴你的 API Key...">
-        <button class="api-save" onclick="saveKey()">保存</button>
-        <div class="api-st" id="apiSt"></div>
+        <div class="api-box-toggle" onclick="toggleApiBox()">
+          <div class="api-title">🔑 remove.bg API Key</div>
+          <span class="api-box-chevron" id="apiChevron">▼</span>
+        </div>
+        <div class="api-box-body" id="apiBoxBody">
+          <p style="margin-top:8px">免费账号每月可处理 50 张，无需付费。<br>没有 Key？直接跳过也可手动换背景色。</p>
+          <a href="https://www.remove.bg/zh/api" target="_blank">→ 免费注册获取 Key</a>
+          <input class="api-inp" type="password" id="apiInp" placeholder="粘贴你的 API Key...">
+          <button class="api-save" onclick="saveKey()">保存</button>
+          <div class="api-st" id="apiSt"></div>
+        </div>
       </div>
     </div>
 
     <div class="sect">
       <div class="sect-lbl">证件照规格</div>
       <div class="preset-list" id="presetList"></div>
-      <div style="margin-top:10px">
+      <div style="margin-top:8px">
+        <a href="https://cs.mfa.gov.cn/zggmcg/lqbz/电子护照/" target="_blank" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--blue);text-decoration:none;display:block;margin-bottom:6px">🔗 查看中国外交领事服务网官方要求</a>
+      </div>
+      <div style="margin-top:4px">
         <div class="sect-lbl">自定义尺寸 (mm)</div>
         <div class="cs-row">
           <input class="cs-inp" type="number" id="csW" value="35" min="10" max="200">
@@ -389,6 +427,7 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
         </div>
         <button class="btn btn-dark" style="width:100%" onclick="dlSingle()">⬇ 下载单张 JPG</button>
         <button class="btn btn-ghost" style="width:100%" onclick="dlPrint()">⬇ 下载排版图</button>
+        <button class="btn btn-ghost" style="width:100%" onclick="copyToClipboard()">📋 复制图片</button>
       </div>
     </div>
 
@@ -396,6 +435,20 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- 隐私声明弹窗 -->
+<div class="modal-overlay hidden" id="privacyModal">
+  <div class="modal-box">
+    <h2>🔒 关于隐私与免责</h2>
+    <p>您选择的照片将在<strong>浏览器本地</strong>处理，不上传到任何服务器。</p>
+    <p>作为用户，您有责任自行核对生成的证件照是否符合相关官方最新要求，本程序作者不对使用结果承担任何责任。</p>
+    <p style="color:var(--ink3);font-size:11px">网站仅收集匹名访问数据（Google Analytics），您的照片不会被收集。</p>
+    <div class="modal-btns">
+      <button class="modal-decline" onclick="location.href='https://www.google.com'">[不同意，离开]</button>
+      <button class="modal-accept" onclick="acceptPrivacy()">同意并继续</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // ═══ DATA ═══
@@ -427,6 +480,8 @@ const GUIDE_SPECS = {
   au_visa: { topForbidden:3,   topTarget:5,   chinMin:7, chinMax:13, chinForbidden:7, faceMin:15, faceMax:24, headMin:29, headMax:34 },
   eu_visa: { topForbidden:3,   topTarget:5,   chinMin:7, chinMax:13, chinForbidden:7, faceMin:15, faceMax:24, headMin:29, headMax:34 },
   jp_visa: { topForbidden:3,   topTarget:5,   chinMin:6, chinMax:12, chinForbidden:6, faceMin:18, faceMax:28, headMin:28, headMax:36 },
+  cn_id:   { topForbidden:2,   topTarget:4,   chinMin:5, chinMax:10, chinForbidden:5, faceMin:12, faceMax:18, headMin:20, headMax:26 },
+  cn_drv:  { topForbidden:2,   topTarget:4,   chinMin:5, chinMax:10, chinForbidden:5, faceMin:10, faceMax:16, headMin:18, headMax:24 },
 };
 const BG_COLORS = [
   { hex:'#FFFFFF', lbl:'白色' },
@@ -536,6 +591,8 @@ function init() {
     if (e.key==='ArrowDown')  { e.preventDefault(); adjMove(0,  step); }
     if (e.key==='+' || e.key==='=') { e.preventDefault(); adjScale(1); }
     if (e.key==='-')          { e.preventDefault(); adjScale(-1); }
+    if (e.key===',' || e.key==='<') { e.preventDefault(); adjRotate(-1); }
+    if (e.key==='.' || e.key==='>') { e.preventDefault(); adjRotate(1); }
   });
 
   // Drop zone
@@ -554,6 +611,29 @@ function saveKey() {
 function showApiSt(msg, color) {
   const el = document.getElementById('apiSt'); el.textContent=msg; el.style.color=color;
 }
+function toggleApiBox() {
+  const body = document.getElementById('apiBoxBody');
+  const chev = document.getElementById('apiChevron');
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : '';
+  chev.classList.toggle('open', !isOpen);
+}
+function acceptPrivacy() {
+  localStorage.setItem('privacyOk', '1');
+  document.getElementById('privacyModal').classList.add('hidden');
+  if (S._pendingFile) { const f = S._pendingFile; S._pendingFile = null; loadFile(f); }
+}
+async function copyToClipboard() {
+  if (!S.resultDataUrl) return;
+  try {
+    const res = await fetch(S.resultDataUrl);
+    const blob = await res.blob();
+    await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+    toast('✓ 已复制到剪贴板');
+  } catch(e) {
+    toast('复制失败，请手动右键另存图片');
+  }
+}
 
 // ═══ STEPS ═══
 function setStep(n) {
@@ -567,6 +647,13 @@ function setStep(n) {
 function triggerUp() { document.getElementById('fi').value=''; document.getElementById('fi').click(); }
 function onFile(inp) { if(inp.files[0]) loadFile(inp.files[0]); }
 function loadFile(file) {
+  if (file.size > 15 * 1024 * 1024) { toast('⚠️ 图片过大（>' + Math.round(file.size/1024/1024) + 'MB），建议压缩后再使用'); }
+  if (!localStorage.getItem('privacyOk')) {
+    // Store file for after consent
+    S._pendingFile = file;
+    document.getElementById('privacyModal').classList.remove('hidden');
+    return;
+  }
   const reader = new FileReader();
   reader.onload = e => {
     const img = new Image();
