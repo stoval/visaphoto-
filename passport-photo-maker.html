@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>证件照制作</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a1916">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
 
@@ -292,6 +296,10 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
         <span>显示参考线</span>
         <label class="toggle"><input type="checkbox" id="guideChk" checked onchange="S.showGuides=this.checked;drawEdit()"><div class="t-tr"></div></label>
       </div>
+      <div class="tog-row">
+        <span>显示对齐剪影 (Beta)</span>
+        <label class="toggle"><input type="checkbox" id="silChk" onchange="S.showSil=this.checked;drawEdit()"><div class="t-tr"></div></label>
+      </div>
       <div class="guide-legend" id="guideLegend">
         <div class="gl-item"><div class="gl-dot" style="background:rgba(200,50,40,0.35)"></div>禁区（头顶/下巴不得进入红色区）</div>
         <div class="gl-item"><div class="gl-dot" style="background:rgba(200,160,20,0.4)"></div>头顶目标区（距上边 3–5mm）</div>
@@ -502,7 +510,7 @@ const S = {
   noBgImg: null,
   useNoBg: false,
   tx:0, ty:0, scale:1, rotate:0,
-  showGuides: true,
+  showGuides: true, showSil: false,
   dragging:false, dx0:0, dy0:0, tx0:0, ty0:0,
   pinchDist:0, pinchScale:1,
   resultDataUrl: null,
@@ -554,8 +562,22 @@ function init() {
 
   // API key
   if (S.apiKey) { document.getElementById('apiInp').value=S.apiKey; showApiSt('✓ 已保存', '#2a7a4e'); }
+  else { 
+    // Wait for DOM then collapse if no key
+    setTimeout(() => {
+      const body = document.getElementById('apiBoxBody');
+      if (body && body.style.display !== 'none') toggleApiBox(); 
+    }, 100);
+  }
 
-  // Canvas
+  // PWA registration
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW register failed:', err));
+    });
+  }
+
+  // UI interaction for Canvas
   const cv = document.getElementById('editCanvas');
   cv.addEventListener('mousedown', onDs);
   window.addEventListener('mousemove', onDm);
@@ -602,6 +624,21 @@ function init() {
   dz.addEventListener('drop', e=>{e.preventDefault();dz.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)loadFile(f);});
 }
 
+function downscaleIfNeeded(img, maxDim) {
+  return new Promise(res => {
+    if (img.width <= maxDim && img.height <= maxDim) return res(img);
+    const scale = Math.min(maxDim / img.width, maxDim / img.height);
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width * scale;
+    canvas.height = img.height * scale;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const newImg = new Image();
+    newImg.onload = () => res(newImg);
+    newImg.src = canvas.toDataURL('image/jpeg', 0.9);
+  });
+}
+
 // ═══ API KEY ═══
 function saveKey() {
   S.apiKey = document.getElementById('apiInp').value.trim();
@@ -635,6 +672,9 @@ async function copyToClipboard() {
   }
 }
 
+function triggerUp() { document.getElementById('fi').value=''; document.getElementById('fi').click(); }
+function onFile(inp) { if(inp.files[0]) loadFile(inp.files[0]); }
+
 // ═══ STEPS ═══
 function setStep(n) {
   for(let i=1;i<=4;i++){
@@ -644,12 +684,9 @@ function setStep(n) {
 }
 
 // ═══ FILE LOAD ═══
-function triggerUp() { document.getElementById('fi').value=''; document.getElementById('fi').click(); }
-function onFile(inp) { if(inp.files[0]) loadFile(inp.files[0]); }
 function loadFile(file) {
-  if (file.size > 15 * 1024 * 1024) { toast('⚠️ 图片过大（>' + Math.round(file.size/1024/1024) + 'MB），建议压缩后再使用'); }
+  if (file.size > 15 * 1024 * 1024) { toast('⚠️ 图片过大（>' + Math.round(file.size/1024/1024) + 'MB），自动降采样处理...'); }
   if (!localStorage.getItem('privacyOk')) {
-    // Store file for after consent
     S._pendingFile = file;
     document.getElementById('privacyModal').classList.remove('hidden');
     return;
@@ -657,17 +694,18 @@ function loadFile(file) {
   const reader = new FileReader();
   reader.onload = e => {
     const img = new Image();
-    img.onload = () => {
-      S.origImg=img; S.noBgImg=null; S.useNoBg=false; S.resultDataUrl=null;
-      resetPos(img);
+    img.onload = async () => {
+      const processedImg = await downscaleIfNeeded(img, 4096);
+      S.origImg=processedImg; S.noBgImg=null; S.useNoBg=false; S.resultDataUrl=null;
+      resetPos(processedImg);
       document.getElementById('dz').style.display='none';
       document.getElementById('stage').classList.add('show');
       document.getElementById('btnRst').disabled=false;
       document.getElementById('btnRmBg').disabled=false;
       document.getElementById('btnGen').disabled=false;
-      document.getElementById('btnToggle').style.display='none'; // hide until removebg done
+      document.getElementById('btnToggle').style.display='none';
       document.getElementById('emptyMsg').style.display='none';
-      setStep(3); // removebg is optional; user can go straight to adjust
+      setStep(3);
     };
     img.src = e.target.result;
   };
@@ -779,6 +817,7 @@ function drawEdit() {
 
   // Guide overlay
   if (S.showGuides) drawGuides(ctx, ox, oy, fw, fh);
+  if (S.showSil) drawSilhouette(ctx, ox, oy, fw, fh);
 
   // Frame
   ctx.strokeStyle='#b8882a'; ctx.lineWidth=1.5;
@@ -848,6 +887,34 @@ function drawGuides(ctx, ox, oy, fw, fh) {
     ctx.fillStyle='rgba(180,130,10,0.85)';
     ctx.fillText('HH',ox+fw/2,oy+10);
   }
+  ctx.restore();
+}
+
+function drawSilhouette(ctx, ox, oy, fw, fh) {
+  const pw=S.preset.w, ph=S.preset.h;
+  const mX=mm=>fw*mm/pw, mY=mm=>fh*mm/ph;
+  
+  ctx.save();
+  ctx.beginPath(); ctx.rect(ox,oy,fw,fh); ctx.clip();
+  ctx.strokeStyle='rgba(30,78,140,0.5)';
+  ctx.lineWidth=2;
+  
+  // Outer head oval (approx 70-80% height)
+  const headW=mX(pw*0.65), headH=mY(ph*0.7);
+  const cx=ox+fw/2, cy=oy+mY(5 + ph*0.35); // top margin approx 5mm
+  
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, headW/2, headH/2, 0, 0, Math.PI*2);
+  ctx.stroke();
+  
+  // Eye line
+  ctx.lineWidth=1;
+  ctx.setLineDash([5,5]);
+  ctx.beginPath(); ctx.moveTo(ox, cy); ctx.lineTo(ox+fw, cy); ctx.stroke();
+  
+  // Chin indicator
+  ctx.beginPath(); ctx.arc(cx, oy+mY(ph-10), 5, 0, Math.PI, true); ctx.stroke();
+  
   ctx.restore();
 }
 
