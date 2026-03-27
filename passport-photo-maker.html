@@ -27,7 +27,19 @@
   --shadow: 0 2px 12px rgba(26,25,22,0.08);
   --shadow-lg: 0 8px 32px rgba(26,25,22,0.14);
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
+[data-theme="dark"] {
+  --bg0: #1a1916;
+  --bg1: #252420;
+  --bg2: #3a3832;
+  --ink: #f5f3ef;
+  --ink2: #c5c3bd;
+  --ink3: #8a8880;
+  --blue: #4a86cf;
+  --blue-l: #1e2a3a;
+  --shadow: 0 2px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; }
 body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: var(--ink); min-height: 100vh; font-size: 14px; }
 
 /* HEADER */
@@ -38,7 +50,9 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 }
 .header-icon { width: 26px; height: 26px; border: 1.5px solid var(--gold); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
 .header h1 { font-size: 15px; font-weight: 700; letter-spacing: 0.08em; }
-.header-sub { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--ink3); margin-left: auto; }
+.theme-tog { margin-left: auto; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; background: var(--bg2); color: var(--ink); border: none; font-size: 14px; transition: transform 0.2s; }
+.theme-tog:hover { transform: scale(1.1); }
+.header-sub { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--ink3); margin-left: 12px; }
 
 /* LAYOUT */
 .layout { display: grid; grid-template-columns: 252px 1fr 268px; min-height: calc(100vh - 50px); }
@@ -103,20 +117,23 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 
 /* RANGE */
 .rng-row { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
-.rng-row label { font-size: 11px; color: var(--ink2); display: flex; justify-content: space-between; }
-.rng-row label span { font-family: 'DM Mono', monospace; color: var(--gold); }
+.rng-row label { font-size: 11px; color: var(--ink2); display: flex; justify-content: space-between; cursor: pointer; user-select: none; }
+.rng-row label:hover { color: var(--gold); }
+.rng-row label span { font-family: 'DM Mono', monospace; color: var(--gold); pointer-events: none; }
 .rng-row input[type=range] { width: 100%; accent-color: var(--gold); }
 
 /* CENTER */
 .center { padding: 28px 20px; display: flex; flex-direction: column; align-items: center; gap: 18px; background: var(--bg0); }
 
 /* STEPS BAR */
-.steps-bar { display: flex; align-self: stretch; border-radius: 8px; overflow: hidden; border: 1px solid var(--bg2); }
-.step-item { flex: 1; padding: 9px 4px; text-align: center; font-size: 10px; color: var(--ink3); background: var(--bg1); border-right: 1px solid var(--bg2); }
+.steps-bar { display: flex; align-self: stretch; border-radius: 10px; overflow: hidden; border: 1px solid var(--bg2); box-shadow: var(--shadow); background: var(--bg1); }
+.step-item { flex: 1; padding: 12px 4px; text-align: center; font-size: 11px; color: var(--ink3); border-right: 1px solid var(--bg2); position: relative; transition: all 0.3s; }
 .step-item:last-child { border-right: none; }
-.step-item.done { color: var(--green); background: #eaf4ee; }
-.step-item.active { color: var(--blue); background: var(--blue-l); font-weight: 700; }
-.step-n { display: block; font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+.step-item.done { color: var(--green); background: rgba(42, 122, 78, 0.05); }
+.step-item.active { color: var(--gold); background: var(--bg0); font-weight: 700; }
+.step-item.active::after { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; background: var(--gold); }
+.step-n { display: block; font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 700; margin-bottom: 2px; opacity: 0.6; }
+.step-item.active .step-n { opacity: 1; }
 
 /* DROP ZONE */
 .drop-zone {
@@ -134,18 +151,19 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 /* STAGE */
 .stage { display: none; flex-direction: column; align-items: center; gap: 14px; width: 100%; max-width: 470px; }
 .stage.show { display: flex; }
-.canvas-frame { position: relative; background-image: repeating-conic-gradient(#ccc 0% 25%, #eee 0% 50%); background-size: 13px 13px; border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-lg); cursor: move; }
+.canvas-frame { position: relative; background-image: repeating-conic-gradient(#ccc 0% 25%, #eee 0% 50%); background-size: 13px 13px; border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-lg); cursor: move; border: 1px solid var(--bg2); }
+.canvas-frame::after { content:''; position:absolute; inset:0; pointer-events:none; border-radius:8px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); }
 #editCanvas { display: block; }
 .canvas-hint { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--ink3); text-align: center; }
 
 /* BUTTONS */
 .btn-row { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; }
-.btn { padding: 8px 17px; border-radius: 6px; font-size: 12px; font-family: 'Noto Sans SC', sans-serif; font-weight: 500; cursor: pointer; border: 1.5px solid transparent; transition: all .14s; display: flex; align-items: center; gap: 5px; }
+.btn { padding: 8px 17px; border-radius: 6px; font-size: 12px; font-family: 'Noto Sans SC', sans-serif; font-weight: 500; cursor: pointer; border: 1.5px solid transparent; transition: all .16s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 5px; }
+.btn:active { transform: scale(0.96); }
 .btn-dark { background: var(--ink); color: var(--bg0); border-color: var(--ink); }
-.btn-dark:hover { background: #333; }
-.btn-dark:disabled { opacity: .4; cursor: not-allowed; }
+.btn-dark:hover { background: #333; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
 .btn-gold { background: var(--gold); color: white; border-color: var(--gold); }
-.btn-gold:hover { background: var(--gold-l); }
+.btn-gold:hover { background: var(--gold-l); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(184,136,42,0.3); }
 .btn-gold:disabled { opacity: .4; cursor: not-allowed; }
 .btn-ghost { background: transparent; color: var(--ink); border-color: var(--bg2); }
 .btn-ghost:hover { border-color: var(--ink); }
@@ -158,9 +176,10 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* RIGHT */
-.rbox { background: white; border-radius: 9px; border: 1px solid var(--bg2); overflow: hidden; display: none; margin-bottom: 10px; }
-.rbox.show { display: block; }
-.rbox-hd { padding: 9px 13px; font-size: 10px; font-family: 'DM Mono', monospace; font-weight: 500; color: var(--ink2); background: var(--bg1); border-bottom: 1px solid var(--bg2); letter-spacing: .06em; text-transform: uppercase; }
+.rbox { background: var(--bg0); border-radius: 9px; border: 1px solid var(--bg2); overflow: hidden; display: none; margin-bottom: 12px; box-shadow: var(--shadow); opacity: 0; transform: translateY(10px); }
+.rbox.show { display: block; animation: rboxIn 0.5s forwards cubic-bezier(0.23, 1, 0.32, 1); }
+@keyframes rboxIn { to { opacity: 1; transform: translateY(0); } }
+.rbox-hd { padding: 10px 14px; font-size: 11px; font-family: 'DM Mono', monospace; font-weight: 600; color: var(--gold); background: var(--bg1); border-bottom: 1px solid var(--bg2); letter-spacing: .08em; text-transform: uppercase; }
 .rbox-bd { padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 9px; }
 #resultPrev { max-width: 170px; max-height: 190px; border-radius: 3px; box-shadow: var(--shadow); }
 
@@ -248,6 +267,7 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 <header class="header">
   <div class="header-icon">📷</div>
   <h1>证件照制作</h1>
+  <button class="theme-tog" id="themeTog" title="切换主题">🌓</button>
   <span class="header-sub">本地运行 · 不上传隐私数据</span>
 </header>
 
@@ -319,15 +339,15 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
     <div class="sect">
       <div class="sect-lbl">图像调整</div>
       <div class="rng-row">
-        <label>亮度 <span id="vB">100</span>%</label>
+        <label onclick="resetVal('B')">亮度 <span id="vB">100</span>%</label>
         <input type="range" id="rB" min="50" max="200" value="100" oninput="onAdj()">
       </div>
       <div class="rng-row">
-        <label>对比度 <span id="vC">100</span>%</label>
+        <label onclick="resetVal('C')">对比度 <span id="vC">100</span>%</label>
         <input type="range" id="rC" min="50" max="200" value="100" oninput="onAdj()">
       </div>
       <div class="rng-row">
-        <label>饱和度 <span id="vS">100</span>%</label>
+        <label onclick="resetVal('S')">饱和度 <span id="vS">100</span>%</label>
         <input type="range" id="rS" min="0" max="200" value="100" oninput="onAdj()">
       </div>
       <button class="btn btn-ghost" style="width:100%;font-size:12px;margin-top:2px" onclick="resetAdj()">↺ 重置调整</button>
@@ -557,9 +577,13 @@ function init() {
   ci.oninput = e => { S.bgColor=e.target.value; document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active')); csw.classList.add('active'); drawEdit(); if(S.resultDataUrl) generate(); };
   csw.appendChild(ci); strip.appendChild(csw);
 
-  // Init guide legend for default preset
   updateGuideLegend(GUIDE_SPECS[PRESETS[0].id], PRESETS[0]);
   smartPrintDefaults(PRESETS[0]);
+
+  // Theme
+  const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  document.getElementById('themeTog').onclick = toggleTheme;
 
   // API key
   if (S.apiKey) { document.getElementById('apiInp').value=S.apiKey; showApiSt('✓ 已保存', '#2a7a4e'); }
@@ -671,6 +695,22 @@ async function copyToClipboard() {
   } catch(e) {
     toast('复制失败，请手动右键另存图片');
   }
+}
+
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+}
+
+function resetVal(type) {
+  const idMap = { 'B': 'rB', 'C': 'rC', 'S': 'rS' };
+  const input = document.getElementById(idMap[type]);
+  if (!input) return;
+  input.value = 100;
+  onAdj();
+  toast(`已重置${type==='B'?'亮度':type==='C'?'对比度':'饱和度'}`);
 }
 
 function triggerUp() { document.getElementById('fi').value=''; document.getElementById('fi').click(); }
