@@ -15,37 +15,55 @@
 /* RESPONSIVE HELPERS */
 .mobile-only { display: none !important; }
 .desktop-only { display: block; }
-.hidden-mobile { display: block; }
 
 @media (max-width: 768px) {
   .desktop-only { display: none !important; }
   .mobile-only { display: block !important; }
-  .hidden-mobile { display: none !important; }
+  .btn-row, .header, .steps-bar { display: none !important; } /* 彻底隐藏冗余容器 */
   
   body { flex-direction: column !important; overflow-x: hidden; }
   .panel-l, .panel-r { display: none !important; }
-  .center { padding: 60px 10px 20px 10px !important; width: 100% !important; }
-  
+
   .mobile-toolbar {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-    padding: 8px 12px;
-    background: rgba(11, 16, 32, 0.85);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: calc(6px + env(safe-area-inset-top)) 10px 10px;
+    background: rgba(15,23,42,0.92);
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(255,255,255,0.1);
-    display: flex; flex-direction: column; gap: 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
-  .m-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .m-ctl { 
-    height: 42px; border-radius: 8px; background: #1a1e2e; color: #fff; 
-    border: 1px solid rgba(255,255,255,0.15); font-size: 13px; padding: 0 8px; outline: none;
+
+  .mobile-toolbar .m-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
   }
-  .m-btn {
-    height: 42px; border: none; border-radius: 8px; font-weight: 600; font-size: 13px;
-    display: flex; align-items: center; justify-content: center; gap: 4px; color: white;
+
+  .mobile-toolbar .m-row.row-main {
+    grid-template-columns: 1fr 1fr 1.5fr;
   }
-  .m-btn-p { background: var(--blue); }
-  .m-btn-g { background: var(--gold); }
+
+  .mobile-toolbar .m-ctl { 
+    min-height: 42px; 
+    border-radius: 10px; 
+    font-size: 13px; 
+    line-height: normal;
+    background: #1a1e2e;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 0 8px;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .center { padding: 12px !important; }
+  .drop-zone { aspect-ratio: 1/1.2; }
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
@@ -305,6 +323,12 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 
 <!-- MOBILE TOOLBAR (Sticky Top) -->
 <div class="mobile-toolbar mobile-only">
+  <!-- Row 1: Spec & Cutout -->
+  <div class="m-row">
+    <select id="mPreset" class="m-ctl"></select>
+    <button class="btn btn-dark m-ctl" id="mBtnRmBg" onclick="doRemoveBg()">✦ AI 抠图</button>
+  </div>
+  <!-- Row 2: BG & Format -->
   <div class="m-row">
     <select id="mBg" class="m-ctl"></select>
     <select id="mFmt" class="m-ctl">
@@ -312,7 +336,12 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
       <option value="png">输出 PNG</option>
     </select>
   </div>
-  <button class="m-btn m-btn-g" id="mBtnExport" onclick="generate(true)">✓ 生成并导出 JPG</button>
+  <!-- Row 3: Action & Export -->
+  <div class="m-row row-main">
+    <button class="btn btn-ghost m-ctl" onclick="triggerUp()">↑ 换图</button>
+    <button class="btn btn-ghost m-ctl" onclick="resetPos()">↺ 重置</button>
+    <button class="btn btn-gold m-ctl" id="mBtnExport" onclick="generate(true)">✓ 生成并导出 JPG</button>
+  </div>
 </div>
 
 <header class="header">
@@ -459,8 +488,8 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
         <button class="btn btn-ghost" onclick="triggerUp()">↑ 重新上传</button>
         <button class="btn btn-ghost" id="btnRst" onclick="resetPos()" disabled>重置</button>
         <button class="btn btn-ghost" id="btnToggle" onclick="toggleNoBg()" disabled style="display:none">切换原图</button>
-        <button class="btn btn-dark hidden-mobile" id="btnRmBg" onclick="doRemoveBg()" disabled>✦ AI 抠图</button>
-        <button class="btn btn-gold hidden-mobile" id="btnGen" onclick="generate()" disabled>✓ 生成</button>
+        <button class="btn btn-dark" id="btnRmBg" onclick="doRemoveBg()" disabled>✦ AI 抠图</button>
+        <button class="btn btn-gold" id="btnGen" onclick="generate()" disabled>✓ 生成</button>
       </div>
     </div>
 
