@@ -1288,18 +1288,22 @@ function smartAlign() {
 }
 
 
-// ═══ REMOVE BG (Hybrid: Cloud + Local Fallback) ═══
+// ═══ REMOVE BG (Hybrid: Local-first, Cloud-fallback) ═══
 async function doRemoveBg() {
   if (!S.origImg) { toast('请先上传照片'); return; }
-  const key = S.apiKey || document.getElementById('apiInp').value.trim();
+  
+  // 1) 优先本地抠图
+  const localSuccess = await doLocalRemoveBg();
+  if (localSuccess) return;
 
-  // No API Key: direct to local
+  // 2) 如果本地失败且有 Key，尝试云端兜底
+  const key = S.apiKey || document.getElementById('apiInp').value.trim();
   if (!key) {
-    await doLocalRemoveBg();
-    return;
+    console.warn('Local failed and no API Key for fallback');
+    return; // doLocalRemoveBg 已经发过 toast 了
   }
 
-  setLdr(true, 'AI 抠图中 (remove.bg)...');
+  setLdr(true, '本地失败，正在尝试云端抠图 (remove.bg)...');
   document.getElementById('btnRmBg').disabled=true;
   setStep(2);
 
@@ -1320,21 +1324,20 @@ async function doRemoveBg() {
     const url = URL.createObjectURL(resBlob);
     const img = new Image();
     img.onload = () => {
-      S.noBgImg=img; S.useNoBg=true;
+      S.noBgImg = img; S.useNoBg = true;
       smartAlign(); 
       setStep(3);
       document.getElementById('btnToggle').style.display = 'inline-flex';
       document.getElementById('btnToggle').textContent = '显示原图';
       document.getElementById('clothesSect').style.display = 'block';
-      toast('✓ 抠图成功！');
+      toast('✓ 云端抠图成功！');
       updateOffscreen(); requestDraw(); saveDraft();
     };
     img.onerror = () => { throw new Error('结果图解析失败'); };
     img.src = url;
   } catch(e) {
-    console.warn('Cloud API failed, falling back to local:', e.message);
-    toast('云端失效，正在切换本地抠图...');
-    await doLocalRemoveBg();
+    console.error('Cloud API also failed:', e.message);
+    toast('抠图彻底失败，请检查网络或图片质量');
   } finally {
     setLdr(false);
     document.getElementById('btnRmBg').disabled=false;
@@ -1344,7 +1347,7 @@ async function doRemoveBg() {
 async function doLocalRemoveBg() {
   if (typeof SelfieSegmentation === 'undefined') {
     toast('⚠️ 本地抠图库未加载，请检查网络');
-    return;
+    return false;
   }
   setLdr(true, '本地 AI 离线抠图 (MediaPipe)...');
   setStep(2);
@@ -1353,7 +1356,7 @@ async function doLocalRemoveBg() {
     const selfie = new SelfieSegmentation({
       locateFile: file => `vendor/mediapipe/selfie_segmentation/${file}`
     });
-    selfie.setOptions({ modelSelection: 1 }); // 1 for better precision
+    selfie.setOptions({ modelSelection: 1 });
 
     const result = await new Promise((resolve, reject) => {
       selfie.onResults(resolve);
@@ -1381,9 +1384,11 @@ async function doLocalRemoveBg() {
     document.getElementById('clothesSect').style.display = 'block';
     toast('✓ 本地抠图完成 (离线模式)');
     updateOffscreen(); requestDraw(); saveDraft();
+    return true;
   } catch (e) {
-    console.error('Local segmentation failed:', e);
-    toast('本地抠图也失败了：' + e.message);
+    console.warn('Local segmentation failed:', e);
+    toast('本地抠图失败，尝试切换云端...');
+    return false;
   } finally {
     setLdr(false);
   }
