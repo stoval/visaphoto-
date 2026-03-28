@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#1a1916">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
 
@@ -867,79 +868,120 @@ async function saveDraft() {
 async function restoreDraft() {
   try {
     const db = await openDB();
-    const tx = db.transaction('drafts', 'readonly');
-    const draft = await tx.objectStore('drafts').get('last');
-    if (!draft) return;
-    
-    // Restore metadata
-    S.preset = PRESETS.find(p => p.id === draft.presetId) || PRESETS[0];
-    S.bgColor = draft.bgColor || '#FFFFFF';
-    S.bright = draft.bright ?? 100; 
-    S.contrast = draft.contrast ?? 100; 
-    S.sat = draft.sat ?? 100;
-    S.tx = draft.tx ?? 0; 
-    S.ty = draft.ty ?? 0; 
-    S.scale = draft.scale ?? 1; 
-    S.rotate = draft.rotate ?? 0;
-    S.useNoBg = !!draft.useNoBg;
-    
-    // Restore images
-    S.origImg = await blobToImg(draft.origBlob);
-    if (draft.noBgBlob) S.noBgImg = await blobToImg(draft.noBgBlob);
-    
-    // Update UI
-    document.getElementById('rB').value = S.bright;
-    document.getElementById('rC').value = S.contrast;
-    document.getElementById('rS').value = S.sat;
-    document.getElementById('vB').textContent = S.bright;
-    document.getElementById('vC').textContent = S.contrast;
-    document.getElementById('vS').textContent = S.sat;
+    let draft = null;
 
-    document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelector(`.preset-btn[data-pid="${S.preset.id}"]`)?.classList.add('active');
-    document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
-    document.querySelector(`.swatch[data-hex="${S.bgColor}"]`)?.classList.add('active');
-    if (S.bgColor === 'transparent') document.querySelector('.swatch.checker')?.classList.add('active');
-    if (!BG_COLORS.some(c => c.hex === S.bgColor) && S.bgColor !== 'transparent') {
-      document.querySelector('.swatch.custom-c')?.classList.add('active');
-      document.querySelector('.swatch.custom-c input').value = S.bgColor;
+    // 1) 先尝试 IndexedDB 草稿
+    try {
+      const db = await openDB();
+      draft = await new Promise((resolve, reject) => {
+        const tx = db.transaction('drafts', 'readonly');
+        const store = tx.objectStore('drafts');
+        const req = store.get('last');
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error);
+      });
+    } catch (e) {
+      console.warn('[restoreDraft] IndexedDB unavailable, fallback to localStorage meta', e);
     }
 
-    const rotEl = document.getElementById('rotLbl'); if(rotEl) rotEl.textContent=`${S.rotate}°`;
-
-    updateOffscreen();
-    setStep(3);
-    document.getElementById('dz').style.display='none';
-    document.getElementById('stage').classList.add('show');
-    document.getElementById('btnRst').disabled=false;
-    document.getElementById('btnRmBg').disabled=false;
-    document.getElementById('btnGen').disabled=false;
-    if (S.noBgImg) {
-      document.getElementById('btnToggle').style.display='inline-flex';
-      document.getElementById('btnToggle').textContent = S.useNoBg ? '查看原图' : '查看抠图';
+    // 2) 如果没有 IDB 草稿，尝试 localStorage 元数据
+    if (!draft) {
+      const meta = localStorage.getItem('vpDraftMeta');
+      if (meta) {
+        try {
+          const d = JSON.parse(meta);
+          applyDraftMeta(d);
+          requestDraw();
+        } catch (_) {}
+      }
+      return;
     }
-    document.getElementById('emptyMsg').style.display='none';
-    
-    requestDraw();
-  } catch(e) {
-    console.error("Failed to restore draft:", e);
-    const meta = localStorage.getItem('vpDraftMeta');
-    if (meta) {
+
+    // 3) 先恢复元数据（即使 blob 损坏也不影响）
+    applyDraftMeta(draft);
+
+    // 4) 安全恢复图片 Blob（坏数据直接跳过）
+    let hadCorruptBlob = false;
+
+    if (draft.origBlob && draft.origBlob.size > 0) {
       try {
-        const d = JSON.parse(meta);
-        S.preset = PRESETS.find(p => p.id === d.presetId) || PRESETS[0];
-        S.bgColor = d.bgColor || '#FFFFFF';
-        S.bright = d.bright ?? 100;
-        S.contrast = d.contrast ?? 100;
-        S.sat = d.sat ?? 100;
-        S.tx = d.tx ?? 0;
-        S.ty = d.ty ?? 0;
-        S.scale = d.scale ?? 1;
-        S.rotate = d.rotate ?? 0;
-        S.useNoBg = !!d.useNoBg;
-      } catch (_) {}
+        S.origImg = await blobToImg(draft.origBlob);
+      } catch (e) {
+        hadCorruptBlob = true;
+        S.origImg = null;
+        console.warn('[restoreDraft] origBlob invalid, ignored', e);
+      }
+    } else {
+      S.origImg = null;
     }
+
+    if (draft.noBgBlob && draft.noBgBlob.size > 0) {
+      try {
+        S.noBgImg = await blobToImg(draft.noBgBlob);
+      } catch (e) {
+        hadCorruptBlob = true;
+        S.noBgImg = null;
+        console.warn('[restoreDraft] noBgBlob invalid, ignored', e);
+      }
+    } else {
+      S.noBgImg = null;
+    }
+
+    // useNoBg 只有在 noBgImg 存在时才生效
+    if (!S.noBgImg) S.useNoBg = false;
+
+    // 5) 若草稿 Blob 损坏，清理坏草稿，避免每次启动重复报错
+    if (hadCorruptBlob) {
+      try {
+        const db = await openDB();
+        const tx = db.transaction('drafts', 'readwrite');
+        tx.objectStore('drafts').delete('last');
+      } catch (_) {}
+      toast('检测到旧草稿损坏，已自动清理');
+    }
+
+    // 6) 同步 UI
+    const btnToggle = document.getElementById('btnToggle');
+    if (btnToggle) {
+      if (S.noBgImg) {
+        btnToggle.style.display = 'inline-flex';
+        btnToggle.textContent = S.useNoBg ? '查看原图' : '查看抠图';
+      } else {
+        btnToggle.style.display = 'none';
+      }
+    }
+
+    // 7) 刷新渲染
+    if (S.origImg || S.noBgImg) updateOffscreen();
+    requestDraw();
+  } catch (e) {
+    // 最外层兜底：不中断页面
+    console.error('Failed to restore draft:', e);
+
+    // 回退到 localStorage 元数据
+    try {
+      const meta = localStorage.getItem('vpDraftMeta');
+      if (meta) {
+        applyDraftMeta(JSON.parse(meta));
+      }
+    } catch (_) {}
+
+    requestDraw();
   }
+}
+
+function applyDraftMeta(d) {
+  if (!d) return;
+  S.preset = PRESETS.find(p => p.id === d.presetId) || S.preset || PRESETS[0];
+  S.bgColor = d.bgColor || S.bgColor || '#FFFFFF';
+  S.bright = d.bright ?? S.bright ?? 100;
+  S.contrast = d.contrast ?? S.contrast ?? 100;
+  S.sat = d.sat ?? S.sat ?? 100;
+  S.tx = d.tx ?? S.tx ?? 0;
+  S.ty = d.ty ?? S.ty ?? 0;
+  S.scale = d.scale ?? S.scale ?? 1;
+  S.rotate = d.rotate ?? S.rotate ?? 0;
+  S.useNoBg = !!d.useNoBg;
 }
 
 function openDB() {
@@ -966,11 +1008,17 @@ function imgToBlob(img) {
 
 function blobToImg(blob) {
   return new Promise((resolve, reject) => {
-    if (!blob) return reject(new Error('blobToImg: empty blob'));
+    if (!blob || !blob.size) return reject(new Error('blobToImg: empty blob'));
     const img = new Image();
     const url = URL.createObjectURL(blob);
-    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
-    img.onerror = (err) => { URL.revokeObjectURL(url); reject(err); };
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(img);
+    };
+    img.onerror = (err) => {
+      URL.revokeObjectURL(url);
+      reject(err);
+    };
     img.src = url;
   });
 }
@@ -1281,6 +1329,7 @@ function smartAlign() {
   S.scale = targetH / faceH;
   // Center horizontally
   S.tx = ox + (fw/2) - (minX + faceW/2) * S.scale;
+  const mY = mm => fh * mm / ph;
   // Align top
   S.ty = oy + mY(5) - (minY) * S.scale;
   S.rotate = 0;
@@ -1325,7 +1374,11 @@ async function doRemoveBg() {
     const img = new Image();
     img.onload = () => {
       S.noBgImg = img; S.useNoBg = true;
-      smartAlign(); 
+      try {
+        smartAlign(); 
+      } catch (e) {
+        console.warn('smartAlign failed:', e);
+      }
       setStep(3);
       document.getElementById('btnToggle').style.display = 'inline-flex';
       document.getElementById('btnToggle').textContent = '显示原图';
@@ -1391,7 +1444,11 @@ async function doLocalRemoveBg() {
     S.noBgImg = outImg;
     S.useNoBg = true;
     
-    smartAlign();
+    try {
+      smartAlign();
+    } catch (e) {
+      console.warn('smartAlign failed:', e);
+    }
     setStep(3);
     document.getElementById('btnToggle').style.display = 'inline-flex';
     document.getElementById('btnToggle').textContent = '显示原图';
