@@ -15,10 +15,12 @@
 /* RESPONSIVE HELPERS */
 .mobile-only { display: none !important; }
 .desktop-only { display: block; }
+.hidden-mobile { display: block; }
 
 @media (max-width: 768px) {
   .desktop-only { display: none !important; }
   .mobile-only { display: block !important; }
+  .hidden-mobile { display: none !important; }
   
   body { flex-direction: column !important; overflow-x: hidden; }
   .panel-l, .panel-r { display: none !important; }
@@ -304,18 +306,13 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 <!-- MOBILE TOOLBAR (Sticky Top) -->
 <div class="mobile-toolbar mobile-only">
   <div class="m-row">
-    <select id="mPreset" class="m-ctl"></select>
-    <button class="m-btn m-btn-p" onclick="doRemoveBg()">✦ AI 抠图</button>
-  </div>
-  <div class="m-row">
-    <select id="mBg" class="m-ctl">
-      <option value="#FFFFFF">⬜ 白底</option>
-      <option value="#438EDB">🟦 蓝底</option>
-      <option value="#D93A49">🟥 红底</option>
-      <option value="transparent">🏁 透明</option>
+    <select id="mBg" class="m-ctl"></select>
+    <select id="mFmt" class="m-ctl">
+      <option value="jpg">输出 JPG</option>
+      <option value="png">输出 PNG</option>
     </select>
-    <button class="m-btn m-btn-g" onclick="generate()">✓ 生成导出</button>
   </div>
+  <button class="m-btn m-btn-g" id="mBtnExport" onclick="generate(true)">✓ 生成并导出 JPG</button>
 </div>
 
 <header class="header">
@@ -462,8 +459,8 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
         <button class="btn btn-ghost" onclick="triggerUp()">↑ 重新上传</button>
         <button class="btn btn-ghost" id="btnRst" onclick="resetPos()" disabled>重置</button>
         <button class="btn btn-ghost" id="btnToggle" onclick="toggleNoBg()" disabled style="display:none">切换原图</button>
-        <button class="btn btn-dark" id="btnRmBg" onclick="doRemoveBg()" disabled>✦ AI 抠图</button>
-        <button class="btn btn-gold" id="btnGen" onclick="generate()" disabled>✓ 生成</button>
+        <button class="btn btn-dark hidden-mobile" id="btnRmBg" onclick="doRemoveBg()" disabled>✦ AI 抠图</button>
+        <button class="btn btn-gold hidden-mobile" id="btnGen" onclick="generate()" disabled>✓ 生成</button>
       </div>
     </div>
 
@@ -620,7 +617,8 @@ const S = {
   lastX: 0, lastY: 0,
   lastWheelAt: 0,
   activePointers: new Map(),
-  gesture: { mode: 'none', startDist: 1, startScale: 1, center0: {x:0,y:0}, startTx:0, startTy:0 }
+  gesture: { mode: 'none', startDist: 1, startScale: 1, center0: {x:0,y:0}, startTx:0, startTy:0 },
+  exportFormat: 'jpg'
 };
 const STICKERS = {
   male: `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMTAwIj48cGF0aCBkPSJNMTAwIDMwIEw2MCA1MCBMNTAgMTAwIEwxNTAgMTAwIEwxNDAgNTAgWiIgZmlsbD0iIzEwMTAxMCIvPjxwYXRoIGQ9Ik0xMDAgMzAgTDg1IDQ1IEw4MCA1NSBMMTAwIDc1IEwxMjAgNTUgTDExNSA0NSBaIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTEwMCAzMCBMODAgNjAgTDEwMCAxMDAgTDEyMCA2MCBaIiBmaWxsPSIjMTU0NDkwIi8+PC9zdmc+`,
@@ -748,7 +746,30 @@ function init() {
 
   initMobilePresetSelect();
   initMobileBgSelect();
+  initMobileFormatSelect();
   restoreDraft();
+}
+
+function initMobileFormatSelect() {
+  const sel = document.getElementById('mFmt');
+  if (!sel) return;
+  sel.value = S.exportFormat;
+  sel.addEventListener('change', (e) => {
+    S.exportFormat = e.target.value;
+    document.getElementById('fmtPng').checked = (S.exportFormat === 'png');
+    refreshExportBtnText();
+    saveDraft();
+  });
+  refreshExportBtnText();
+}
+
+function refreshExportBtnText() {
+  const btn = document.getElementById('mBtnExport');
+  if (btn) btn.textContent = `✓ 生成并导出 ${S.exportFormat.toUpperCase()}`;
+}
+
+function isMobile() {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
 function initMobilePresetSelect() {
@@ -1807,6 +1828,11 @@ function generate() {
       document.getElementById('dlBox').classList.add('show');
       updatePrint();
       toast('✓ 证件照已生成');
+      
+      // 移动端一键流：生成后自动启动分享/导出
+      if (arguments[0] === true && isMobile()) {
+        dlSingle();
+      }
     } catch(e) {
       console.error(e);
       toast('生成失败: ' + e.message);
@@ -1853,13 +1879,17 @@ function updatePrint() {
   wrap.appendChild(grid);
 }
 
-// ═══ DOWNLOAD ═══
-function dlSingle() {
+// ═══ DOWNLOAD / EXPORT ═══
+async function dlSingle() {
   if(!S.resultDataUrl) return;
-  const a=document.createElement('a');
-  a.href=S.resultDataUrl; a.download=`证件照_${S.preset.name}_${S.preset.w}x${S.preset.h}mm.jpg`; a.click();
+  const fmt = S.exportFormat || (document.getElementById('fmtPng').checked ? 'png' : 'jpg');
+  const filename = `证件照_${S.preset.name}_${S.preset.w}x${S.preset.h}mm.${fmt}`;
+  
+  const blob = await (await fetch(S.resultDataUrl)).blob();
+  await exportWithShareOrFallback(blob, filename);
 }
-function dlPrint() {
+
+async function dlPrint() {
   if(!S.resultDataUrl) return;
   const cols=+document.getElementById('rCol').value, rows=+document.getElementById('rRow').value;
   const cut=document.getElementById('cutChk').checked;
@@ -1869,17 +1899,61 @@ function dlPrint() {
   const pctx=pc.getContext('2d'); pctx.fillStyle='#fff'; pctx.fillRect(0,0,PW,PH);
   const sx=Math.round((PW-(cols*TW+(cols-1)*GAP))/2), sy=Math.round((PH-(rows*TH+(rows-1)*GAP))/2);
   const pi=new Image();
-  pi.onload=()=>{
+  pi.onload= async ()=>{
     for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
       const x=sx+c*(TW+GAP),y=sy+r*(TH+GAP);
       pctx.drawImage(pi,x,y,TW,TH);
       if(cut){pctx.strokeStyle='#aaa';pctx.lineWidth=4;pctx.strokeRect(x,y,TW,TH);}
     }
-    const a=document.createElement('a'); a.href=pc.toDataURL('image/jpeg',.95);
-    a.download=`证件照排版_${S.preset.name}_${cols}x${rows}.jpg`; a.click();
+    const blob = await new Promise(resolve => pc.toBlob(resolve, 'image/jpeg', 0.95));
+    const filename = `证件照排版_${S.preset.name}_${cols}x${rows}.jpg`;
+    await exportWithShareOrFallback(blob, filename);
   };
   pi.src=S.resultDataUrl;
 }
+
+async function exportWithShareOrFallback(blob, filename) {
+  const file = new File([blob], filename, { type: blob.type });
+
+  // 1) 移动端优先系统分享（可选“保存图片/存储图像”）
+  if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({
+        files: [file],
+        title: '证件照汇出',
+        text: '请在下方选择“存储图像”以保存到手机相册'
+      });
+      return;
+    } catch (e) {
+      if (e.name !== 'AbortError') console.warn('Share failed:', e);
+    }
+  }
+
+  // 2) 降级：普通下载
+  try {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    toast(isMobile() ? '已触发下载，若未见相册请检查“文件/下载”' : '✓ 已开始下载');
+    return;
+  } catch(err) {}
+
+  // 3) 最终兜底：长按保存界面
+  const url = URL.createObjectURL(blob);
+  const w = window.open('');
+  if (w) {
+    w.document.write(`<meta name="viewport" content="width=device-width,initial-scale=1" />
+      <div style="text-align:center;font-family:sans-serif;padding:20px;">
+        <p>浏览器拦截了自动下载</p>
+        <p><strong>请长按下方图片选择“保存到相册”</strong></p>
+        <img src="${url}" style="max-width:100%;height:auto;border:1px solid #ccc;" />
+      </div>`);
+  } else {
+    toast('下载被拦截，请允许弹窗或长按图片保存');
+  }
+}
+
 
 // ═══ MICRO-ADJUST ═══
 function adjScale(d){ 
