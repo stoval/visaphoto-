@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>证件照制作</title>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
+<script src="vendor/mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1a1916">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1351,7 +1351,7 @@ async function doLocalRemoveBg() {
 
   try {
     const selfie = new SelfieSegmentation({
-      locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
+      locateFile: file => `vendor/mediapipe/selfie_segmentation/${file}`
     });
     selfie.setOptions({ modelSelection: 1 }); // 1 for better precision
 
