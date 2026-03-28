@@ -1,0 +1,104 @@
+*** Begin Patch
+*** Update File: passport-photo-maker.html
+@@
+-#editCanvas { display: block; }
++#editCanvas { display: block; touch-action: none; }
+@@
+-async function copyToClipboard() {
+-  if (!S.resultDataUrl) return;
+-  try {
+-    const res = await fetch(S.resultDataUrl);
+-    const blob = await res.blob();
+-    await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+-    toast('✓ 已复制到剪贴板');
+-  } catch(e) {
+-    toast('复制失败，请手动右键另存图片');
+-  }
+-}
++async function copyToClipboard() {
++  if (!S.resultDataUrl) return;
++  try {
++    const res = await fetch(S.resultDataUrl);
++    const blob = await res.blob();
++    const type = blob.type || 'image/png';
++    await navigator.clipboard.write([new ClipboardItem({ [type]: blob })]);
++    toast('✓ 已复制到剪贴板');
++  } catch(e) {
++    toast('复制失败，请手动右键另存图片');
++  }
++}
+@@
+-  cv.addEventListener('touchstart', e => {
+-    if (e.touches.length === 2) {
+-      S.pinchDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+-      S.pinchScale = S.scale;
+-    } else {
+-      const t=e.touches[0]; onDs({clientX:t.clientX,clientY:t.clientY});
+-    }
+-  }, {passive:true});
++  cv.addEventListener('touchstart', e => {
++    if (e.touches.length === 2) {
++      e.preventDefault();
++      S.pinchDist = Math.hypot(
++        e.touches[0].clientX - e.touches[1].clientX,
++        e.touches[0].clientY - e.touches[1].clientY
++      );
++      S.pinchScale = S.scale;
++    } else {
++      e.preventDefault();
++      const t = e.touches[0];
++      onDs({ clientX: t.clientX, clientY: t.clientY });
++    }
++  }, {passive:false});
+@@
+ async function saveDraft() {
+   if (!S.origImg) return;
+   const db = await openDB();
+   const tx = db.transaction('drafts', 'readwrite');
+   const store = tx.objectStore('drafts');
+@@
+   };
+   store.put(draft);
++  await new Promise((resolve, reject) => {
++    tx.oncomplete = () => resolve();
++    tx.onerror = () => reject(tx.error || new Error('IndexedDB tx error'));
++    tx.onabort = () => reject(tx.error || new Error('IndexedDB tx aborted'));
++  });
+ }
+@@
+ function blobToImg(blob) {
+-  return new Promise(resolve => {
++  return new Promise((resolve, reject) => {
++    if (!blob) return reject(new Error('blobToImg: empty blob'));
+     const img = new Image();
+-    img.onload = () => resolve(img);
+-    img.src = URL.createObjectURL(blob);
++    const url = URL.createObjectURL(blob);
++    img.onload = () => {
++      URL.revokeObjectURL(url);
++      resolve(img);
++    };
++    img.onerror = (err) => {
++      URL.revokeObjectURL(url);
++      reject(err);
++    };
++    img.src = url;
+   });
+ }
+@@
+ function updateOffscreen() {
+   const img = S.useNoBg ? S.noBgImg : S.origImg;
+   if (!img) return;
+   const oc = S.offCanvas;
+   oc.width = img.width; oc.height = img.height;
+   const ctx = oc.getContext('2d');
++  ctx.clearRect(0, 0, oc.width, oc.height);
+   ctx.filter = getFilter();
+   ctx.drawImage(img, 0, 0);
++  ctx.filter = 'none';
+   
+   // Debounced size preview
+   clearTimeout(S.sizeDebounce);
+   S.sizeDebounce = setTimeout(estimateSize, 500);
+ }
+*** End Patch
