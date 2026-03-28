@@ -10,7 +10,42 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
 <style>
+/* RESPONSIVE HELPERS */
+.mobile-only { display: none !important; }
+.desktop-only { display: block; }
+
+@media (max-width: 768px) {
+  .desktop-only { display: none !important; }
+  .mobile-only { display: block !important; }
+  
+  body { flex-direction: column !important; overflow-x: hidden; }
+  .panel-l, .panel-r { display: none !important; }
+  .center { padding: 60px 10px 20px 10px !important; width: 100% !important; }
+  
+  .mobile-toolbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    padding: 8px 12px;
+    background: rgba(11, 16, 32, 0.85);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex; flex-direction: column; gap: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .m-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .m-ctl { 
+    height: 42px; border-radius: 8px; background: #1a1e2e; color: #fff; 
+    border: 1px solid rgba(255,255,255,0.15); font-size: 13px; padding: 0 8px; outline: none;
+  }
+  .m-btn {
+    height: 42px; border: none; border-radius: 8px; font-weight: 600; font-size: 13px;
+    display: flex; align-items: center; justify-content: center; gap: 4px; color: white;
+  }
+  .m-btn-p { background: var(--blue); }
+  .m-btn-g { background: var(--gold); }
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
 
 :root {
@@ -266,6 +301,23 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 </head>
 <body>
 
+<!-- MOBILE TOOLBAR (Sticky Top) -->
+<div class="mobile-toolbar mobile-only">
+  <div class="m-row">
+    <select id="mPreset" class="m-ctl"></select>
+    <button class="m-btn m-btn-p" onclick="doRemoveBg()">✦ AI 抠图</button>
+  </div>
+  <div class="m-row">
+    <select id="mBg" class="m-ctl">
+      <option value="#FFFFFF">⬜ 白底</option>
+      <option value="#438EDB">🟦 蓝底</option>
+      <option value="#D93A49">🟥 红底</option>
+      <option value="transparent">🏁 透明</option>
+    </select>
+    <button class="m-btn m-btn-g" onclick="generate()">✓ 生成导出</button>
+  </div>
+</div>
+
 <header class="header">
   <div class="header-icon">📷</div>
   <h1>证件照制作</h1>
@@ -276,7 +328,7 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 <div class="layout">
 
   <!-- ══ LEFT ══ -->
-  <div class="panel">
+  <div class="panel-l desktop-only">
 
     <div class="sect">
       <div class="sect-lbl">AI 抠图</div>
@@ -418,7 +470,7 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
   </div>
 
   <!-- ══ RIGHT ══ -->
-  <div class="panel-r">
+  <div class="panel-r desktop-only">
 
     <div id="emptyMsg" class="empty">
       <div class="ei">🪪</div>
@@ -563,6 +615,12 @@ const S = {
   sticker: null,
   stickerY: 0,
   userAdjusted: false,
+  isDragging: false,
+  dragMoved: false,
+  lastX: 0, lastY: 0,
+  lastWheelAt: 0,
+  activePointers: new Map(),
+  gesture: { mode: 'none', startDist: 1, startScale: 1, center0: {x:0,y:0}, startTx:0, startTy:0 }
 };
 const STICKERS = {
   male: `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMTAwIj48cGF0aCBkPSJNMTAwIDMwIEw2MCA1MCBMNTAgMTAwIEwxNTAgMTAwIEwxNDAgNTAgWiIgZmlsbD0iIzEwMTAxMCIvPjxwYXRoIGQ9Ik0xMDAgMzAgTDg1IDQ1IEw4MCA1NSBMMTAwIDc1IEwxMjAgNTUgTDExNSA0NSBaIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTEwMCAzMCBMODAgNjAgTDEwMCAxMDAgTDEyMCA2MCBaIiBmaWxsPSIjMTU0NDkwIi8+PC9zdmc+`,
@@ -590,6 +648,7 @@ function init() {
       updateGuideLegend(gs, p);
       smartPrintDefaults(p);
       drawEdit(); if(S.resultDataUrl) generate();
+      syncMobileUI();
     };
     list.appendChild(btn);
   });
@@ -601,15 +660,15 @@ function init() {
     sw.className = 'swatch' + (c.hex===S.bgColor?' active':'');
     sw.dataset.hex = c.hex;
     sw.style.background = c.hex; sw.title = c.lbl;
-    sw.onclick = () => { S.bgColor=c.hex; document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active')); sw.classList.add('active'); requestDraw(); if(S.resultDataUrl) generate(); };
+    sw.onclick = () => { S.bgColor=c.hex; document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active')); sw.classList.add('active'); requestDraw(); if(S.resultDataUrl) generate(); syncMobileUI(); };
     strip.appendChild(sw);
   });
   const tsw = document.createElement('div'); tsw.className='swatch checker'; tsw.title='透明';
-  tsw.onclick = () => { S.bgColor='transparent'; document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active')); tsw.classList.add('active'); requestDraw(); if(S.resultDataUrl) generate(); };
+  tsw.onclick = () => { S.bgColor='transparent'; document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active')); tsw.classList.add('active'); requestDraw(); if(S.resultDataUrl) generate(); syncMobileUI(); };
   strip.appendChild(tsw);
   const csw = document.createElement('div'); csw.className='swatch custom-c'; csw.title='自定义';
   const ci = document.createElement('input'); ci.type='color'; ci.value='#ffffff';
-  ci.oninput = e => { S.bgColor=e.target.value; document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active')); csw.classList.add('active'); requestDraw(); if(S.resultDataUrl) generate(); };
+  ci.oninput = e => { S.bgColor=e.target.value; document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active')); csw.classList.add('active'); requestDraw(); if(S.resultDataUrl) generate(); syncMobileUI(); };
   csw.appendChild(ci); strip.appendChild(csw);
 
   updateGuideLegend(GUIDE_SPECS[PRESETS[0].id], PRESETS[0]);
@@ -637,39 +696,35 @@ function init() {
     });
   }
 
-  // UI interaction for Canvas
+  // ═══ Unified Interaction (PointerEvents) ═══
   const cv = document.getElementById('editCanvas');
-  cv.addEventListener('mousedown', onDs);
-  window.addEventListener('mousemove', onDm);
-  window.addEventListener('mouseup', onDe);
+  cv.style.touchAction = 'none'; // 重要：禁用浏览器默认手势
+
+  cv.addEventListener('pointerdown', onPDown);
+  cv.addEventListener('pointermove', onPMove);
+  window.addEventListener('pointerup', onPUp);
+  window.addEventListener('pointercancel', onPUp);
+
   cv.addEventListener('wheel', e => {
     e.preventDefault();
-    S.scale = Math.max(.05, Math.min(20, S.scale * (e.deltaY<0?1.06:.94)));
+    S.lastWheelAt = Date.now();
+    const factor = e.deltaY < 0 ? 1.08 : 0.92;
+    const newScale = Math.max(0.05, Math.min(20, S.scale * factor));
+    
+    // 以鼠标指针为中心缩放
+    const r = cv.getBoundingClientRect();
+    const cx = e.clientX - r.left, cy = e.clientY - r.top;
+    const k = newScale / S.scale;
+    S.tx = cx - (cx - S.tx) * k;
+    S.ty = cy - (cy - S.ty) * k;
+    S.scale = newScale;
     S.userAdjusted = true;
     requestDraw();
   }, {passive:false});
 
-  cv.addEventListener('touchstart', e => {
-    if (e.touches.length === 2) {
-      S.pinchDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
-      S.pinchScale = S.scale;
-    } else {
-      S.userAdjusted = true;
-      const t=e.touches[0]; onDs({clientX:t.clientX,clientY:t.clientY});
-    }
-  }, {passive:true});
-  window.addEventListener('touchmove', e => {
-    if (e.touches.length === 2) {
-      e.preventDefault();
-      const dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
-      S.scale = Math.max(.05, Math.min(20, S.pinchScale * dist / S.pinchDist));
-      S.userAdjusted = true;
-      drawEdit();
-    } else if(S.dragging){
-      e.preventDefault(); const t=e.touches[0]; onDm({clientX:t.clientX,clientY:t.clientY});
-    }
-  }, {passive:false});
-  window.addEventListener('touchend', onDe);
+  cv.addEventListener('click', e => {
+    if (Date.now() - S.lastWheelAt < 200) { e.preventDefault(); e.stopPropagation(); }
+  });
 
   // Keyboard arrow keys for fine position adjustment
   window.addEventListener('keydown', e => {
@@ -691,7 +746,47 @@ function init() {
   dz.addEventListener('dragleave', ()=>dz.classList.remove('drag-over'));
   dz.addEventListener('drop', e=>{e.preventDefault();dz.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)loadFile(f);});
 
+  initMobilePresetSelect();
+  initMobileBgSelect();
   restoreDraft();
+}
+
+function initMobilePresetSelect() {
+  const sel = document.getElementById('mPreset');
+  if (!sel) return;
+  sel.innerHTML = PRESETS.map((p, i) =>
+    `<option value="${i}">${p.name} (${p.w}×${p.h}mm)</option>`
+  ).join('');
+  sel.value = String(Math.max(0, PRESETS.findIndex(p => p.id === S.preset?.id)));
+  sel.addEventListener('change', (e) => {
+    const p = PRESETS[Number(e.target.value)];
+    S.preset = p;
+    // Sync desktop UI
+    document.querySelectorAll('.preset-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.pid === p.id);
+    });
+    updateOffscreen(); requestDraw(); saveDraft();
+  });
+}
+
+function initMobileBgSelect() {
+  const sel = document.getElementById('mBg');
+  if (!sel) return;
+  sel.addEventListener('change', (e) => {
+    S.bgColor = e.target.value;
+    // Sync desktop UI
+    document.querySelectorAll('.swatch').forEach(sw => {
+      sw.classList.toggle('active', sw.dataset.hex === S.bgColor);
+    });
+    requestDraw(); saveDraft();
+  });
+}
+
+function syncMobileUI() {
+  const mP = document.getElementById('mPreset');
+  if (mP) mP.value = String(Math.max(0, PRESETS.findIndex(p => p.id === S.preset?.id)));
+  const mB = document.getElementById('mBg');
+  if (mB) mB.value = S.bgColor;
 }
 
 function downscaleIfNeeded(img, maxDim) {
@@ -804,7 +899,92 @@ function loadFile(file) {
   reader.readAsDataURL(file);
 }
 
-// ═══ POSITION / DRAG ═══
+// ═══ POSITION / DRAG / GESTURE (PointerEvents) ═══
+function onPDown(e) {
+  if(!S.origImg) return;
+  if(e.pointerType === 'mouse' && e.button !== 0) return;
+  const cv = document.getElementById('editCanvas');
+  cv.setPointerCapture(e.pointerId);
+  S.activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+  if (S.activePointers.size === 1) {
+    S.gesture.mode = 'pan';
+    S.lastX = e.clientX; S.lastY = e.clientY;
+    S.dragMoved = false;
+    S.isDragging = true;
+  } else if (S.activePointers.size >= 2) {
+    beginPinch();
+  }
+}
+
+function onPMove(e) {
+  if(!S.activePointers.has(e.pointerId)) return;
+  S.activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+  if (S.gesture.mode === 'pan' && S.activePointers.size === 1) {
+    const dx = e.clientX - S.lastX;
+    const dy = e.clientY - S.lastY;
+    if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+      S.dragMoved = true; S.userAdjusted = true;
+      const cv = document.getElementById('editCanvas');
+      const r = cv.getBoundingClientRect();
+      const sx = cv.width/r.width, sy = cv.height/r.height;
+      S.tx += dx * sx; S.ty += dy * sy;
+      S.lastX = e.clientX; S.lastY = e.clientY;
+      requestDraw();
+    }
+  } else if (S.activePointers.size >= 2) {
+    if (S.gesture.mode !== 'pinch') beginPinch();
+    const pts = Array.from(S.activePointers.values());
+    const p1 = pts[0], p2 = pts[1];
+    const curDist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+    const curCenter = { x: (p1.x + p2.x)/2, y: (p1.y + p2.y)/2 };
+    
+    const k = curDist / S.gesture.startDist;
+    const newScale = Math.max(0.05, Math.min(20, S.gesture.startScale * k));
+    const ratio = newScale / S.gesture.startScale;
+    
+    const cv = document.getElementById('editCanvas');
+    const r = cv.getBoundingClientRect();
+    const cx = curCenter.x - r.left, cy = curCenter.y - r.top;
+    const c0x = S.gesture.center0.x - r.left, c0y = S.gesture.center0.y - r.top;
+
+    S.scale = newScale;
+    S.tx = cx - (c0x - S.gesture.startTx) * ratio;
+    S.ty = cy - (c0y - S.gesture.startTy) * ratio;
+    S.dragMoved = true; S.userAdjusted = true;
+    requestDraw();
+  }
+}
+
+function onPUp(e) {
+  if (S.activePointers.has(e.pointerId)) {
+    S.activePointers.delete(e.pointerId);
+  }
+  if (S.activePointers.size === 0) {
+    if (S.isDragging && S.dragMoved) saveDraft();
+    S.isDragging = false; S.dragMoved = false;
+    S.gesture.mode = 'none';
+  } else if (S.activePointers.size === 1) {
+    const p = S.activePointers.values().next().value;
+    S.gesture.mode = 'pan';
+    S.lastX = p.x; S.lastY = p.y;
+  } else {
+    beginPinch();
+  }
+}
+
+function beginPinch() {
+  const pts = Array.from(S.activePointers.values());
+  if (pts.length < 2) return;
+  S.gesture.mode = 'pinch';
+  S.gesture.startDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) || 1;
+  S.gesture.startScale = S.scale;
+  S.gesture.startTx = S.tx;
+  S.gesture.startTy = S.ty;
+  S.gesture.center0 = { x: (pts[0].x+pts[1].x)/2, y: (pts[0].y+pts[1].y)/2 };
+}
+
 function resetPos(imgSrc) {
   const src = imgSrc || (S.useNoBg ? S.noBgImg : S.origImg);
   if (!src) return;
@@ -825,16 +1005,29 @@ function resetPos(imgSrc) {
 }
 function onDs(e) {
   if(!S.origImg) return;
-  S.dragging=true; S.dx0=e.clientX; S.dy0=e.clientY; S.tx0=S.tx; S.ty0=S.ty;
+  // 仅响应左键或触摸
+  if (e.button !== undefined && e.button !== 0) return;
+  
+  S.isDragging=true; S.dragMoved=false;
+  S.lastX=e.clientX; S.lastY=e.clientY;
+  S.tx0=S.tx; S.ty0=S.ty; 
   S.userAdjusted = true;
 }
 function onDm(e) {
-  if(!S.dragging) return;
-  const r=document.getElementById('editCanvas').getBoundingClientRect();
-  const sx=document.getElementById('editCanvas').width/r.width, sy=document.getElementById('editCanvas').height/r.height;
-  S.tx = S.tx0 + (e.clientX-r.left)*sx - S.dx0;
-  S.ty = S.ty0 + (e.clientY-r.top)*sy - S.dy0;
-  requestDraw();
+  if(!S.isDragging) return;
+  const dx = e.clientX - S.lastX;
+  const dy = e.clientY - S.lastY;
+  
+  if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+    S.dragMoved = true;
+    const r=document.getElementById('editCanvas').getBoundingClientRect();
+    const sx=document.getElementById('editCanvas').width/r.width, sy=document.getElementById('editCanvas').height/r.height;
+    S.tx += dx * sx;
+    S.ty += dy * sy;
+    S.lastX = e.clientX;
+    S.lastY = e.clientY;
+    requestDraw();
+  }
 }
 
 async function saveDraft() {
@@ -972,6 +1165,7 @@ async function restoreDraft() {
     } catch (_) {}
 
     requestDraw();
+    syncMobileUI();
   }
 }
 
@@ -1027,7 +1221,6 @@ function blobToImg(blob) {
     img.src = url;
   });
 }
-function onDe() { S.dragging=false; saveDraft(); }
 
 // ═══ ADJUSTMENTS ═══
 function onAdj() {
