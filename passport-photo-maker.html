@@ -562,6 +562,7 @@ const S = {
   frameId: null,
   sticker: null,
   stickerY: 0,
+  userAdjusted: false,
 };
 const STICKERS = {
   male: `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMTAwIj48cGF0aCBkPSJNMTAwIDMwIEw2MCA1MCBMNTAgMTAwIEwxNTAgMTAwIEwxNDAgNTAgWiIgZmlsbD0iIzEwMTAxMCIvPjxwYXRoIGQ9Ik0xMDAgMzAgTDg1IDQ1IEw4MCA1NSBMMTAwIDc1IEwxMjAgNTUgTDExNSA0NSBaIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTEwMCAzMCBMODAgNjAgTDEwMCAxMDAgTDEyMCA2MCBaIiBmaWxsPSIjMTU0NDkwIi8+PC9zdmc+`,
@@ -644,6 +645,7 @@ function init() {
   cv.addEventListener('wheel', e => {
     e.preventDefault();
     S.scale = Math.max(.05, Math.min(20, S.scale * (e.deltaY<0?1.06:.94)));
+    S.userAdjusted = true;
     requestDraw();
   }, {passive:false});
 
@@ -652,6 +654,7 @@ function init() {
       S.pinchDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
       S.pinchScale = S.scale;
     } else {
+      S.userAdjusted = true;
       const t=e.touches[0]; onDs({clientX:t.clientX,clientY:t.clientY});
     }
   }, {passive:true});
@@ -660,6 +663,7 @@ function init() {
       e.preventDefault();
       const dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
       S.scale = Math.max(.05, Math.min(20, S.pinchScale * dist / S.pinchDist));
+      S.userAdjusted = true;
       drawEdit();
     } else if(S.dragging){
       e.preventDefault(); const t=e.touches[0]; onDm({clientX:t.clientX,clientY:t.clientY});
@@ -751,6 +755,7 @@ function resetVal(type) {
   const input = document.getElementById(idMap[type]);
   if (!input) return;
   input.value = 100;
+  S.userAdjusted = true;
   onAdj();
   toast(`已重置${type==='B'?'亮度':type==='C'?'对比度':'饱和度'}`);
 }
@@ -780,6 +785,7 @@ function loadFile(file) {
     img.onload = async () => {
       const processedImg = await downscaleIfNeeded(img, 4096);
       S.origImg=processedImg; S.noBgImg=null; S.useNoBg=false; S.resultDataUrl=null;
+      S.userAdjusted = false;
       resetPos(processedImg);
       document.getElementById('dz').style.display='none';
       document.getElementById('stage').classList.add('show');
@@ -818,10 +824,9 @@ function resetPos(imgSrc) {
   saveDraft();
 }
 function onDs(e) {
-  S.dragging=true;
-  const r=document.getElementById('editCanvas').getBoundingClientRect();
-  const sx=document.getElementById('editCanvas').width/r.width, sy=document.getElementById('editCanvas').height/r.height;
-  S.dx0=(e.clientX-r.left)*sx; S.dy0=(e.clientY-r.top)*sy; S.tx0=S.tx; S.ty0=S.ty;
+  if(!S.origImg) return;
+  S.dragging=true; S.dx0=e.clientX; S.dy0=e.clientY; S.tx0=S.tx; S.ty0=S.ty;
+  S.userAdjusted = true;
 }
 function onDm(e) {
   if(!S.dragging) return;
@@ -1065,7 +1070,8 @@ function updateOffscreen() {
 }
 
 function requestDraw() {
-  if (S.frameId) return;
+  if (S.frameId) cancelAnimationFrame(S.frameId);
+  S.userAdjusted = true;
   S.frameId = requestAnimationFrame(() => {
     drawEdit();
     S.frameId = null;
@@ -1337,19 +1343,24 @@ function smartAlign() {
 }
 
 
-// ═══ REMOVE BG (Hybrid: Local-first, Cloud-fallback) ═══
 async function doRemoveBg() {
   if (!S.origImg) { toast('请先上传照片'); return; }
   
-  // 1) 优先本地抠图
-  const localSuccess = await doLocalRemoveBg();
+  // 1) 备份当前构图状态
+  const keep = {
+    tx: S.tx, ty: S.ty, scale: S.scale, rotate: S.rotate,
+    bright: S.bright, contrast: S.contrast, sat: S.sat
+  };
+
+  // 1.1) 优先本地抠图
+  const localSuccess = await doLocalRemoveBg(keep);
   if (localSuccess) return;
 
   // 2) 如果本地失败且有 Key，尝试云端兜底
   const key = S.apiKey || document.getElementById('apiInp').value.trim();
   if (!key) {
     console.warn('Local failed and no API Key for fallback');
-    return; // doLocalRemoveBg 已经发过 toast 了
+    return;
   }
 
   setLdr(true, '本地失败，正在尝试云端抠图 (remove.bg)...');
@@ -1374,11 +1385,15 @@ async function doRemoveBg() {
     const img = new Image();
     img.onload = () => {
       S.noBgImg = img; S.useNoBg = true;
-      try {
-        smartAlign(); 
-      } catch (e) {
-        console.warn('smartAlign failed:', e);
+      
+      // 3) 恢复用户构图
+      S.tx=keep.tx; S.ty=keep.ty; S.scale=keep.scale; S.rotate=keep.rotate;
+      S.bright=keep.bright; S.contrast=keep.contrast; S.sat=keep.sat;
+      
+      if (!S.userAdjusted) {
+        try { smartAlign(); } catch(e) {}
       }
+      
       setStep(3);
       document.getElementById('btnToggle').style.display = 'inline-flex';
       document.getElementById('btnToggle').textContent = '显示原图';
@@ -1397,16 +1412,23 @@ async function doRemoveBg() {
   }
 }
 
-async function doLocalRemoveBg() {
+async function doLocalRemoveBg(keepOverride) {
   if (typeof SelfieSegmentation === 'undefined') {
     toast('⚠️ SelfieSegmentation 未加载，请检查本地 vendor 目录或脚本引入');
     return false;
   }
+  
+  // 备份构图（如果不是从 doRemoveBg 传进来的话）
+  const keep = keepOverride || {
+    tx: S.tx, ty: S.ty, scale: S.scale, rotate: S.rotate,
+    bright: S.bright, contrast: S.contrast, sat: S.sat
+  };
+
   setLdr(true, '本地 AI 离线抠图 (MediaPipe)...');
   setStep(2);
 
   try {
-    const MP_BASE = 'vendor/mediapipe/selfie_segmentation/'; 
+    const MP_BASE = '/vendor/mediapipe/selfie_segmentation/'; 
     const selfie = new SelfieSegmentation({
       locateFile: file => {
         const u = MP_BASE + file;
@@ -1418,37 +1440,60 @@ async function doLocalRemoveBg() {
     selfie.setOptions({ modelSelection: 1 });
 
     const result = await new Promise((resolve, reject) => {
-      // 增加 15s 超时保护
-      const timer = setTimeout(() => reject(new Error('MediaPipe 加载超时，请确认是使用 http (node/python) 环境打开')), 15000);
+      let done = false; 
+      const timer = setTimeout(() => {
+        if (!done) {
+          done = true;
+          reject(new Error('MediaPipe 加载超时，请确认在 http/https 环境并尝试刷新'));
+        }
+      }, 20000);
+
       selfie.onResults(res => {
-        clearTimeout(timer);
-        resolve(res);
+        if (!done) {
+          done = true;
+          clearTimeout(timer);
+          resolve(res);
+        }
       });
+
       selfie.send({ image: S.origImg }).catch(err => {
-        clearTimeout(timer);
-        reject(err);
+        if (!done) {
+          done = true;
+          clearTimeout(timer);
+          reject(err);
+        }
       });
     });
+
+    if (!result || !result.segmentationMask || maskLooksInvalid(result.segmentationMask)) {
+      throw new Error('AI 蒙版生成无效，可能是环境太暗或特征不明显');
+    }
 
     const { width:w, height:h } = S.origImg;
     const c = document.createElement('canvas'); c.width=w; c.height=h;
     const ctx = c.getContext('2d');
-    ctx.drawImage(S.origImg, 0, 0);
+    
+    // 强制使用 PNG 高质量流水线
+    ctx.clearRect(0, 0, w, h);
+    ctx.drawImage(S.origImg, 0, 0, w, h);
     ctx.globalCompositeOperation = 'destination-in';
     ctx.drawImage(result.segmentationMask, 0, 0, w, h);
     ctx.globalCompositeOperation = 'source-over';
 
-    const outBlob = await canvasToBlob(c);
+    const outBlob = await canvasToBlob(c, 'image/png', 1);
     const outImg = await blobToImg(outBlob);
 
     S.noBgImg = outImg;
     S.useNoBg = true;
     
-    try {
-      smartAlign();
-    } catch (e) {
-      console.warn('smartAlign failed:', e);
+    // 恢复状态
+    S.tx=keep.tx; S.ty=keep.ty; S.scale=keep.scale; S.rotate=keep.rotate;
+    S.bright=keep.bright; S.contrast=keep.contrast; S.sat=keep.sat;
+
+    if (!S.userAdjusted) {
+      try { smartAlign(); } catch (e) {}
     }
+
     setStep(3);
     document.getElementById('btnToggle').style.display = 'inline-flex';
     document.getElementById('btnToggle').textContent = '显示原图';
@@ -1458,7 +1503,7 @@ async function doLocalRemoveBg() {
     return true;
   } catch (e) {
     console.warn('[Local Removal Failed]', e);
-    toast('本地抠图失败，自动尝试云端切换...');
+    toast('本地抠图失败：' + (e.message || '未知错误'));
     return false;
   } finally {
     setLdr(false);
@@ -1644,14 +1689,36 @@ function dlPrint() {
 }
 
 // ═══ MICRO-ADJUST ═══
-function adjScale(d){ S.scale=Math.max(0.05,Math.min(20,S.scale*(d>0?1.04:1/1.04))); drawEdit(); }
+function adjScale(d){ 
+  S.scale=Math.max(0.05,Math.min(20,S.scale*(d>0?1.04:1/1.04))); 
+  S.userAdjusted = true;
+  drawEdit(); 
+}
 function adjRotate(d){
   S.rotate=(S.rotate+d+360)%360;
+  S.userAdjusted = true;
   const el=document.getElementById('rotLbl');
   if(el) el.textContent = S.rotate===0 ? '0°' : S.rotate+'°';
   drawEdit();
 }
-function adjMove(dx,dy){ S.tx+=dx; S.ty+=dy; drawEdit(); }
+function adjMove(dx,dy){ 
+  S.tx+=dx; S.ty+=dy; 
+  S.userAdjusted = true;
+  drawEdit(); 
+}
+
+function maskLooksInvalid(mask) {
+  const t = document.createElement('canvas');
+  const tw = 64, th = 64;
+  t.width = tw; t.height = th;
+  const tctx = t.getContext('2d');
+  tctx.drawImage(mask, 0, 0, tw, th);
+  const data = tctx.getImageData(0, 0, tw, th).data;
+  let bright = 0;
+  for (let i = 0; i < data.length; i += 4) bright += data[i]; 
+  const avg = bright / (data.length / 4);
+  return avg > 250 || avg < 5;
+}
 
 // ═══ UTILS ═══
 function setLdr(show,txt=''){
