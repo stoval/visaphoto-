@@ -1,11 +1,13 @@
 {
-  "name": "极速证件照制作",
-  "short_name": "证件照制作",
-  "description": "本地隐私安全的证件照制作工具",
-  "start_url": "passport-photo-maker.html",
+  "name": "证件照制作",
+  "short_name": "证件照",
+  "start_url": "./passport-photo-maker.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#f5f3ef",
-  "theme_color": "#1a1916",
+  "background_color": "#0b1020",
+  "theme_color": "#0b1020",
+  "description": "离线可用的证件照制作工具（本地AI抠图、换底色、导出JPG/PNG）",
+  "lang": "zh-CN",
   "icons": [
     {
       "src": "icon-192.png",

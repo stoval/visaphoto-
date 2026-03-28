@@ -1,0 +1,242 @@
+好，给你一个**3 天可落地计划**（按你当前项目）：
+
+## Day 1：把 Web 版打到可发布
+1. 完成你刚才的稳定性修复（已基本完成）
+2. 补齐 PWA 基础：
+   - `manifest.json`（name、icons、start_url、display）
+   - `sw.js` 缓存首页 + JS + MediaPipe 资源
+3. 真机测试（安卓 Chrome）：
+   - 离线打开
+   - 本地抠图
+   - 导出图片到相册
+
+**验收标准**：Chrome 可“添加到主屏幕”，断网可用。
+
+---
+
+## Day 2：封装成 APK（推荐 Capacitor）
+1. 初始化：
+   - `npm i @capacitor/core @capacitor/cli`
+   - `npx cap init`
+   - `npx cap add android`
+2. 把网页构建产物指向 `android` 容器（或直接静态目录）
+3. Android Studio 打开项目，先本地 debug 安装
+
+**验收标准**：手机上出现独立 App 图标，启动即进入你的页面。
+
+---
+
+## Day 3：上架准备
+1. App 图标、启动图、包名、版本号
+2. 隐私政策页（非常关键，尤其你有图片处理）
+3. 签名包（AAB）并做发布测试
+4. 准备商店文案和截图（前后对比图最重要）
+
+**验收标准**：产出可上传 Play Console 的 `.aab`。
+
+---
+
+## 你现在最适合的技术路线
+- 短期：**PWA + Capacitor**
+- 中期：保留网页一套代码，多端分发（Web/Android）
+
+如果你要，我下一步直接给你：
+1) `manifest.json` 模板  
+2) `capacitor.config` 模板  
+3) 一套可直接复制的打包命令。
+直接给你可复制版。
+
+```json name=manifest.json
+{
+  "name": "证件照制作",
+  "short_name": "证件照",
+  "start_url": "/passport-photo-maker.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b1020",
+  "theme_color": "#0b1020",
+  "description": "离线可用的证件照制作工具（本地AI抠图、换底色、导出JPG/PNG）",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+```
+
+```html name=passport-photo-maker.html
+<!-- 放到 <head> -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0b1020">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+```
+
+```ts name=capacitor.config.ts
+import type { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'com.stoval.passportphoto',
+  appName: '证件照制作',
+  webDir: '.', 
+  bundledWebRuntime: false,
+  server: {
+    androidScheme: 'https'
+  }
+};
+
+export default config;
+```
+
+```bash name=build-and-run.sh
+# 1) 安装
+npm i @capacitor/core @capacitor/cli
+npx cap init "证件照制作" "com.stoval.passportphoto"
+
+# 2) 添加安卓
+npx cap add android
+
+# 3) 每次网页代码更新后同步
+npx cap sync android
+
+# 4) 用 Android Studio 打开
+npx cap open android
+```
+
+```bash name=release-aab-notes.sh
+# Android Studio -> Build -> Generate Signed Bundle / APK
+# 选择 Android App Bundle (AAB)
+# 创建/选择 keystore 后生成 app-release.aab
+```
+
+最关键两点提醒：
+1. `webDir: '.'` 仅适合你现在这种静态单文件/静态站点；如果后面有构建目录（如 `dist`），改成 `dist`。  
+2. 你的 `sw.js` 缓存版本要递增（如 `visaphoto-cache-v3`），否则新包里可能还读旧缓存。
+
+如果你愿意，我下一步可以给你**Play 商店上架文案（标题/短描述/长描述）中文版现成模板**。下面给你一套可直接用的 **Google Play 上架文案（中文）**：
+
+## 1) 应用名称（30 字内）
+**证件照制作 - 本地AI抠图换底色**
+
+## 2) 简短说明（80 字内）
+**离线可用证件照工具：本地AI抠图、智能裁剪、换底色，导出JPG/PNG。**
+
+## 3) 完整说明（建议 1500~2500 字）
+**证件照制作**是一款注重隐私与效率的证件照工具。  
+支持本地 AI 抠图、背景色替换、尺寸模板裁剪与高清导出，帮助你快速生成常见证件照。
+
+### 主要功能
+- **本地 AI 抠图优先**：优先在设备本地完成人像分离，处理更快，隐私更安心  
+- **多种背景色**：支持白底、蓝底、红底及自定义颜色  
+- **常用证件照尺寸**：覆盖常见规格，可按模板快速出图  
+- **精细调整**：支持缩放、平移、旋转，以及亮度/对比度/饱和度微调  
+- **高清导出**：支持 JPG / PNG 导出，可用于电子提交与打印  
+- **离线可用**：无网络时仍可进行基础编辑与本地抠图（设备兼容时）  
+
+### 适用场景
+- 求职简历照片
+- 护照/签证/考试报名电子照
+- 各类证件办理前的照片预处理
+- 临时急用的标准证件照制作
+
+### 隐私说明
+- 我们重视你的数据安全。  
+- 应用默认优先使用本地模型处理图片。  
+- 仅在你主���配置并使用第三方云抠图服务时，才会发起对应网络请求。  
+- 我们不会在未经你同意的情况下上传或分享你的照片。  
+
+### 使用建议
+- 上传清晰、正面、光线均匀的人像照片  
+- 尽量选择纯色背景拍摄，可提升抠图质量  
+- 导出前检查头部位置与留白比例，确保符合目标规格  
+
+如遇设备兼容或导出问题，欢迎通过应用内联系方式反馈，我们会持续优化体验。
+
+---
+
+## 4) 更新说明（What’s new）模板
+**版本 1.0.0**
+- 新增本地 AI 抠图（无 Key 也可用）
+- 新增离线缓存能力，弱网/断网可继续使用
+- 优化导出质量与文件体积估算
+- 修复草稿恢复异常与若干稳定性问题
+
+---
+
+## 5) 关键词建议（投放/ASO参考）
+证件照、证件照制作、报名照、简历照、AI抠图、换底色、护照照片、签证照片、电子证件照
+
+---
+
+一版 **英文商店文案（Name/Short description/Full description）**，方便后续多语言上架。
+
+Great idea. Here’s a ready-to-use **English Google Play listing copy**:
+
+## 1) App Name (max 30 chars)
+**ID Photo Maker - AI Cutout**
+
+## 2) Short Description (max 80 chars)
+**Offline-ready ID photo editor with AI cutout, background change, and export.**
+
+## 3) Full Description
+**ID Photo Maker** helps you create clean, professional ID photos in minutes.  
+It supports local AI background removal, size presets, background color replacement, and high-quality export.
+
+### Key Features
+- **Local AI cutout first**  
+  Removes background on-device first for better privacy and faster processing.
+- **Background color replacement**  
+  Switch to white, blue, red, or a custom color easily.
+- **ID photo size presets**  
+  Quickly fit your photo to common ID/passport/visa dimensions.
+- **Manual fine-tuning tools**  
+  Adjust zoom, position, rotation, brightness, contrast, and saturation.
+- **High-quality export**  
+  Export as **JPG** or **PNG** for digital submission or printing.
+- **Offline-friendly workflow**  
+  Core editing and local cutout can work without network (device compatibility applies).
+
+### Common Use Cases
+- Job application profile photos
+- Passport/visa registration photos
+- Exam and online form submissions
+- Fast emergency ID photo preparation
+
+### Privacy
+- We value your privacy.
+- Photo processing is local-first by default.
+- Network requests are only made if you explicitly enable and use third-party cloud cutout services.
+- Your photos are not uploaded or shared without your action.
+
+### Tips for Best Results
+- Use a clear, front-facing portrait with even lighting.
+- A simple background improves cutout quality.
+- Check head position and margins before export to match target requirements.
+
+We continuously improve performance and compatibility.  
+If you have feedback, feel free to contact us from within the app.
+
+---
+
+## 4) What’s New (example)
+**Version 1.0.0**
+- Added local AI background removal (works without API key)
+- Improved offline support and cache behavior
+- Enhanced export quality and stability
+- Fixed draft restore edge cases and minor UI issues
+
+---
+
+If you want, I can also provide:
+1) a **shorter ASO-focused variant** (keyword dense), and  
+2) a **US-friendly polished version** for better conversion tone.
