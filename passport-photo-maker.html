@@ -1346,21 +1346,35 @@ async function doRemoveBg() {
 
 async function doLocalRemoveBg() {
   if (typeof SelfieSegmentation === 'undefined') {
-    toast('⚠️ 本地抠图库未加载，请检查网络');
+    toast('⚠️ SelfieSegmentation 未加载，请检查本地 vendor 目录或脚本引入');
     return false;
   }
   setLdr(true, '本地 AI 离线抠图 (MediaPipe)...');
   setStep(2);
 
   try {
+    const MP_BASE = 'vendor/mediapipe/selfie_segmentation/'; 
     const selfie = new SelfieSegmentation({
-      locateFile: file => `vendor/mediapipe/selfie_segmentation/${file}`
+      locateFile: file => {
+        const u = MP_BASE + file;
+        console.log('[MediaPipe locateFile]', file, '=>', u);
+        return u;
+      }
     });
+
     selfie.setOptions({ modelSelection: 1 });
 
     const result = await new Promise((resolve, reject) => {
-      selfie.onResults(resolve);
-      selfie.send({ image: S.origImg }).catch(reject);
+      // 增加 15s 超时保护
+      const timer = setTimeout(() => reject(new Error('MediaPipe 加载超时，请确认是使用 http (node/python) 环境打开')), 15000);
+      selfie.onResults(res => {
+        clearTimeout(timer);
+        resolve(res);
+      });
+      selfie.send({ image: S.origImg }).catch(err => {
+        clearTimeout(timer);
+        reject(err);
+      });
     });
 
     const { width:w, height:h } = S.origImg;
@@ -1386,8 +1400,8 @@ async function doLocalRemoveBg() {
     updateOffscreen(); requestDraw(); saveDraft();
     return true;
   } catch (e) {
-    console.warn('Local segmentation failed:', e);
-    toast('本地抠图失败，尝试切换云端...');
+    console.warn('[Local Removal Failed]', e);
+    toast('本地抠图失败，自动尝试云端切换...');
     return false;
   } finally {
     setLdr(false);
