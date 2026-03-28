@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>证件照制作</title>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1a1916">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1287,22 +1288,23 @@ function smartAlign() {
 }
 
 
-// ═══ REMOVE BG ═══
+// ═══ REMOVE BG (Hybrid: Cloud + Local Fallback) ═══
 async function doRemoveBg() {
-  if (!S.origImg) return;
+  if (!S.origImg) { toast('请先上传照片'); return; }
   const key = S.apiKey || document.getElementById('apiInp').value.trim();
-  if (!key) { toast('请先输入并保存 remove.bg API Key'); return; }
 
-  setLdr(true, 'AI 抠图处理中…');
+  // No API Key: direct to local
+  if (!key) {
+    await doLocalRemoveBg();
+    return;
+  }
+
+  setLdr(true, 'AI 抠图中 (remove.bg)...');
   document.getElementById('btnRmBg').disabled=true;
   setStep(2);
 
   try {
-    const tmp = document.createElement('canvas');
-    tmp.width=S.origImg.width; tmp.height=S.origImg.height;
-    tmp.getContext('2d').drawImage(S.origImg,0,0);
-    const blob = await new Promise(r=>tmp.toBlob(r,'image/png'));
-
+    const blob = await imgToBlob(S.origImg, 'image/png');
     const form = new FormData();
     form.append('image_file', blob, 'photo.png');
     form.append('size', 'auto');
@@ -1319,27 +1321,76 @@ async function doRemoveBg() {
     const img = new Image();
     img.onload = () => {
       S.noBgImg=img; S.useNoBg=true;
-      
-      // Auto Align
-      smartAlign();
-      
+      smartAlign(); 
       setStep(3);
       document.getElementById('btnToggle').style.display = 'inline-flex';
       document.getElementById('btnToggle').textContent = '显示原图';
       document.getElementById('clothesSect').style.display = 'block';
-      toast('✓ 抠图成功！已尝试为您智能对齐');
-      updateOffscreen();
-      requestDraw();
-      saveDraft();
+      toast('✓ 抠图成功！');
+      updateOffscreen(); requestDraw(); saveDraft();
     };
-    img.onerror = () => { throw new Error('图片加载失败'); };
+    img.onerror = () => { throw new Error('结果图解析失败'); };
     img.src = url;
   } catch(e) {
-    toast('抠图失败：' + e.message);
+    console.warn('Cloud API failed, falling back to local:', e.message);
+    toast('云端失效，正在切换本地抠图...');
+    await doLocalRemoveBg();
   } finally {
     setLdr(false);
     document.getElementById('btnRmBg').disabled=false;
   }
+}
+
+async function doLocalRemoveBg() {
+  if (typeof SelfieSegmentation === 'undefined') {
+    toast('⚠️ 本地抠图库未加载，请检查网络');
+    return;
+  }
+  setLdr(true, '本地 AI 离线抠图 (MediaPipe)...');
+  setStep(2);
+
+  try {
+    const selfie = new SelfieSegmentation({
+      locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
+    });
+    selfie.setOptions({ modelSelection: 1 }); // 1 for better precision
+
+    const result = await new Promise((resolve, reject) => {
+      selfie.onResults(resolve);
+      selfie.send({ image: S.origImg }).catch(reject);
+    });
+
+    const { width:w, height:h } = S.origImg;
+    const c = document.createElement('canvas'); c.width=w; c.height=h;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(S.origImg, 0, 0);
+    ctx.globalCompositeOperation = 'destination-in';
+    ctx.drawImage(result.segmentationMask, 0, 0, w, h);
+    ctx.globalCompositeOperation = 'source-over';
+
+    const outBlob = await canvasToBlob(c);
+    const outImg = await blobToImg(outBlob);
+
+    S.noBgImg = outImg;
+    S.useNoBg = true;
+    
+    smartAlign();
+    setStep(3);
+    document.getElementById('btnToggle').style.display = 'inline-flex';
+    document.getElementById('btnToggle').textContent = '显示原图';
+    document.getElementById('clothesSect').style.display = 'block';
+    toast('✓ 本地抠图完成 (离线模式)');
+    updateOffscreen(); requestDraw(); saveDraft();
+  } catch (e) {
+    console.error('Local segmentation failed:', e);
+    toast('本地抠图也失败了：' + e.message);
+  } finally {
+    setLdr(false);
+  }
+}
+
+function canvasToBlob(cv, type='image/png', quality=1) {
+  return new Promise(resolve => cv.toBlob(resolve, type, quality));
 }
 
 // ═══ TOGGLE ORIGINAL / NO-BG ═══
