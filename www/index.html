@@ -2173,47 +2173,96 @@ function updatePrint() {
 
 // ═══ DOWNLOAD / EXPORT BLOBS ═══
 async function exportSingleBlob(ext = 'jpg') {
-  if(!S.resultDataUrl) return null;
   const mime = ext === 'png' ? 'image/png' : 'image/jpeg';
   const quality = ext === 'png' ? undefined : 0.95;
-  
-  // If we already have the DataURL, we can just grab it, 
-  // though converting to a specific format/quality might require a temporary canvas.
-  return await (await fetch(S.resultDataUrl)).blob();
+
+  // 1) 优先用结果图
+  if (S?.resultDataUrl) {
+    // 用 canvas 重编码，确保格式/质量一致
+    const img = new Image();
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = S.resultDataUrl;
+    });
+
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth || img.width;
+    c.height = img.naturalHeight || img.height;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+
+    return await new Promise((resolve, reject) =>
+      c.toBlob(b => b ? resolve(b) : reject(new Error('single toBlob failed')), mime, quality)
+    );
+  }
+
+  // 2) 兜底：从编辑画布导出
+  const ec = document.getElementById('editCanvas');
+  if (ec && typeof ec.toBlob === 'function') {
+    return await new Promise((resolve, reject) =>
+      ec.toBlob(b => b ? resolve(b) : reject(new Error('editCanvas toBlob failed')), mime, quality)
+    );
+  }
+
+  throw new Error('请先上传并点击“生成”');
 }
 
 async function exportSheetBlob(ext = 'jpg') {
-  if (!S.resultDataUrl) return null;
-  const { w: pw, h: ph, dpi } = S.preset;
-  const TW = mm2px(pw, dpi); const TH = mm2px(ph, dpi);
-  const PW = mm2px(152, dpi); const PH = mm2px(102, dpi); const GAP = mm2px(2, dpi);
-  
-  const cols = +document.getElementById('rCol').value || 4;
-  const rows = +document.getElementById('rRow').value || 2;
-  const cut = document.getElementById('cutChk').checked;
+  const { w: pw, h: ph, dpi } = S?.preset || {};
+  if (!pw || !ph || !dpi) throw new Error('规格参数缺失');
+
+  const TW = mm2px(pw, dpi), TH = mm2px(ph, dpi);
+  const PW = mm2px(152, dpi), PH = mm2px(102, dpi), GAP = mm2px(2, dpi);
+
+  const colsEl = document.getElementById('rCol');
+  const rowsEl = document.getElementById('rRow');
+  const cutEl  = document.getElementById('cutChk');
+
+  const cols = +(colsEl?.value) || 4;
+  const rows = +(rowsEl?.value) || 2;
+  const cut = !!(cutEl?.checked);
 
   const pc = document.createElement('canvas');
   pc.width = PW; pc.height = PH;
   const pctx = pc.getContext('2d');
-  pctx.fillStyle = '#fff'; pctx.fillRect(0, 0, PW, PH);
+  pctx.fillStyle = '#fff';
+  pctx.fillRect(0, 0, PW, PH);
 
   const sx = Math.round((PW - (cols * TW + (cols - 1) * GAP)) / 2);
   const sy = Math.round((PH - (rows * TH + (rows - 1) * GAP)) / 2);
 
+  // 用 single blob 做源，避免依赖 S.resultDataUrl 必须存在
+  const baseBlob = await exportSingleBlob(ext);
+  const baseUrl = URL.createObjectURL(baseBlob);
+
   const pi = new Image();
-  await new Promise(r => { pi.onload = r; pi.src = S.resultDataUrl; });
+  await new Promise((resolve, reject) => {
+    pi.onload = resolve;
+    pi.onerror = reject;
+    pi.src = baseUrl;
+  });
 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const x = sx + c * (TW + GAP);
       const y = sy + r * (TH + GAP);
       pctx.drawImage(pi, x, y, TW, TH);
-      if (cut) { pctx.strokeStyle = '#aaa'; pctx.lineWidth = 2; pctx.strokeRect(x, y, TW, TH); }
+      if (cut) {
+        pctx.strokeStyle = '#aaa';
+        pctx.lineWidth = 2;
+        pctx.strokeRect(x, y, TW, TH);
+      }
     }
   }
 
+  URL.revokeObjectURL(baseUrl);
+
   const mime = ext === 'png' ? 'image/png' : 'image/jpeg';
-  return new Promise(resolve => pc.toBlob(resolve, mime, 0.95));
+  const quality = ext === 'png' ? undefined : 0.95;
+  return await new Promise((resolve, reject) =>
+    pc.toBlob(b => b ? resolve(b) : reject(new Error('sheet toBlob failed')), mime, quality)
+  );
 }
 
 async function exportWithShareOrFallback(blob, filename) {
@@ -2254,7 +2303,7 @@ async function onExportMainClick() {
       blob = await exportSingleBlob(ext);
     }
 
-    if (!blob) throw new Error('导出失败：未生成文件');
+    if (!blob) throw new Error('未生成文件');
     await exportWithShareOrFallback(blob, filename);
   } catch (err) {
     console.error(err);
