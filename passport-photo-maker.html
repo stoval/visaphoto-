@@ -44,11 +44,13 @@
   }
 
   .mobile-toolbar .m-row.row-main {
-    grid-template-columns: 1fr 1fr 1.5fr;
+    display: grid;
+    grid-template-columns: 1fr 0.9fr 1.4fr;
+    gap: 8px;
   }
 
   .mobile-toolbar .m-ctl { 
-    min-height: 42px; 
+    min-height: 40px; 
     border-radius: 10px; 
     font-size: 13px; 
     line-height: normal;
@@ -320,7 +322,6 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 </style>
 </head>
 <body>
-
 <!-- MOBILE TOOLBAR (Sticky Top) -->
 <div class="mobile-toolbar mobile-only">
   <!-- Row 1: Spec & Cutout -->
@@ -328,19 +329,22 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
     <select id="mPreset" class="m-ctl"></select>
     <button class="btn btn-dark m-ctl" id="mBtnRmBg" onclick="doRemoveBg()">✦ AI 抠图</button>
   </div>
-  <!-- Row 2: BG & Format -->
+  <!-- Row 2: BG Color Select -->
   <div class="m-row">
     <select id="mBg" class="m-ctl"></select>
-    <select id="mFmt" class="m-ctl">
-      <option value="jpg">输出 JPG</option>
-      <option value="png">输出 PNG</option>
-    </select>
+    <div class="m-ctl" style="border:none;background:none;justify-content:flex-start;font-size:10px;color:var(--ink3)">↑ 选择背景后点击导出</div>
   </div>
   <!-- Row 3: Action & Export -->
   <div class="m-row row-main">
-    <button class="btn btn-ghost m-ctl" onclick="triggerUp()">↑ 换图</button>
-    <button class="btn btn-ghost m-ctl" onclick="resetPos()">↺ 重置</button>
-    <button class="btn btn-gold m-ctl" id="mBtnExport" onclick="generate(true)">✓ 生成并导出 JPG</button>
+    <select id="exportKind" class="m-ctl">
+      <option value="single">单张照片</option>
+      <option value="sheet">6寸排版图</option>
+    </select>
+    <select id="exportFormat" class="m-ctl">
+      <option value="jpg">JPG</option>
+      <option value="png">PNG</option>
+    </select>
+    <button class="btn btn-gold m-ctl" id="btnExportMain" onclick="doExportMain()">✓ 生成并导出 JPG</button>
   </div>
 </div>
 
@@ -647,7 +651,8 @@ const S = {
   lastWheelAt: 0,
   activePointers: new Map(),
   gesture: { mode: 'none', startDist: 1, startScale: 1, center0: {x:0,y:0}, startTx:0, startTy:0 },
-  exportFormat: 'jpg'
+  exportFormat: 'jpg',
+  exportKind: 'single'
 };
 const STICKERS = {
   male: `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMTAwIj48cGF0aCBkPSJNMTAwIDMwIEw2MCA1MCBMNTAgMTAwIEwxNTAgMTAwIEwxNDAgNTAgWiIgZmlsbD0iIzEwMTAxMCIvPjxwYXRoIGQ9Ik0xMDAgMzAgTDg1IDQ1IEw4MCA1NSBMMTAwIDc1IEwxMjAgNTUgTDExNSA0NSBaIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTEwMCAzMCBMODAgNjAgTDEwMCAxMDAgTDEyMCA2MCBaIiBmaWxsPSIjMTU0NDkwIi8+PC9zdmc+`,
@@ -775,26 +780,51 @@ function init() {
 
   initMobilePresetSelect();
   initMobileBgSelect();
-  initMobileFormatSelect();
+  initMobileExportSync();
   restoreDraft();
 }
 
-function initMobileFormatSelect() {
-  const sel = document.getElementById('mFmt');
-  if (!sel) return;
-  sel.value = S.exportFormat;
-  sel.addEventListener('change', (e) => {
-    S.exportFormat = e.target.value;
-    document.getElementById('fmtPng').checked = (S.exportFormat === 'png');
-    refreshExportBtnText();
+function initMobileExportSync() {
+  const kindEl = document.getElementById('exportKind');
+  const fmtEl = document.getElementById('exportFormat');
+  if (!kindEl || !fmtEl) return;
+
+  kindEl.value = S.exportKind || 'single';
+  fmtEl.value = S.exportFormat || 'jpg';
+
+  kindEl.addEventListener('change', (e) => {
+    S.exportKind = e.target.value;
+    refreshExportMainText();
     saveDraft();
   });
-  refreshExportBtnText();
+  fmtEl.addEventListener('change', (e) => {
+    S.exportFormat = e.target.value;
+    document.getElementById('fmtPng').checked = (S.exportFormat === 'png');
+    refreshExportMainText();
+    saveDraft();
+  });
+  refreshExportMainText();
 }
 
-function refreshExportBtnText() {
-  const btn = document.getElementById('mBtnExport');
-  if (btn) btn.textContent = `✓ 生成并导出 ${S.exportFormat.toUpperCase()}`;
+function refreshExportMainText() {
+  const btn = document.getElementById('btnExportMain');
+  if (!btn) return;
+  const kind = S.exportKind || 'single';
+  const fmt = (S.exportFormat || 'jpg').toUpperCase();
+  btn.textContent = kind === 'single' ? `✓ 生成并导出 ${fmt}` : `✓ 导出排版图 ${fmt}`;
+}
+
+async function doExportMain() {
+  const kind = S.exportKind || 'single';
+  if (kind === 'single') {
+    await generate(true); // generate(true) 会自动调用 dlSingle()
+  } else {
+    // 排版图目前逻辑是先生成预览再点导出。为了 UX，我们直接合并：
+    if (!S.resultDataUrl) {
+      await generate(); 
+    }
+    await dlPrint();
+  }
 }
 
 function isMobile() {

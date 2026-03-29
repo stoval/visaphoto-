@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Visa Photo</string>
+    <string name="title_activity_main">Visa Photo</string>
+    <string name="package_name">com.basidehealing.visaphoto</string>
+    <string name="custom_url_scheme">com.basidehealing.visaphoto</string>
+</resources>

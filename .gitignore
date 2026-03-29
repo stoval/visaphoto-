@@ -1,1 +1,20 @@
-visaphoto.txt
+node_modules/
+.idea/
+.vscode/
+.DS_Store
+
+# Android Build Artifacts
+android/app/build/
+android/.gradle/
+android/local.properties
+android/captures/
+android/*.iml
+
+# PWA Build (Only if using a separate src/ folder, but here www/ is the source)
+# www/ 
+
+# Misc
+*.jks
+*.patch
+*.bak
+*.txt
