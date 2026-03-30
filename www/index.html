@@ -7,11 +7,12 @@
 <script src="vendor/mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b1020">
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
+
 /* RESPONSIVE HELPERS */
 .mobile-only { display: none !important; }
 .desktop-only { display: block; }
@@ -45,35 +46,17 @@
 
   .mobile-toolbar .m-row.row-main {
     display: grid;
-    grid-template-columns: 1fr 0.9fr 1.4fr;
+    grid-template-columns: 1fr auto auto;
     gap: 8px;
   }
 
-  /* Filename Config Styles */
-  #fileNameRow { 
-    display: grid; 
-    grid-template-columns: 1.4fr 1fr; 
-    gap: 8px; 
-    margin-bottom: 2px; 
+  .mobile-toolbar .m-row.row-export {
+    grid-template-columns: 1fr 1fr auto;
   }
-  #filenamePrefix { 
-    min-height: 40px; 
-    border-radius: 10px; 
-    padding: 0 12px; 
-    border: 1px solid rgba(255,255,255,0.15); 
-    background: rgba(255,255,255,0.05); 
-    color: #fff; 
-    font-size: 13px;
-    outline: none;
-  }
-  #autoUniqueName { transform: scale(1.1); margin-right: 4px; }
-  .fn-lbl { 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    gap: 6px; 
-    font-size: 12px; 
-    color: var(--ink3); 
+
+  .mobile-toolbar .m-row.row-tools {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
   }
 
   .mobile-toolbar .m-ctl { 
@@ -90,12 +73,73 @@
     align-items: center;
     justify-content: center;
   }
+
+  .mobile-toolbar .m-icon-btn {
+    min-width: 44px;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .mobile-toolbar .m-primary-mini {
+    background: linear-gradient(135deg, #d4a84a, #b8882a);
+    color: #fff;
+    border-color: rgba(212,168,74,0.65);
+  }
+
+  .mobile-toolbar .m-subtle {
+    background: rgba(255,255,255,0.05);
+  }
+
+  .mobile-toolbar .m-row.row-tools #mBg {
+    justify-content: flex-start;
+    text-align: left;
+    padding: 0 12px;
+    font-weight: 600;
+    border-color: rgba(255,255,255,0.22);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+
+  .mobile-toolbar .m-row.row-tools .m-icon-btn {
+    min-height: 34px;
+    border-radius: 999px;
+    font-size: 11px;
+    padding: 0 11px;
+    box-shadow: none;
+  }
+
+  .mobile-toolbar .m-row.row-tools .m-primary-mini {
+    background: rgba(212,168,74,0.16);
+    color: #f4cf7a;
+    border-color: rgba(212,168,74,0.42);
+  }
+
+  .mobile-toolbar .m-row.row-tools .m-subtle {
+    background: rgba(255,255,255,0.03);
+    color: rgba(255,255,255,0.9);
+    border-color: rgba(255,255,255,0.12);
+  }
+
+  .mobile-toolbar .m-row.row-export #btnExportMain {
+    min-height: 34px;
+    border-radius: 999px;
+    padding: 0 14px;
+    font-size: 11px;
+    font-weight: 700;
+    box-shadow: none;
+    background: rgba(212,168,74,0.16);
+    color: #f4cf7a;
+    border: 1px solid rgba(212,168,74,0.42);
+  }
+
+  .mobile-toolbar .m-row.row-export #btnExportMain:hover {
+    background: rgba(212,168,74,0.22);
+  }
   
   .center { padding: 12px !important; }
   .drop-zone { aspect-ratio: 1/1.2; }
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
 
 :root {
   --bg0: #f5f3ef;
@@ -138,6 +182,7 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 .header h1 { font-size: 15px; font-weight: 700; letter-spacing: 0.08em; }
 .theme-tog { margin-left: auto; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; background: var(--bg2); color: var(--ink); border: none; font-size: 14px; transition: transform 0.2s; }
 .theme-tog:hover { transform: scale(1.1); }
+.lang-tog { margin-left: 8px; }
 .header-sub { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--ink3); margin-left: 12px; }
 
 /* LAYOUT */
@@ -314,8 +359,9 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 
 /* FILE SIZE ROW */
 .fs-row { display: flex; align-items: center; gap: 6px; width: 100%; font-size: 11px; color: var(--ink2); }
-.fs-inp { width: 64px; background: white; border: 1px solid var(--bg2); border-radius: 5px; padding: 4px 6px; font-size: 12px; font-family: 'DM Mono', monospace; text-align: center; color: var(--ink); outline: none; }
+.fs-inp { width: 64px; background: var(--bg1); border: 1px solid var(--bg2); border-radius: 5px; padding: 4px 6px; font-size: 12px; font-family: 'DM Mono', monospace; text-align: center; color: var(--ink); outline: none; }
 .fs-inp:focus { border-color: var(--gold); }
+.fs-inp::placeholder { color: var(--ink3); opacity: 1; }
 
 /* COLLAPSIBLE AI BOX */
 .api-box-toggle { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
@@ -325,9 +371,10 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 .api-box-chevron.open { transform: rotate(180deg); }
 
 /* PRIVACY MODAL */
+.hidden { display: none !important; }
 .modal-overlay { position: fixed; inset: 0; background: rgba(26,25,22,0.55); z-index: 200; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
 .modal-overlay.hidden { display: none; }
-.modal-box { background: white; border-radius: 14px; padding: 28px 24px; max-width: 420px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+.modal-box { background: var(--bg0); border: 1px solid var(--bg2); border-radius: 14px; padding: 28px 24px; max-width: 420px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,.25); color: var(--ink); }
 .modal-box h2 { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--ink); }
 .modal-box p { font-size: 12px; color: var(--ink2); line-height: 1.7; margin-bottom: 10px; }
 .modal-box .modal-btns { display: flex; gap: 8px; margin-top: 18px; }
@@ -336,6 +383,18 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 .modal-accept:hover { background: #333; }
 .modal-decline { background: transparent; color: var(--ink2); border-color: var(--bg2) !important; }
 .modal-decline:hover { border-color: var(--ink) !important; }
+.lang-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.lang-item { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--bg2); background: var(--bg0); color: var(--ink); font-size: 13px; cursor: pointer; }
+.lang-item.active { border-color: var(--gold); box-shadow: 0 0 0 1px rgba(184,136,42,0.25) inset; }
+.lang-item small { color: var(--ink3); font-family: 'DM Mono', monospace; }
+.lang-ico { width: 16px; height: 16px; display: block; fill: currentColor; }
+.release-meta { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--ink2); margin-top: 4px; }
+.release-list { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; max-height: 50vh; overflow: auto; }
+.release-item { border: 1px solid var(--bg2); border-radius: 10px; padding: 12px; background: var(--bg0); }
+.release-item h3 { font-size: 13px; margin-bottom: 4px; color: var(--ink); }
+.release-item time { display: block; font-size: 11px; color: var(--ink3); margin-bottom: 8px; font-family: 'DM Mono', monospace; }
+.release-item ul { margin: 0; padding-left: 18px; color: var(--ink2); font-size: 12px; line-height: 1.6; }
+.release-empty { font-size: 12px; color: var(--ink2); margin-top: 12px; }
 
 /* RESPONSIVE */
 @media (max-width: 860px) {
@@ -351,46 +410,45 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 <body>
 <!-- MOBILE TOOLBAR (Sticky Top) -->
 <div class="mobile-toolbar mobile-only">
-  <!-- Row 1: Spec & Action -->
+  <!-- Row 1: Spec & Language -->
   <div class="m-row row-main">
     <select id="mPreset" class="m-ctl"></select>
-    <button class="btn btn-dark m-ctl" id="mBtnRmBg" onclick="doRemoveBg()">✦ AI 抠图</button>
-    <button id="btnReupload" class="m-ctl" style="border:none;background:rgba(255,255,255,0.05)">↑ 换图</button>
+    <button id="mReleaseTog" class="m-ctl m-icon-btn m-subtle" type="button" aria-label="版本信息" title="版本信息">v1.0</button>
+    <button id="mLangTog" class="m-ctl m-icon-btn m-subtle" type="button" aria-label="切换语言" title="切换语言">
+      <svg class="lang-ico" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M11.99,2C6.47,2 2,6.48 2,12s4.47,10 9.99,10C17.52,22 22,17.52 22,12S17.52,2 11.99,2zM18.91,8h-3.08c-0.33,-1.42 -0.87,-2.75 -1.58,-3.97 1.85,0.73 3.42,2.1 4.66,3.97zM12,4.04c0.83,1.2 1.48,2.53 1.91,3.96h-3.82c0.43,-1.43 1.08,-2.76 1.91,-3.96zM4.26,14C4.1,13.35 4,12.68 4,12s0.1,-1.35 0.26,-2h3.38c-0.09,0.66 -0.14,1.32 -0.14,2s0.05,1.34 0.14,2L4.26,14zM4.26,10h3.38c0.16,-2.16 0.87,-4.12 1.98,-5.76C7.38,4.98 5.48,6.23 4.26,10zM10.22,4.24C9.51,5.46 8.97,6.79 8.64,8h3.08C11.01,6.79 10.59,5.46 10.22,4.24zM12,19.96c-0.83,-1.2 -1.48,-2.53 -1.91,-3.96h3.82c-0.43,1.43 -1.08,2.76 -1.91,3.96zM14.34,14H9.66c-0.09,-0.66 -0.16,-1.32 -0.16,-2s0.07,-1.35 0.16,-2h4.68c0.09,0.65 0.16,1.32 0.16,2s-0.07,1.34 -0.16,2zM15.82,19.97c0.71,-1.22 1.25,-2.55 1.58,-3.97h-3.08c0.33,1.42 0.75,2.75 1.5,3.97zM16.75,14c0.09,-0.66 0.15,-1.32 0.15,-2s-0.06,-1.34 -0.15,-2h3.38c0.16,0.65 0.26,1.32 0.26,2s-0.1,1.35 -0.26,2h-3.38zM18.91,16h-3.08c-0.33,1.42 -0.87,2.75 -1.58,3.97 1.85,-0.73 3.42,-2.1 4.66,-3.97z"/>
+      </svg>
+    </button>
   </div>
   
   <!-- Row 2: Export Config -->
-  <div class="m-row">
+  <div class="m-row row-export">
     <select id="exportKind" class="m-ctl">
-      <option value="single">单张照片</option>
-      <option value="sheet">排版图（6寸）</option>
+      <option value="single" id="exportKindSingle">单张照片</option>
+      <option value="sheet" id="exportKindSheet">排版图（6寸）</option>
     </select>
     <select id="exportFormat" class="m-ctl">
       <option value="jpg">JPG</option>
       <option value="png">PNG</option>
     </select>
+    <button id="btnExportMain" class="btn btn-gold m-ctl m-icon-btn" style="font-weight:600">导出</button>
   </div>
 
-  <!-- Row 3: BG & Filename -->
-  <div class="m-row">
-    <select id="bgSelect" class="m-ctl"></select>
-    <input id="filenamePrefix" class="m-ctl" type="text" placeholder="文件名（可选）" />
-  </div>
-
-  <!-- Row 4: Unique & Main Action -->
-  <div class="m-row">
-    <label class="m-ctl fn-lbl" style="border:none;background:none;justify-content:flex-start">
-      <input id="autoUniqueName" type="checkbox" checked />
-      自动防覆盖
-    </label>
-    <button id="btnExportMain" class="btn btn-gold m-ctl" style="font-weight:600">✓ 生成并导出 JPG</button>
+  <!-- Row 3: BG & Actions -->
+  <div class="m-row row-tools">
+    <select id="mBg" class="m-ctl"></select>
+    <button class="m-ctl m-icon-btn m-primary-mini" id="mBtnRmBg" type="button" onclick="doRemoveBg()" aria-label="AI抠图" title="AI抠图">抠图</button>
+    <button id="btnReupload" class="m-ctl m-icon-btn m-subtle" type="button" aria-label="重新上传" title="重新上传">换图</button>
   </div>
 </div>
 
 <header class="header">
   <div class="header-icon">📷</div>
-  <h1>证件照制作</h1>
-  <button class="theme-tog" id="themeTog" title="切换主题" aria-label="切换深浅主题">🌓</button>
-  <span class="header-sub">本地运行 · 不上传隐私数据</span>
+  <h1 id="appTitle">证件照制作</h1>
+    <button class="theme-tog" id="releaseTog" title="版本信息" aria-label="版本信息">v1.0</button>
+    <button class="theme-tog" id="themeTog" title="切换主题" aria-label="切换深浅主题">🌓</button>
+    <button class="theme-tog lang-tog" id="langTog" title="切换语言" aria-label="切换语言">🌐</button>
+  <span class="header-sub" id="headerSub">本地运行 · 不上传隐私数据</span>
 </header>
 
 <div class="layout">
@@ -399,93 +457,90 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
   <div class="panel-l desktop-only">
 
     <div class="sect">
-      <div class="sect-lbl">AI 抠图</div>
+      <div class="sect-lbl" id="sectAi">AI 抠图</div>
       <div class="api-box">
         <div class="api-box-toggle" onclick="toggleApiBox()">
           <div class="api-title">🔑 remove.bg API Key</div>
           <span class="api-box-chevron" id="apiChevron">▼</span>
         </div>
         <div class="api-box-body" id="apiBoxBody">
-          <p style="margin-top:8px">免费账号每月可处理 50 张，无需付费。<br>没有 Key？直接跳过也可手动换背景色。</p>
-          <a href="https://www.remove.bg/zh/api" target="_blank" rel="noopener noreferrer">→ 免费注册获取 Key</a>
+          <p style="margin-top:8px" id="apiDesc">免费账号每月可处理 50 张，无需付费。<br>没有 Key？直接跳过也可手动换背景色。</p>
+          <a id="apiLink" href="https://www.remove.bg/zh/api" target="_blank" rel="noopener noreferrer">→ 免费注册获取 Key</a>
           <input class="api-inp" type="password" id="apiInp" placeholder="粘贴你的 API Key...">
-          <button class="api-save" onclick="saveKey()">保存</button>
+          <button class="api-save" id="apiSaveBtn" onclick="saveKey()">保存</button>
           <div class="api-st" id="apiSt"></div>
         </div>
       </div>
     </div>
 
     <div class="sect">
-      <div class="sect-lbl">证件照规格</div>
+      <div class="sect-lbl" id="sectSpecs">证件照规格</div>
       <div class="preset-list" id="presetList"></div>
-      <div style="margin-top:8px">
-        <a href="https://cs.mfa.gov.cn/zggmcg/lqbz/电子护照/" target="_blank" rel="noopener noreferrer" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--blue);text-decoration:none;display:block;margin-bottom:12px">📚 中国海关/电子护照官方规格说明 (参考)</a>
-      </div>
       <div style="margin-top:4px">
-        <div class="sect-lbl">自定义尺寸 (mm)</div>
+        <div class="sect-lbl" id="customSizeLabel">自定义尺寸 (mm)</div>
         <div class="cs-row">
           <input class="cs-inp" type="number" id="csW" value="35" min="10" max="200">
           <div class="cs-x">×</div>
           <input class="cs-inp" type="number" id="csH" value="45" min="10" max="200">
         </div>
-        <button class="btn btn-ghost" style="width:100%;margin-top:6px;font-size:12px" onclick="applyCustom()">应用自定义</button>
+        <button class="btn btn-ghost" id="applyCustomBtn" style="width:100%;margin-top:6px;font-size:12px" onclick="applyCustom()">应用自定义</button>
       </div>
     </div>
 
     <div class="sect">
-      <div class="sect-lbl">参考线</div>
+      <div class="sect-lbl" id="sectGuides">参考线</div>
       <div class="tog-row">
-        <span>显示参考线</span>
+        <span id="guideToggleLabel">显示参考线</span>
         <label class="toggle"><input type="checkbox" id="guideChk" checked onchange="S.showGuides=this.checked;drawEdit()"><div class="t-tr"></div></label>
       </div>
       <div class="tog-row">
-        <span>显示对齐剪影 (Beta)</span>
+        <span id="silToggleLabel">显示对齐剪影 (Beta)</span>
         <label class="toggle"><input type="checkbox" id="silChk" checked onchange="S.showSil=this.checked;drawEdit()"><div class="t-tr"></div></label>
       </div>
       <div class="guide-legend" id="guideLegend">
-        <div class="gl-item"><div class="gl-dot" style="background:rgba(200,50,40,0.35)"></div>禁区（头顶/下巴不得进入红色区）</div>
-        <div class="gl-item"><div class="gl-dot" style="background:rgba(200,160,20,0.4)"></div>头顶目标区（距上边 3–5mm）</div>
-        <div class="gl-item"><div class="gl-dot" style="background:rgba(40,160,80,0.3)"></div>下巴目标区（距底边 7–14mm）</div>
-        <div class="gl-item"><div class="gl-dot" style="border:1.5px solid rgba(40,160,80,0.8)"></div>脸宽外边界（最大 22mm）</div>
-        <div class="gl-item"><div class="gl-dot" style="border:1.5px dashed rgba(200,160,20,0.8)"></div>垂直中心线（HH线，对齐鼻梁）</div>
-        <div class="gl-item"><div class="gl-dot" style="border:1.5px solid var(--gold);border-radius:50%"></div>人像剪影（对齐头顶与眼睛基准）</div>
-        <div class="gl-item" style="color:var(--ink3);font-style:italic">↑ 规格因所选证件而变化</div>
+        <div class="gl-item"><div class="gl-dot" style="background:rgba(200,50,40,0.35)"></div><span id="guideLegend1">禁区（头顶/下巴不得进入红色区）</span></div>
+        <div class="gl-item"><div class="gl-dot" style="background:rgba(200,160,20,0.4)"></div><span id="guideLegend2">头顶目标区（距上边 3–5mm）</span></div>
+        <div class="gl-item"><div class="gl-dot" style="background:rgba(40,160,80,0.3)"></div><span id="guideLegend3">下巴目标区（距底边 7–14mm）</span></div>
+        <div class="gl-item"><div class="gl-dot" style="border:1.5px solid rgba(40,160,80,0.8)"></div><span id="guideLegend4">脸宽外边界（最大 22mm）</span></div>
+        <div class="gl-item"><div class="gl-dot" style="border:1.5px dashed rgba(200,160,20,0.8)"></div><span id="guideLegend5">垂直中心线（HH线，对齐鼻梁）</span></div>
+        <div class="gl-item"><div class="gl-dot" style="border:1.5px solid var(--gold);border-radius:50%"></div><span id="guideLegend6">人像剪影（对齐头顶与眼睛基准）</span></div>
+        <div class="gl-item" style="color:var(--ink3);font-style:italic"><span id="guideLegend7">↑ 规格因所选证件而变化</span></div>
       </div>
     </div>
 
     <div class="sect">
-      <div class="sect-lbl">背景颜色</div>
+      <div class="sect-lbl" id="sectBg">背景颜色</div>
       <div class="bg-strip" id="bgStrip"></div>
     </div>
 
     <div class="sect" id="clothesSect" style="display:none">
-      <div class="sect-lbl">正装替换 (Beta)</div>
+      <div class="sect-lbl" id="sectClothes">正装替换 (Beta)</div>
       <div class="bg-strip">
-        <div class="swatch sticker-off active" onclick="setSticker(null)" title="无">🚫</div>
-        <div class="swatch sticker-male" onclick="setSticker('male')" title="男装">👔</div>
-        <div class="swatch sticker-female" onclick="setSticker('female')" title="女装">👚</div>
+        <div class="swatch sticker-off active" id="stickerOff" onclick="setSticker(null)" title="无">🚫</div>
+        <div class="swatch sticker-male" id="stickerMale" onclick="setSticker('male')" title="男装">👔</div>
+        <div class="swatch sticker-female" id="stickerFemale" onclick="setSticker('female')" title="女装">👚</div>
       </div>
       <div class="rng-row" style="margin-top:8px">
-        <label>垂直位置 <span id="vSy">0</span></label>
+        <label><span id="stickerYLabel">垂直位置</span> <span id="vSy">0</span></label>
         <input type="range" id="rSy" min="-100" max="100" value="0" oninput="S.stickerY=parseInt(this.value);document.getElementById('vSy').textContent=this.value;requestDraw()">
       </div>
     </div>
 
     <div class="sect">
-      <div class="sect-lbl">图像调整</div>
+      <div class="sect-lbl" id="sectAdjust">图像调整</div>
       <div class="rng-row">
-        <label onclick="resetVal('B')">亮度 <span id="vB">100</span>%</label>
+        <label onclick="resetVal('B')"><span id="brightLabel">亮度</span> <span id="vB">100</span>%</label>
         <input type="range" id="rB" min="50" max="200" value="100" oninput="onAdj()">
       </div>
       <div class="rng-row">
-        <label onclick="resetVal('C')">对比度 <span id="vC">100</span>%</label>
+        <label onclick="resetVal('C')"><span id="contrastLabel">对比度</span> <span id="vC">100</span>%</label>
         <input type="range" id="rC" min="50" max="200" value="100" oninput="onAdj()">
       </div>
       <div class="rng-row">
-        <label onclick="resetVal('S')">饱和度 <span id="vS">100</span>%</label>
+        <label onclick="resetVal('S')"><span id="saturationLabel">饱和度</span> <span id="vS">100</span>%</label>
         <input type="range" id="rS" min="0" max="200" value="100" oninput="onAdj()">
       </div>
-      <button class="btn btn-ghost" style="width:100%;font-size:12px;margin-top:2px" onclick="resetAdj()">↺ 重置调整</button>
+      <button class="btn btn-ghost" id="resetAdjustBtn" style="width:100%;font-size:12px;margin-top:2px" onclick="resetAdj()">↺ 重置调整</button>
     </div>
 
   </div>
@@ -494,16 +549,16 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
   <div class="center">
 
     <div class="steps-bar">
-      <div class="step-item active" id="st1"><span class="step-n">1</span>上传照片</div>
-      <div class="step-item" id="st2"><span class="step-n">2</span>AI 抠图</div>
-      <div class="step-item" id="st3"><span class="step-n">3</span>调整位置</div>
-      <div class="step-item" id="st4"><span class="step-n">4</span>生成导出</div>
+      <div class="step-item active" id="st1"><span class="step-n">1</span><span id="step1Label">上传照片</span></div>
+      <div class="step-item" id="st2"><span class="step-n">2</span><span id="step2Label">AI 抠图</span></div>
+      <div class="step-item" id="st3"><span class="step-n">3</span><span id="step3Label">调整位置</span></div>
+      <div class="step-item" id="st4"><span class="step-n">4</span><span id="step4Label">生成导出</span></div>
     </div>
 
     <div class="drop-zone" id="dz" onclick="document.getElementById('fi').click()">
       <div class="dz-icon">📤</div>
-      <p>点击或拖拽上传照片</p>
-      <span>JPG / PNG · 建议正面免冠照</span>
+      <p id="dropTitle">点击或拖拽上传照片</p>
+      <span id="dropHint">JPG / PNG · 建议正面免冠照</span>
       <input type="file" id="fi" accept="image/*" style="display:none" onchange="onFile(event)">
     </div>
 
@@ -511,7 +566,7 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
       <div class="canvas-wrap" id="cf">
         <canvas id="editCanvas" width="420" height="420"></canvas>
       </div>
-      <div class="canvas-hint">拖动调整 · 滚轮/双指缩放 · 方向键微移 · Shift+方向键粗移</div>
+      <div class="canvas-hint" id="canvasHint">拖动调整 · 滚轮/双指缩放 · 方向键微移 · Shift+方向键粗移</div>
       <div class="adj-row">
         <button class="adj-btn" title="缩小" onclick="adjScale(-0.05)">－</button>
         <button class="adj-btn" title="放大" onclick="adjScale(0.05)">＋</button>
@@ -527,11 +582,20 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
       </div>
       <div class="loader" id="ldr"><div class="spin"></div><span id="ldrTxt">处理中...</span></div>
       <div class="btn-row">
-        <button class="btn btn-ghost" onclick="triggerUp()">↑ 重新上传</button>
+        <button class="btn btn-ghost" id="btnReuploadFull" onclick="triggerUp()">↑ 重新上传</button>
         <button class="btn btn-ghost" id="btnRst" onclick="resetPos()" disabled>重置</button>
         <button class="btn btn-ghost" id="btnToggle" onclick="toggleNoBg()" disabled style="display:none">切换原图</button>
         <button class="btn btn-dark" id="btnRmBg" onclick="doRemoveBg()" disabled>✦ AI 抠图</button>
         <button class="btn btn-gold" id="btnGen" onclick="generate()" disabled>✓ 生成</button>
+      </div>
+
+      <div class="rbox mobile-only" id="afterExportBoxMobile" style="width:100%;max-width:470px">
+        <div class="rbox-hd" id="afterExportTitleMobile">导出后操作</div>
+        <div class="rbox-bd">
+          <div id="afterExportFileMobile" style="font-size:11px;font-family:'DM Mono',monospace;color:var(--ink2);align-self:stretch;word-break:break-all"></div>
+          <button class="btn btn-dark" id="btnShareExportedMobile" style="width:100%" onclick="shareLastExport()">↗ 分享生成文件</button>
+          <button class="btn btn-ghost" id="btnLocateExportedMobile" style="width:100%" onclick="showSavedLocation()">📁 查看保存位置</button>
+        </div>
       </div>
     </div>
 
@@ -542,11 +606,11 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 
     <div id="emptyMsg" class="empty">
       <div class="ei">🪪</div>
-      上传并处理照片后<br>预览结果显示在这里
+      <span id="emptyMsgText">上传并处理照片后<br>预览结果显示在这里</span>
     </div>
 
     <div class="rbox" id="prevBox">
-      <div class="rbox-hd">单张预览</div>
+      <div class="rbox-hd" id="singlePreviewTitle">单张预览</div>
       <div class="rbox-bd">
         <img id="resultPrev" src="" alt="证件照生成预览">
         <table class="info-tbl" id="infoTbl"></table>
@@ -554,18 +618,18 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
     </div>
 
     <div class="rbox" id="printBox">
-      <div class="rbox-hd">打印排版 (6寸纸)</div>
+      <div class="rbox-hd" id="printBoxTitle">打印排版 (6寸纸)</div>
       <div class="rbox-bd">
         <div class="rng-row" style="width:100%">
-          <label>每行张数 <span id="vCol">4</span></label>
+          <label><span id="perRowLabel">每行张数</span> <span id="vCol">4</span></label>
           <input type="range" id="rCol" min="2" max="6" value="4" step="1" oninput="updatePrint()">
         </div>
         <div class="rng-row" style="width:100%">
-          <label>行数 <span id="vRow">2</span></label>
+          <label><span id="rowCountLabel">行数</span> <span id="vRow">2</span></label>
           <input type="range" id="rRow" min="1" max="5" value="2" step="1" oninput="updatePrint()">
         </div>
         <div class="tog-row">
-          <span>显示裁切线</span>
+          <span id="cutLineLabel">显示裁切线</span>
           <label class="toggle">
             <input type="checkbox" id="cutChk" checked onchange="updatePrint()">
             <div class="t-tr"></div>
@@ -576,29 +640,38 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
     </div>
 
     <div class="rbox" id="dlBox">
-      <div class="rbox-hd">导出</div>
+      <div class="rbox-hd" id="exportBoxTitle">导出</div>
       <div class="rbox-bd">
         <div class="tog-row">
-          <span>保持透明 (PNG)</span>
+          <span id="keepTransparentLabel">保持透明 (PNG)</span>
           <label class="toggle">
             <input type="checkbox" id="fmtPng" onchange="generate()">
             <div class="t-tr"></div>
           </label>
         </div>
-        <div class="fs-row"><span>文件大小上限</span>
+        <div class="fs-row"><span id="sizeLimitLabel">文件大小上限</span>
           <input class="fs-inp" type="number" id="maxKB" value="0" min="0" max="5000" placeholder="不限">
-          <span>KB（0=不限）</span>
+          <span id="sizeLimitHint">KB（0=不限）</span>
         </div>
         <div id="sizePrev" style="font-size:11px;font-family:'DM Mono',monospace;color:var(--gold);margin-top:4px;font-weight:600">预计大小: -- KB</div>
-        <div style="font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace;line-height:1.6;align-self:stretch;margin-top:8px">
+        <div id="sizeGuide" style="font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace;line-height:1.6;align-self:stretch;margin-top:8px">
           常见上限参考：<br>
           领事网上传 ≤ 120 KB<br>
           美签 DS-160 ≤ 240 KB<br>
           加拿大 IRCC ≤ 4000 KB
         </div>
         <button class="btn btn-dark" id="btnDlSingle" style="width:100%" onclick="dlSingle()">⬇ 下载单张 JPG</button>
-        <button class="btn btn-ghost" style="width:100%" onclick="dlPrint()">⬇ 下载排版图</button>
-        <button class="btn btn-ghost" style="width:100%" onclick="copyToClipboard()">📋 复制图片</button>
+        <button class="btn btn-ghost" id="btnDlPrint" style="width:100%" onclick="dlPrint()">⬇ 下载排版图</button>
+        <button class="btn btn-ghost" id="btnCopyImg" style="width:100%" onclick="copyToClipboard()">📋 复制图片</button>
+      </div>
+    </div>
+
+    <div class="rbox" id="afterExportBox">
+      <div class="rbox-hd" id="afterExportTitle">导出后操作</div>
+      <div class="rbox-bd">
+        <div id="afterExportFile" style="font-size:11px;font-family:'DM Mono',monospace;color:var(--ink2);align-self:stretch;word-break:break-all"></div>
+        <button class="btn btn-dark" id="btnShareExported" style="width:100%" onclick="shareLastExport()">↗ 分享生成文件</button>
+        <button class="btn btn-ghost" id="btnLocateExported" style="width:100%" onclick="showSavedLocation()">📁 查看保存位置</button>
       </div>
     </div>
 
@@ -607,16 +680,38 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 
 <div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
 
+<div class="modal-overlay hidden" id="langModal">
+  <div class="modal-box">
+    <h2 id="langMenuTitle">选择语言</h2>
+    <div class="lang-list" id="langList"></div>
+    <div class="modal-btns">
+      <button class="modal-decline" id="langMenuClose" type="button">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="releaseModal">
+  <div class="modal-box">
+    <h2 id="releaseTitle">版本信息</h2>
+    <div class="release-meta" id="releaseMeta">Version 1.0.0</div>
+    <div class="release-list" id="releaseList"></div>
+    <div class="release-empty hidden" id="releaseEmpty">暂无更新记录</div>
+    <div class="modal-btns">
+      <button class="modal-decline" id="releaseClose" type="button">关闭</button>
+    </div>
+  </div>
+</div>
+
 <!-- 隐私声明弹窗 -->
 <div class="modal-overlay hidden" id="privacyModal">
   <div class="modal-box">
-    <h2>🔒 关于隐私与免责</h2>
-    <p>您选择的照片将在<strong>浏览器本地</strong>处理，不上传到任何服务器。</p>
-    <p>作为用户，您有责任自行核对生成的证件照是否符合相关官方最新要求，本程序作者不对使用结果承担任何责任。</p>
-    <p style="color:var(--ink3);font-size:11px">网站仅收集匹名访问数据（Google Analytics），您的照片不会被收集。</p>
+    <h2 id="privacyTitle">🔒 关于隐私与免责</h2>
+    <p id="privacyBody1">您选择的照片将在<strong>浏览器本地</strong>处理，不上传到任何服务器。</p>
+    <p id="privacyBody2">作为用户，您有责任自行核对生成的证件照是否符合相关官方最新要求，本程序作者不对使用结果承担任何责任。</p>
+    <p style="color:var(--ink3);font-size:11px" id="privacyBody3">网站仅收集匹名访问数据（Google Analytics），您的照片不会被收集。</p>
     <div class="modal-btns">
-      <button class="modal-decline" onclick="location.href='https://www.google.com'">[不同意，离开]</button>
-      <button class="modal-accept" onclick="acceptPrivacy()">同意并继续</button>
+      <button class="modal-decline" id="privacyDecline" onclick="location.href='https://www.google.com'">[不同意，离开]</button>
+      <button class="modal-accept" id="privacyAccept" onclick="acceptPrivacy()">同意并继续</button>
     </div>
   </div>
 </div>
@@ -643,40 +738,1121 @@ const BG_OPTIONS = [
   { value: 'blue',  label: '蓝底' },
   { value: 'red',   label: '红底' }
 ];
+const RELEASE_FALLBACK = {
+  currentVersion: '1.0.0',
+  currentBuild: '1',
+  updatedAt: '2026-03-30',
+  releases: []
+};
 
-const KEY_PREFIX = 'vp_filename_prefix';
 const KEY_AUTO_UNIQUE = 'vp_auto_unique_name';
 const KEY_BG = 'vp_bg';
+const KEY_LANG = 'vp_lang';
+const LANG_OPTIONS = [
+  { code: 'zh', label: '简体中文', short: '简中' },
+  { code: 'en', label: 'English', short: 'EN' },
+  { code: 'zh-TW', label: '繁體中文', short: '繁中' },
+  { code: 'ja', label: '日本語', short: '日本語' },
+  { code: 'ko', label: '한국어', short: '한국어' }
+];
+const PRESET_LOCALES = {
+  zh: {
+    cn_pass: ['中国护照', '白底'], cn_visa: ['中国签证', '白底'], cn_id: ['居民身份证', '白底'], cn_drv: ['驾驶证', '白底'],
+    cn_ssc: ['社保卡', '白底'], cn_teacher: ['教师资格证', '1寸'], std_1inch: ['标准1寸', '通用'], std_2inch: ['标准2寸', '通用'],
+    std_2inch_alt: ['大2寸', '通用'], us_pass: ['美国护照', '2×2 in'], us_visa: ['美国签证', '2×2 in'], ca_pass: ['加拿大护照', '白底'],
+    ca_visa: ['加拿大签证', '白底'], uk_visa: ['英国签证', '白底'], au_visa: ['澳大利亚签证', '白底'], jp_visa: ['日本签证', '白底'],
+    eu_visa: ['申根签证', '白底'], th_visa: ['泰国签证（普通签）', '35×45mm · 白底'], th_visa_4060: ['泰国签证（落地签）', '40×60mm · 白底'], vn_visa: ['越南签证', '白底']
+  },
+  en: {
+    cn_pass: ['China Passport', 'White'], cn_visa: ['China Visa', 'White'], cn_id: ['China ID Card', 'White'], cn_drv: ['Driver License', 'White'],
+    cn_ssc: ['Social Security Card', 'White'], cn_teacher: ['Teacher Certificate', '1 inch'], std_1inch: ['Standard 1 inch', 'General'], std_2inch: ['Standard 2 inch', 'General'],
+    std_2inch_alt: ['Large 2 inch', 'General'], us_pass: ['US Passport', '2×2 in'], us_visa: ['US Visa', '2×2 in'], ca_pass: ['Canada Passport', 'White'],
+    ca_visa: ['Canada Visa', 'White'], uk_visa: ['UK Visa', 'White'], au_visa: ['Australia Visa', 'White'], jp_visa: ['Japan Visa', 'White'],
+    eu_visa: ['Schengen Visa', 'White'], th_visa: ['Thailand Visa (Standard)', '35×45mm · White'], th_visa_4060: ['Thailand Visa (Visa on Arrival)', '40×60mm · White'], vn_visa: ['Vietnam Visa', 'White']
+  },
+  'zh-TW': {
+    cn_pass: ['中國護照', '白底'], cn_visa: ['中國簽證', '白底'], cn_id: ['居民身分證', '白底'], cn_drv: ['駕照', '白底'],
+    cn_ssc: ['社保卡', '白底'], cn_teacher: ['教師資格證', '1 吋'], std_1inch: ['標準 1 吋', '通用'], std_2inch: ['標準 2 吋', '通用'],
+    std_2inch_alt: ['大 2 吋', '通用'], us_pass: ['美國護照', '2×2 in'], us_visa: ['美國簽證', '2×2 in'], ca_pass: ['加拿大護照', '白底'],
+    ca_visa: ['加拿大簽證', '白底'], uk_visa: ['英國簽證', '白底'], au_visa: ['澳洲簽證', '白底'], jp_visa: ['日本簽證', '白底'],
+    eu_visa: ['申根簽證', '白底'], th_visa: ['泰國簽證（普通簽）', '35×45mm · 白底'], th_visa_4060: ['泰國簽證（落地簽）', '40×60mm · 白底'], vn_visa: ['越南簽證', '白底']
+  },
+  ja: {
+    cn_pass: ['中国パスポート', '白背景'], cn_visa: ['中国ビザ', '白背景'], cn_id: ['中国身分証', '白背景'], cn_drv: ['運転免許', '白背景'],
+    cn_ssc: ['社会保障カード', '白背景'], cn_teacher: ['教師資格証', '1インチ'], std_1inch: ['標準 1インチ', '汎用'], std_2inch: ['標準 2インチ', '汎用'],
+    std_2inch_alt: ['大きめ 2インチ', '汎用'], us_pass: ['米国パスポート', '2×2 in'], us_visa: ['米国ビザ', '2×2 in'], ca_pass: ['カナダパスポート', '白背景'],
+    ca_visa: ['カナダビザ', '白背景'], uk_visa: ['英国ビザ', '白背景'], au_visa: ['オーストラリアビザ', '白背景'], jp_visa: ['日本ビザ', '白背景'],
+    eu_visa: ['シェンゲンビザ', '白背景'], th_visa: ['タイビザ（通常）', '35×45mm · 白背景'], th_visa_4060: ['タイビザ（到着時ビザ）', '40×60mm · 白背景'], vn_visa: ['ベトナムビザ', '白背景']
+  },
+  ko: {
+    cn_pass: ['중국 여권', '흰 배경'], cn_visa: ['중국 비자', '흰 배경'], cn_id: ['중국 신분증', '흰 배경'], cn_drv: ['운전면허증', '흰 배경'],
+    cn_ssc: ['사회보장카드', '흰 배경'], cn_teacher: ['교사 자격증', '1인치'], std_1inch: ['표준 1인치', '일반'], std_2inch: ['표준 2인치', '일반'],
+    std_2inch_alt: ['큰 2인치', '일반'], us_pass: ['미국 여권', '2×2 in'], us_visa: ['미국 비자', '2×2 in'], ca_pass: ['캐나다 여권', '흰 배경'],
+    ca_visa: ['캐나다 비자', '흰 배경'], uk_visa: ['영국 비자', '흰 배경'], au_visa: ['호주 비자', '흰 배경'], jp_visa: ['일본 비자', '흰 배경'],
+    eu_visa: ['쉥겐 비자', '흰 배경'], th_visa: ['태국 비자 (일반)', '35×45mm · 흰 배경'], th_visa_4060: ['태국 비자 (도착비자)', '40×60mm · 흰 배경'], vn_visa: ['베트남 비자', '흰 배경']
+  }
+};
+const BG_LABELS = {
+  zh: { '#FFFFFF': '白色', '#4A80C8': '蓝色', '#87CEEB': '浅蓝', '#E0E0E0': '浅灰', '#C83C3A': '红色', transparent: '透明', custom: '自定义' },
+  en: { '#FFFFFF': 'White', '#4A80C8': 'Blue', '#87CEEB': 'Light Blue', '#E0E0E0': 'Light Gray', '#C83C3A': 'Red', transparent: 'Transparent', custom: 'Custom' },
+  'zh-TW': { '#FFFFFF': '白色', '#4A80C8': '藍色', '#87CEEB': '淺藍', '#E0E0E0': '淺灰', '#C83C3A': '紅色', transparent: '透明', custom: '自訂' },
+  ja: { '#FFFFFF': '白', '#4A80C8': '青', '#87CEEB': 'ライトブルー', '#E0E0E0': 'ライトグレー', '#C83C3A': '赤', transparent: '透明', custom: 'カスタム' },
+  ko: { '#FFFFFF': '흰색', '#4A80C8': '파랑', '#87CEEB': '연파랑', '#E0E0E0': '연회색', '#C83C3A': '빨강', transparent: '투명', custom: '사용자 지정' }
+};
+const I18N = {
+  zh: {
+    appTitle: '证件照制作',
+    headerSub: '本地运行 · 不上传隐私数据',
+    emptyMsgHtml: '上传并处理照片后<br>预览结果显示在这里',
+    exportBoxTitle: '导出',
+    keepTransparentLabel: '保持透明 (PNG)',
+    sizeLimitLabel: '文件大小上限',
+    sizeLimitHint: 'KB（0=不限）',
+    sizeGuideHtml: '常见上限参考：<br>领事网上传 ≤ 120 KB<br>美签 DS-160 ≤ 240 KB<br>加拿大 IRCC ≤ 4000 KB',
+    afterExportTitle: '导出后操作',
+    btnShareExported: '↗ 分享生成文件',
+    btnLocateExported: '📁 查看保存位置',
+    btnDlSingleJpg: '⬇ 下载单张 JPG',
+    btnDlSinglePng: '⬇ 下载单张 PNG',
+    btnDlPrint: '⬇ 下载排版图',
+    btnCopyImg: '📋 复制图片',
+    btnExportSingle: '导出',
+    btnExportSheet: '导出排版',
+    btnRemoveBgShort: '抠图',
+    btnReuploadShort: '换图',
+    langButtonShort: '语言',
+    themeToggleTitle: '切换主题',
+    releaseToggleTitle: '版本信息',
+    exportKindSingle: '单张照片',
+    exportKindSheet: '排版图（6寸）',
+    langMenuTitle: '选择语言',
+    langMenuClose: '关闭',
+    releaseTitle: '版本信息',
+    releaseClose: '关闭',
+    releaseEmpty: '暂无更新记录',
+    releaseMeta: (version, updatedAt, build) => `版本 ${version}${build ? ` (${build})` : ''}${updatedAt ? ` · 更新于 ${updatedAt}` : ''}`,
+    sectAi: 'AI 抠图',
+    apiDescHtml: '免费账号每月可处理 50 张，无需付费。<br>没有 Key？直接跳过也可手动换背景色。',
+    apiLinkText: '→ 免费注册获取 Key',
+    apiPlaceholder: '粘贴你的 API Key...',
+    apiSaveBtn: '保存',
+    sectSpecs: '证件照规格',
+    officialSpecLink: '📚 中国海关/电子护照官方规格说明 (参考)',
+    customSizeLabel: '自定义尺寸 (mm)',
+    applyCustomBtn: '应用自定义',
+    sectGuides: '参考线',
+    guideToggleLabel: '显示参考线',
+    silToggleLabel: '显示对齐剪影 (Beta)',
+    guideLegend1: '禁区（头顶/下巴不得进入红色区）',
+    guideLegend2: '头顶目标区（距上边 3–5mm）',
+    guideLegend3: '下巴目标区（距底边 7–14mm）',
+    guideLegend4: '脸宽外边界（最大 22mm）',
+    guideLegend5: '垂直中心线（HH线，对齐鼻梁）',
+    guideLegend6: '人像剪影（对齐头顶与眼睛基准）',
+    chinaDoubleOvalGuide: '双椭圆头部目标区',
+    guideLegend7: '↑ 规格因所选证件而变化',
+    sectBg: '背景颜色',
+    sectClothes: '正装替换 (Beta)',
+    stickerNoneTitle: '无',
+    stickerMaleTitle: '男装',
+    stickerFemaleTitle: '女装',
+    stickerYLabel: '垂直位置',
+    sectAdjust: '图像调整',
+    brightLabel: '亮度',
+    contrastLabel: '对比度',
+    saturationLabel: '饱和度',
+    resetAdjustBtn: '↺ 重置调整',
+    step1Label: '上传照片',
+    step2Label: 'AI 抠图',
+    step3Label: '调整位置',
+    step4Label: '生成导出',
+    dropTitle: '点击或拖拽上传照片',
+    dropHint: 'JPG / PNG · 建议正面免冠照',
+    canvasHint: '拖动调整 · 滚轮/双指缩放 · 方向键微移 · Shift+方向键粗移',
+    loaderText: '处理中...',
+    btnReuploadFull: '↑ 重新上传',
+    btnReset: '重置',
+    btnToggleOriginal: '切换原图',
+    btnRemoveBgFull: '✦ AI 抠图',
+    btnGenerate: '✓ 生成',
+    singlePreviewTitle: '单张预览',
+    printBoxTitle: '打印排版 (6寸纸)',
+    perRowLabel: '每行张数',
+    rowCountLabel: '行数',
+    cutLineLabel: '显示裁切线',
+    sizePrevLabel: '预计大小',
+    infoSpec: '规格',
+    infoSize: '尺寸',
+    infoPixels: '像素',
+    infoDpi: '分辨率',
+    infoFileSize: '文件大小',
+    infoBg: '背景',
+    infoCutout: '抠图',
+    infoCutoutYes: '✓ AI 抠图',
+    infoCutoutNo: '原图背景',
+    exportPrefixSingle: '证件照',
+    exportPrefixSheet: '排版图',
+    loaderGenerating: '生成证件照…',
+    generatedOk: '✓ 证件照已生成',
+    generateFailed: msg => `生成失败: ${msg}`,
+    privacyTitle: '🔒 关于隐私与免责',
+    privacyBody1Html: '您选择的照片将在<strong>浏览器本地</strong>处理，不上传到任何服务器。',
+    privacyBody2: '作为用户，您有责任自行核对生成的证件照是否符合相关官方最新要求，本程序作者不对使用结果承担任何责任。',
+    privacyBody3: '网站仅收集匹名访问数据（Google Analytics），您的照片不会被收集。',
+    privacyDecline: '[不同意，离开]',
+    privacyAccept: '同意并继续',
+    apiSaved: '✓ 已保存',
+    apiCleared: '已清除',
+    copiedOk: '✓ 已复制到剪贴板',
+    copyFailed: '复制失败，请手动右键另存图片',
+    resetValue: label => `已重置${label}`,
+    draftCorruptCleared: '检测到旧草稿损坏，已自动清理',
+    viewOriginal: '查看原图',
+    viewCutout: '查看抠图',
+    customPresetName: '自定义',
+    confirmRemoveBg: '当前还未执行“AI 抠图”。直接导出可能因背景不纯导致审核失败。\n\n是否先执行抠图？',
+    confirmSaveCutout: '抠图已完成。\n\n是否顺手保存一张整张透明 PNG，方便后续分享或备用？',
+    savedToGallery: '已保存到系统相册/图库',
+    sharePrompt: '请在系统面板选择保存到相册/文件',
+    downloadTriggered: '已触发下载',
+    exportFailed: msg => `导出失败：${msg}`,
+    noExportYet: '请先导出一张图片',
+    noPhotoYet: '请先上传照片',
+    chinaConsularJpegOnly: '中国护照/签证上传建议使用 JPEG，已自动切换为 JPG',
+    chinaConsularMinPixels: '中国护照/签证照片原图不得小于 354×472 像素，请换更高分辨率照片',
+    shareUnavailable: '当前设备不支持原文件分享，请到文件中发送',
+    savedLocationTitle: '保存位置',
+    savedLocationBody: path => `Android 通常保存在：\n${path}\n\n如果系统相册未立即显示，请到文件管理中查看，或等待媒体索引刷新。`,
+    savedFileLabel: name => `最近导出：${name}`
+  },
+  en: {
+    appTitle: 'Visa Photo Maker',
+    headerSub: 'Runs locally · Your photo stays on device',
+    emptyMsgHtml: 'Upload and process a photo,<br>then the preview will appear here',
+    exportBoxTitle: 'Export',
+    keepTransparentLabel: 'Keep transparent (PNG)',
+    sizeLimitLabel: 'Max file size',
+    sizeLimitHint: 'KB (0 = unlimited)',
+    sizeGuideHtml: 'Common limits:<br>Consular upload ≤ 120 KB<br>DS-160 ≤ 240 KB<br>Canada IRCC ≤ 4000 KB',
+    afterExportTitle: 'After Export',
+    btnShareExported: '↗ Share generated file',
+    btnLocateExported: '📁 Show saved location',
+    btnDlSingleJpg: '⬇ Download single JPG',
+    btnDlSinglePng: '⬇ Download single PNG',
+    btnDlPrint: '⬇ Download print sheet',
+    btnCopyImg: '📋 Copy image',
+    btnExportSingle: 'Export',
+    btnExportSheet: 'Export Sheet',
+    btnRemoveBgShort: 'Cutout',
+    btnReuploadShort: 'Retake',
+    langButtonShort: 'Lang',
+    themeToggleTitle: 'Toggle theme',
+    releaseToggleTitle: 'Version info',
+    exportKindSingle: 'Single Photo',
+    exportKindSheet: 'Print Sheet',
+    langMenuTitle: 'Choose Language',
+    langMenuClose: 'Close',
+    releaseTitle: 'Version Info',
+    releaseClose: 'Close',
+    releaseEmpty: 'No release notes yet.',
+    releaseMeta: (version, updatedAt, build) => `Version ${version}${build ? ` (${build})` : ''}${updatedAt ? ` · Updated ${updatedAt}` : ''}`,
+    sectAi: 'AI Cutout',
+    apiDescHtml: 'A free account can process up to 50 images per month.<br>No key yet? You can skip it and still change the background manually.',
+    apiLinkText: '→ Get a free API key',
+    apiPlaceholder: 'Paste your API key...',
+    apiSaveBtn: 'Save',
+    sectSpecs: 'Photo Specs',
+    officialSpecLink: '📚 China e-passport official spec reference',
+    customSizeLabel: 'Custom Size (mm)',
+    applyCustomBtn: 'Apply Custom Size',
+    sectGuides: 'Guides',
+    guideToggleLabel: 'Show guides',
+    silToggleLabel: 'Show silhouette (Beta)',
+    guideLegend1: 'Forbidden zone (head top/chin must stay out of red area)',
+    guideLegend2: 'Top target zone (3-5 mm from top)',
+    guideLegend3: 'Chin target zone (7-14 mm from bottom)',
+    guideLegend4: 'Face width boundary (max 22 mm)',
+    guideLegend5: 'Vertical center line (HH line, align nose bridge)',
+    guideLegend6: 'Portrait silhouette (align top of head and eye baseline)',
+    chinaDoubleOvalGuide: 'Dual-oval head target zone',
+    guideLegend7: '↑ Guide changes with the selected document',
+    sectBg: 'Background',
+    sectClothes: 'Outfit Replace (Beta)',
+    stickerNoneTitle: 'None',
+    stickerMaleTitle: 'Male outfit',
+    stickerFemaleTitle: 'Female outfit',
+    stickerYLabel: 'Vertical offset',
+    sectAdjust: 'Adjustments',
+    brightLabel: 'Brightness',
+    contrastLabel: 'Contrast',
+    saturationLabel: 'Saturation',
+    resetAdjustBtn: '↺ Reset adjustments',
+    step1Label: 'Upload',
+    step2Label: 'Cutout',
+    step3Label: 'Adjust',
+    step4Label: 'Export',
+    dropTitle: 'Tap or drag to upload a photo',
+    dropHint: 'JPG / PNG · Front-facing portrait recommended',
+    canvasHint: 'Drag to move · Wheel/pinch to zoom · Arrow keys for fine move · Shift+Arrow for coarse move',
+    loaderText: 'Processing...',
+    btnReuploadFull: '↑ Re-upload',
+    btnReset: 'Reset',
+    btnToggleOriginal: 'Toggle original',
+    btnRemoveBgFull: '✦ AI Cutout',
+    btnGenerate: '✓ Generate',
+    singlePreviewTitle: 'Single Preview',
+    printBoxTitle: 'Print Layout (6-inch)',
+    perRowLabel: 'Photos per row',
+    rowCountLabel: 'Rows',
+    cutLineLabel: 'Show cut lines',
+    sizePrevLabel: 'Estimated size',
+    infoSpec: 'Spec',
+    infoSize: 'Size',
+    infoPixels: 'Pixels',
+    infoDpi: 'Resolution',
+    infoFileSize: 'File size',
+    infoBg: 'Background',
+    infoCutout: 'Cutout',
+    infoCutoutYes: '✓ AI cutout',
+    infoCutoutNo: 'Original background',
+    exportPrefixSingle: 'visa_photo',
+    exportPrefixSheet: 'print_sheet',
+    loaderGenerating: 'Generating photo...',
+    generatedOk: '✓ Photo generated',
+    generateFailed: msg => `Generate failed: ${msg}`,
+    privacyTitle: '🔒 Privacy & Disclaimer',
+    privacyBody1Html: 'Your selected photo is processed <strong>locally in the browser</strong> and is not uploaded to any server.',
+    privacyBody2: 'You are responsible for verifying that the generated photo meets the latest official requirements. The author is not liable for usage outcomes.',
+    privacyBody3: 'The site only collects anonymous visit analytics (Google Analytics). Your photo is not collected.',
+    privacyDecline: '[Decline and leave]',
+    privacyAccept: 'Agree and continue',
+    apiSaved: '✓ Saved',
+    apiCleared: 'Cleared',
+    copiedOk: '✓ Copied to clipboard',
+    copyFailed: 'Copy failed. Please save the image manually.',
+    resetValue: label => `${label} reset`,
+    draftCorruptCleared: 'An old draft was corrupted and has been cleared automatically.',
+    viewOriginal: 'View original',
+    viewCutout: 'View cutout',
+    customPresetName: 'Custom',
+    confirmRemoveBg: 'AI background removal has not been run yet. Exporting now may fail background checks.\n\nDo you want to remove the background first?',
+    confirmSaveCutout: 'Cutout is ready.\n\nDo you want to save a full transparent PNG now for sharing or backup?',
+    savedToGallery: 'Saved to the system gallery',
+    sharePrompt: 'Choose Save to Photos/Files in the system sheet',
+    downloadTriggered: 'Download started',
+    exportFailed: msg => `Export failed: ${msg}`,
+    noExportYet: 'Please export an image first',
+    noPhotoYet: 'Please upload a photo first',
+    chinaConsularJpegOnly: 'China passport/visa uploads should use JPEG. Switched to JPG automatically.',
+    chinaConsularMinPixels: 'China passport/visa source photo must be at least 354×472 pixels. Please use a higher-resolution image.',
+    shareUnavailable: 'Original-file sharing is not available on this device. Please send it from Files.',
+    savedLocationTitle: 'Saved Location',
+    savedLocationBody: path => `Android usually saves it here:\n${path}\n\nIf it does not appear in Gallery yet, check your file manager or wait for media indexing.`,
+    savedFileLabel: name => `Last export: ${name}`
+  },
+  'zh-TW': {
+    appTitle: '證件照製作',
+    headerSub: '本機處理 · 不上傳隱私資料',
+    emptyMsgHtml: '上傳並處理照片後<br>預覽會顯示在這裡',
+    exportBoxTitle: '匯出',
+    keepTransparentLabel: '保持透明 (PNG)',
+    sizeLimitLabel: '檔案大小上限',
+    sizeLimitHint: 'KB（0=不限）',
+    sizeGuideHtml: '常見上限參考：<br>領事網站上傳 ≤ 120 KB<br>美簽 DS-160 ≤ 240 KB<br>加拿大 IRCC ≤ 4000 KB',
+    afterExportTitle: '匯出後操作',
+    btnShareExported: '↗ 分享生成檔案',
+    btnLocateExported: '📁 查看保存位置',
+    btnDlSingleJpg: '⬇ 下載單張 JPG',
+    btnDlSinglePng: '⬇ 下載單張 PNG',
+    btnDlPrint: '⬇ 下載排版圖',
+    btnCopyImg: '📋 複製圖片',
+    btnExportSingle: '匯出',
+    btnExportSheet: '匯出排版',
+    btnRemoveBgShort: '去背',
+    btnReuploadShort: '換圖',
+    langButtonShort: '語言',
+    themeToggleTitle: '切換主題',
+    releaseToggleTitle: '版本資訊',
+    exportKindSingle: '單張照片',
+    exportKindSheet: '排版圖（6 吋）',
+    langMenuTitle: '選擇語言',
+    langMenuClose: '關閉',
+    releaseTitle: '版本資訊',
+    releaseClose: '關閉',
+    releaseEmpty: '暫無更新記錄',
+    releaseMeta: (version, updatedAt, build) => `版本 ${version}${build ? ` (${build})` : ''}${updatedAt ? ` · 更新於 ${updatedAt}` : ''}`,
+    sectAi: 'AI 去背',
+    apiDescHtml: '免費帳號每月可處理 50 張，無需付費。<br>沒有 Key？可先跳過，之後仍可手動更換背景色。',
+    apiLinkText: '→ 免費註冊取得 Key',
+    apiPlaceholder: '貼上你的 API Key...',
+    apiSaveBtn: '保存',
+    sectSpecs: '證件照規格',
+    officialSpecLink: '📚 中國海關/電子護照官方規格說明 (參考)',
+    customSizeLabel: '自訂尺寸 (mm)',
+    applyCustomBtn: '套用自訂尺寸',
+    sectGuides: '參考線',
+    guideToggleLabel: '顯示參考線',
+    silToggleLabel: '顯示對齊剪影 (Beta)',
+    guideLegend1: '禁區（頭頂/下巴不可進入紅色區）',
+    guideLegend2: '頭頂目標區（距上邊 3–5mm）',
+    guideLegend3: '下巴目標區（距底邊 7–14mm）',
+    guideLegend4: '臉寬外邊界（最大 22mm）',
+    guideLegend5: '垂直中心線（HH 線，對齊鼻樑）',
+    guideLegend6: '人像剪影（對齊頭頂與眼睛基準）',
+    chinaDoubleOvalGuide: '雙橢圓頭部目標區',
+    guideLegend7: '↑ 規格會隨所選證件而變化',
+    sectBg: '背景顏色',
+    sectClothes: '正裝替換 (Beta)',
+    stickerNoneTitle: '無',
+    stickerMaleTitle: '男裝',
+    stickerFemaleTitle: '女裝',
+    stickerYLabel: '垂直位置',
+    sectAdjust: '影像調整',
+    brightLabel: '亮度',
+    contrastLabel: '對比度',
+    saturationLabel: '飽和度',
+    resetAdjustBtn: '↺ 重設調整',
+    step1Label: '上傳照片',
+    step2Label: 'AI 去背',
+    step3Label: '調整位置',
+    step4Label: '生成匯出',
+    dropTitle: '點擊或拖曳以上傳照片',
+    dropHint: 'JPG / PNG · 建議使用正面免冠照',
+    canvasHint: '拖曳調整 · 滾輪/雙指縮放 · 方向鍵微移 · Shift+方向鍵粗移',
+    loaderText: '處理中...',
+    btnReuploadFull: '↑ 重新上傳',
+    btnReset: '重設',
+    btnToggleOriginal: '切換原圖',
+    btnRemoveBgFull: '✦ AI 去背',
+    btnGenerate: '✓ 生成',
+    singlePreviewTitle: '單張預覽',
+    printBoxTitle: '列印排版 (6 吋紙)',
+    perRowLabel: '每行張數',
+    rowCountLabel: '行數',
+    cutLineLabel: '顯示裁切線',
+    sizePrevLabel: '預計大小',
+    infoSpec: '規格',
+    infoSize: '尺寸',
+    infoPixels: '像素',
+    infoDpi: '解析度',
+    infoFileSize: '檔案大小',
+    infoBg: '背景',
+    infoCutout: '去背',
+    infoCutoutYes: '✓ AI 去背',
+    infoCutoutNo: '原圖背景',
+    exportPrefixSingle: '證件照',
+    exportPrefixSheet: '排版圖',
+    loaderGenerating: '生成證件照中…',
+    generatedOk: '✓ 證件照已生成',
+    generateFailed: msg => `生成失敗: ${msg}`,
+    privacyTitle: '🔒 關於隱私與免責',
+    privacyBody1Html: '您選擇的照片將在<strong>瀏覽器本機</strong>處理，不會上傳到任何伺服器。',
+    privacyBody2: '作為使用者，您有責任自行核對產生的證件照是否符合最新官方要求，作者不對使用結果承擔責任。',
+    privacyBody3: '網站僅收集匿名訪問數據（Google Analytics），您的照片不會被收集。',
+    privacyDecline: '[不同意，離開]',
+    privacyAccept: '同意並繼續',
+    apiSaved: '✓ 已保存',
+    apiCleared: '已清除',
+    copiedOk: '✓ 已複製到剪貼簿',
+    copyFailed: '複製失敗，請手動另存圖片。',
+    resetValue: label => `已重設${label}`,
+    draftCorruptCleared: '偵測到舊草稿損壞，已自動清理。',
+    viewOriginal: '查看原圖',
+    viewCutout: '查看去背圖',
+    customPresetName: '自訂',
+    confirmRemoveBg: '目前尚未執行「AI 去背」。直接匯出可能因背景不純而導致審核失敗。\n\n是否先執行去背？',
+    confirmSaveCutout: '去背已完成。\n\n是否順手保存一張完整透明 PNG，方便後續分享或備用？',
+    savedToGallery: '已保存到系統相簿/圖庫',
+    sharePrompt: '請在系統面板中選擇保存到相簿/檔案',
+    downloadTriggered: '已觸發下載',
+    exportFailed: msg => `匯出失敗：${msg}`,
+    noExportYet: '請先匯出一張圖片',
+    noPhotoYet: '請先上傳照片',
+    chinaConsularJpegOnly: '中國護照/簽證上傳建議使用 JPEG，已自動切換為 JPG',
+    chinaConsularMinPixels: '中國護照/簽證照片原圖不得小於 354×472 像素，請改用更高解析度照片',
+    shareUnavailable: '目前裝置不支援原始檔分享，請改由檔案管理傳送。',
+    savedLocationTitle: '保存位置',
+    savedLocationBody: path => `Android 通常保存在：\n${path}\n\n如果系統相簿尚未立即顯示，請到檔案管理查看，或等待媒體索引刷新。`,
+    savedFileLabel: name => `最近匯出：${name}`
+  },
+  ja: {
+    appTitle: '証明写真メーカー',
+    headerSub: '端末内で処理 · 写真はアップロードされません',
+    emptyMsgHtml: '写真をアップロードして処理すると<br>ここにプレビューが表示されます',
+    exportBoxTitle: '書き出し',
+    keepTransparentLabel: '透明を保持 (PNG)',
+    sizeLimitLabel: '最大ファイルサイズ',
+    sizeLimitHint: 'KB（0 = 無制限）',
+    sizeGuideHtml: 'よくある上限：<br>領事サイト ≤ 120 KB<br>米国 DS-160 ≤ 240 KB<br>カナダ IRCC ≤ 4000 KB',
+    afterExportTitle: '書き出し後',
+    btnShareExported: '↗ 生成ファイルを共有',
+    btnLocateExported: '📁 保存場所を見る',
+    btnDlSingleJpg: '⬇ JPG を保存',
+    btnDlSinglePng: '⬇ PNG を保存',
+    btnDlPrint: '⬇ 印刷シートを保存',
+    btnCopyImg: '📋 画像をコピー',
+    btnExportSingle: '書き出し',
+    btnExportSheet: 'シート書き出し',
+    btnRemoveBgShort: '切り抜き',
+    btnReuploadShort: '再選択',
+    langButtonShort: '言語',
+    themeToggleTitle: 'テーマ切替',
+    releaseToggleTitle: 'バージョン情報',
+    exportKindSingle: '単写真',
+    exportKindSheet: '印刷シート',
+    langMenuTitle: '言語を選択',
+    langMenuClose: '閉じる',
+    releaseTitle: 'バージョン情報',
+    releaseClose: '閉じる',
+    releaseEmpty: '更新履歴はまだありません。',
+    releaseMeta: (version, updatedAt, build) => `Version ${version}${build ? ` (${build})` : ''}${updatedAt ? ` · 更新 ${updatedAt}` : ''}`,
+    sectAi: 'AI 切り抜き',
+    apiDescHtml: '無料アカウントでは毎月 50 枚まで処理できます。<br>Key がなくてもスキップして背景色を手動で変更できます。',
+    apiLinkText: '→ 無料で API Key を取得',
+    apiPlaceholder: 'API Key を貼り付け...',
+    apiSaveBtn: '保存',
+    sectSpecs: '写真仕様',
+    officialSpecLink: '📚 中国電子パスポート公式仕様（参考）',
+    customSizeLabel: 'カスタムサイズ (mm)',
+    applyCustomBtn: 'カスタム適用',
+    sectGuides: 'ガイド',
+    guideToggleLabel: 'ガイドを表示',
+    silToggleLabel: 'シルエットを表示 (Beta)',
+    guideLegend1: '禁止ゾーン（頭頂/あごが赤色に入らない）',
+    guideLegend2: '頭頂の目標ゾーン（上辺から 3–5mm）',
+    guideLegend3: 'あごの目標ゾーン（下辺から 7–14mm）',
+    guideLegend4: '顔幅の外枠（最大 22mm）',
+    guideLegend5: '垂直中心線（HH ライン、鼻筋を合わせる）',
+    guideLegend6: '人物シルエット（頭頂と目線基準を合わせる）',
+    chinaDoubleOvalGuide: '二重楕円の頭部目標ゾーン',
+    guideLegend7: '↑ 選択した証明書に応じて変わります',
+    sectBg: '背景色',
+    sectClothes: '服装置換 (Beta)',
+    stickerNoneTitle: 'なし',
+    stickerMaleTitle: '男性服',
+    stickerFemaleTitle: '女性服',
+    stickerYLabel: '縦位置',
+    sectAdjust: '画像調整',
+    brightLabel: '明るさ',
+    contrastLabel: 'コントラスト',
+    saturationLabel: '彩度',
+    resetAdjustBtn: '↺ 調整をリセット',
+    step1Label: 'アップロード',
+    step2Label: '切り抜き',
+    step3Label: '位置調整',
+    step4Label: '書き出し',
+    dropTitle: 'タップまたはドラッグして写真をアップロード',
+    dropHint: 'JPG / PNG · 正面向きの写真を推奨',
+    canvasHint: 'ドラッグで移動 · ホイール/ピンチで拡大縮小 · 矢印キーで微調整 · Shift+矢印で大きく移動',
+    loaderText: '処理中...',
+    btnReuploadFull: '↑ 再アップロード',
+    btnReset: 'リセット',
+    btnToggleOriginal: '元画像に切替',
+    btnRemoveBgFull: '✦ AI 切り抜き',
+    btnGenerate: '✓ 生成',
+    singlePreviewTitle: '単写真プレビュー',
+    printBoxTitle: '印刷レイアウト (6インチ)',
+    perRowLabel: '1 行あたり',
+    rowCountLabel: '行数',
+    cutLineLabel: '裁断線を表示',
+    sizePrevLabel: '推定サイズ',
+    infoSpec: '仕様',
+    infoSize: 'サイズ',
+    infoPixels: 'ピクセル',
+    infoDpi: '解像度',
+    infoFileSize: 'ファイルサイズ',
+    infoBg: '背景',
+    infoCutout: '切り抜き',
+    infoCutoutYes: '✓ AI 切り抜き',
+    infoCutoutNo: '元画像背景',
+    exportPrefixSingle: 'shomei_photo',
+    exportPrefixSheet: 'print_sheet',
+    loaderGenerating: '証明写真を生成中…',
+    generatedOk: '✓ 証明写真を生成しました',
+    generateFailed: msg => `生成失敗: ${msg}`,
+    privacyTitle: '🔒 プライバシーと免責事項',
+    privacyBody1Html: '選択した写真は<strong>ブラウザ内でローカル処理</strong>され、どのサーバーにもアップロードされません。',
+    privacyBody2: '生成された証明写真が最新の公式要件を満たすかどうかはご自身で確認してください。作者は利用結果に責任を負いません。',
+    privacyBody3: 'サイトは匿名アクセス解析（Google Analytics）のみ収集します。写真は収集されません。',
+    privacyDecline: '[同意せず終了]',
+    privacyAccept: '同意して続行',
+    apiSaved: '✓ 保存済み',
+    apiCleared: 'クリアしました',
+    copiedOk: '✓ クリップボードにコピーしました',
+    copyFailed: 'コピーに失敗しました。画像を手動で保存してください。',
+    resetValue: label => `${label} をリセットしました`,
+    draftCorruptCleared: '古い下書きが壊れていたため自動で削除しました。',
+    viewOriginal: '元画像を見る',
+    viewCutout: '切り抜きを見る',
+    customPresetName: 'カスタム',
+    confirmRemoveBg: 'まだ「AI 背景除去」を実行していません。このまま書き出すと背景審査に落ちる可能性があります。\n\n先に背景を削除しますか？',
+    confirmSaveCutout: '背景除去が完了しました。\n\n共有や予備用に、透過 PNG の全体画像を今保存しますか？',
+    savedToGallery: 'システムのギャラリーに保存しました',
+    sharePrompt: 'システム共有で写真またはファイルへ保存を選んでください',
+    downloadTriggered: 'ダウンロードを開始しました',
+    exportFailed: msg => `書き出し失敗: ${msg}`,
+    noExportYet: '先に画像を書き出してください',
+    noPhotoYet: '先に写真をアップロードしてください',
+    chinaConsularJpegOnly: '中国パスポート/ビザは JPEG 推奨のため、自動的に JPG へ切り替えました。',
+    chinaConsularMinPixels: '中国パスポート/ビザ用の元画像は 354×472 ピクセル以上が必要です。より高解像度の写真を使用してください。',
+    shareUnavailable: 'この端末では元ファイル共有を利用できません。ファイルアプリから送信してください。',
+    savedLocationTitle: '保存場所',
+    savedLocationBody: path => `通常 Android では次に保存されます:\n${path}\n\nギャラリーにすぐ表示されない場合は、ファイルアプリで確認するかメディア更新をお待ちください。`,
+    savedFileLabel: name => `最近の書き出し: ${name}`
+  },
+  ko: {
+    appTitle: '증명사진 만들기',
+    headerSub: '기기 내 처리 · 사진은 업로드되지 않습니다',
+    emptyMsgHtml: '사진을 업로드하고 처리하면<br>여기에 미리보기가 표시됩니다',
+    exportBoxTitle: '내보내기',
+    keepTransparentLabel: '투명 유지 (PNG)',
+    sizeLimitLabel: '최대 파일 크기',
+    sizeLimitHint: 'KB (0 = 제한 없음)',
+    sizeGuideHtml: '자주 쓰는 제한:<br>영사 업로드 ≤ 120 KB<br>미국 DS-160 ≤ 240 KB<br>캐나다 IRCC ≤ 4000 KB',
+    afterExportTitle: '내보낸 후',
+    btnShareExported: '↗ 생성 파일 공유',
+    btnLocateExported: '📁 저장 위치 보기',
+    btnDlSingleJpg: '⬇ JPG 저장',
+    btnDlSinglePng: '⬇ PNG 저장',
+    btnDlPrint: '⬇ 인쇄 시트 저장',
+    btnCopyImg: '📋 이미지 복사',
+    btnExportSingle: '내보내기',
+    btnExportSheet: '시트 내보내기',
+    btnRemoveBgShort: '누끼',
+    btnReuploadShort: '다시 선택',
+    langButtonShort: '언어',
+    themeToggleTitle: '테마 전환',
+    releaseToggleTitle: '버전 정보',
+    exportKindSingle: '단일 사진',
+    exportKindSheet: '인쇄 시트',
+    langMenuTitle: '언어 선택',
+    langMenuClose: '닫기',
+    releaseTitle: '버전 정보',
+    releaseClose: '닫기',
+    releaseEmpty: '업데이트 기록이 아직 없습니다.',
+    releaseMeta: (version, updatedAt, build) => `버전 ${version}${build ? ` (${build})` : ''}${updatedAt ? ` · 업데이트 ${updatedAt}` : ''}`,
+    sectAi: 'AI 누끼',
+    apiDescHtml: '무료 계정은 매월 50장까지 처리할 수 있습니다.<br>Key가 없어도 건너뛰고 배경색을 수동으로 바꿀 수 있습니다.',
+    apiLinkText: '→ 무료 API Key 받기',
+    apiPlaceholder: 'API Key 붙여넣기...',
+    apiSaveBtn: '저장',
+    sectSpecs: '사진 규격',
+    officialSpecLink: '📚 중국 전자여권 공식 규격 참고',
+    customSizeLabel: '사용자 크기 (mm)',
+    applyCustomBtn: '사용자 크기 적용',
+    sectGuides: '가이드',
+    guideToggleLabel: '가이드 표시',
+    silToggleLabel: '실루엣 표시 (Beta)',
+    guideLegend1: '금지 구역 (정수리/턱이 빨간 구역에 들어가면 안 됨)',
+    guideLegend2: '정수리 목표 구역 (상단에서 3–5mm)',
+    guideLegend3: '턱 목표 구역 (하단에서 7–14mm)',
+    guideLegend4: '얼굴 너비 경계 (최대 22mm)',
+    guideLegend5: '세로 중심선 (HH선, 코 중심 정렬)',
+    guideLegend6: '인물 실루엣 (정수리와 눈 기준 정렬)',
+    chinaDoubleOvalGuide: '이중 타원형 머리 목표 구역',
+    guideLegend7: '↑ 선택한 문서에 따라 가이드가 바뀝니다',
+    sectBg: '배경색',
+    sectClothes: '정장 교체 (Beta)',
+    stickerNoneTitle: '없음',
+    stickerMaleTitle: '남성 정장',
+    stickerFemaleTitle: '여성 정장',
+    stickerYLabel: '세로 위치',
+    sectAdjust: '이미지 조정',
+    brightLabel: '밝기',
+    contrastLabel: '대비',
+    saturationLabel: '채도',
+    resetAdjustBtn: '↺ 조정 초기화',
+    step1Label: '업로드',
+    step2Label: '누끼',
+    step3Label: '위치 조정',
+    step4Label: '내보내기',
+    dropTitle: '탭하거나 드래그해서 사진 업로드',
+    dropHint: 'JPG / PNG · 정면 증명사진 권장',
+    canvasHint: '드래그로 이동 · 휠/핀치로 확대 · 방향키 미세 이동 · Shift+방향키 큰 이동',
+    loaderText: '처리 중...',
+    btnReuploadFull: '↑ 다시 업로드',
+    btnReset: '초기화',
+    btnToggleOriginal: '원본 전환',
+    btnRemoveBgFull: '✦ AI 누끼',
+    btnGenerate: '✓ 생성',
+    singlePreviewTitle: '단일 미리보기',
+    printBoxTitle: '인쇄 레이아웃 (6인치)',
+    perRowLabel: '한 줄당 장수',
+    rowCountLabel: '줄 수',
+    cutLineLabel: '재단선 표시',
+    sizePrevLabel: '예상 크기',
+    infoSpec: '규격',
+    infoSize: '크기',
+    infoPixels: '픽셀',
+    infoDpi: '해상도',
+    infoFileSize: '파일 크기',
+    infoBg: '배경',
+    infoCutout: '누끼',
+    infoCutoutYes: '✓ AI 누끼',
+    infoCutoutNo: '원본 배경',
+    exportPrefixSingle: 'photo_id',
+    exportPrefixSheet: 'print_sheet',
+    loaderGenerating: '증명사진 생성 중...',
+    generatedOk: '✓ 증명사진이 생성되었습니다',
+    generateFailed: msg => `생성 실패: ${msg}`,
+    privacyTitle: '🔒 개인정보 및 면책',
+    privacyBody1Html: '선택한 사진은 <strong>브라우저 내부에서 로컬 처리</strong>되며 어떤 서버에도 업로드되지 않습니다.',
+    privacyBody2: '생성된 증명사진이 최신 공식 요구사항을 충족하는지 직접 확인해야 하며, 작성자는 사용 결과에 책임을 지지 않습니다.',
+    privacyBody3: '사이트는 익명 방문 통계(Google Analytics)만 수집하며 사진은 수집하지 않습니다.',
+    privacyDecline: '[동의하지 않고 나가기]',
+    privacyAccept: '동의하고 계속',
+    apiSaved: '✓ 저장됨',
+    apiCleared: '지워졌습니다',
+    copiedOk: '✓ 클립보드에 복사했습니다',
+    copyFailed: '복사에 실패했습니다. 이미지를 수동으로 저장해 주세요.',
+    resetValue: label => `${label} 초기화됨`,
+    draftCorruptCleared: '오래된 초안이 손상되어 자동으로 정리했습니다.',
+    viewOriginal: '원본 보기',
+    viewCutout: '누끼 보기',
+    customPresetName: '사용자 설정',
+    confirmRemoveBg: '아직 "AI 배경 제거"를 실행하지 않았습니다. 지금 내보내면 배경 검사에 실패할 수 있습니다.\n\n먼저 배경을 제거할까요?',
+    confirmSaveCutout: '누끼가 완료되었습니다.\n\n공유나 예비용으로 전체 투명 PNG를 지금 저장할까요?',
+    savedToGallery: '시스템 갤러리에 저장했습니다',
+    sharePrompt: '시스템 공유 패널에서 사진 또는 파일 저장을 선택하세요',
+    downloadTriggered: '다운로드를 시작했습니다',
+    exportFailed: msg => `내보내기 실패: ${msg}`,
+    noExportYet: '먼저 이미지를 내보내세요',
+    noPhotoYet: '먼저 사진을 업로드하세요',
+    chinaConsularJpegOnly: '중국 여권/비자 업로드는 JPEG 권장이므로 JPG로 자동 전환했습니다.',
+    chinaConsularMinPixels: '중국 여권/비자용 원본 사진은 최소 354×472 픽셀이어야 합니다. 더 높은 해상도의 사진을 사용해 주세요.',
+    shareUnavailable: '이 기기에서는 원본 파일 공유를 지원하지 않습니다. 파일 앱에서 전송해 주세요.',
+    savedLocationTitle: '저장 위치',
+    savedLocationBody: path => `Android에서는 보통 여기에 저장됩니다:\n${path}\n\n갤러리에 바로 보이지 않으면 파일 관리자에서 확인하거나 미디어 인덱싱을 기다려 주세요.`,
+    savedFileLabel: name => `최근 내보내기: ${name}`
+  }
+};
+let currentLang = localStorage.getItem(KEY_LANG) || 'zh';
+function detectPreferredLanguage() {
+  const saved = localStorage.getItem(KEY_LANG);
+  if (saved && I18N[saved]) return saved;
+  const raw = String(navigator.language || navigator.userLanguage || '').toLowerCase();
+  if (raw.startsWith('zh-tw') || raw.startsWith('zh-hk') || raw.startsWith('zh-mo')) return 'zh-TW';
+  if (raw.startsWith('zh')) return 'zh';
+  if (raw.startsWith('ja')) return 'ja';
+  if (raw.startsWith('ko')) return 'ko';
+  if (raw.startsWith('en')) return 'en';
+  return 'zh';
+}
+currentLang = detectPreferredLanguage();
+
+function t(key, ...args) {
+  const table = I18N[currentLang] || I18N.zh;
+  const value = table[key];
+  return typeof value === 'function' ? value(...args) : value;
+}
+
+function localizePreset(preset) {
+  const table = PRESET_LOCALES[currentLang] || PRESET_LOCALES.zh;
+  const fallback = PRESET_LOCALES.zh[preset.id] || [preset.name, preset.note || ''];
+  const [name, note] = table[preset.id] || fallback;
+  return { name, note };
+}
+
+function refreshPresetLabels() {
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    const preset = PRESETS.find(p => p.id === btn.dataset.pid);
+    if (!preset) return;
+    const localized = localizePreset(preset);
+    const nameEl = btn.querySelector('.pb-name');
+    const subEl = btn.querySelector('.pb-sub');
+    const badgeEl = btn.querySelector('.pb-badge');
+    if (nameEl) nameEl.textContent = localized.name;
+    if (subEl) subEl.textContent = `${preset.w}×${preset.h}mm${localized.note ? ' · ' + localized.note : ''}`;
+    if (badgeEl) badgeEl.textContent = `${preset.w}×${preset.h}`;
+  });
+  const mPreset = document.getElementById('mPreset');
+  if (mPreset) {
+    const currentValue = mPreset.value;
+    mPreset.innerHTML = PRESETS.map((p, i) => {
+      const localized = localizePreset(p);
+      return `<option value="${i}">${localized.name} (${p.w}×${p.h}mm)</option>`;
+    }).join('');
+    mPreset.value = currentValue || String(Math.max(0, PRESETS.findIndex(p => p.id === S.preset?.id)));
+  }
+}
+
+function refreshBgLabels() {
+  const labels = BG_LABELS[currentLang] || BG_LABELS.zh;
+  BG_COLORS.forEach(c => { c.lbl = labels[c.hex] || c.lbl; });
+  document.querySelectorAll('.swatch[data-hex]').forEach(sw => {
+    sw.title = labels[sw.dataset.hex] || sw.title;
+  });
+  document.querySelector('.swatch.checker')?.setAttribute('title', labels.transparent || 'Transparent');
+  document.querySelector('.swatch.custom-c')?.setAttribute('title', labels.custom || 'Custom');
+  const sel = document.getElementById('mBg');
+  if (sel?.options?.length) {
+    Array.from(sel.options).forEach(option => {
+      option.textContent = labels[option.value] || option.textContent;
+    });
+  }
+}
+
+function refreshSizePreviewLabel() {
+  const sizePrev = document.getElementById('sizePrev');
+  if (!sizePrev) return;
+  const match = sizePrev.textContent.match(/(\d+(\.\d+)?)\s*KB/i);
+  const suffix = match ? `: ${match[1]} KB` : ': -- KB';
+  sizePrev.textContent = `${t('sizePrevLabel')}${suffix}`;
+}
+
+function refreshReleaseToggleLabels() {
+  const label = `v${releaseState.currentVersion || '1.0'}`;
+  const desktop = document.getElementById('releaseTog');
+  const mobile = document.getElementById('mReleaseTog');
+  if (desktop) desktop.textContent = label;
+  if (mobile) mobile.textContent = label;
+}
+
+function getReleaseNotesForCurrentLang(entry) {
+  const notes = entry?.notes || {};
+  return notes[currentLang] || notes.en || notes.zh || [];
+}
+
+function renderReleaseNotes() {
+  const meta = document.getElementById('releaseMeta');
+  const list = document.getElementById('releaseList');
+  const empty = document.getElementById('releaseEmpty');
+  if (!meta || !list || !empty) return;
+
+  meta.textContent = t(
+    'releaseMeta',
+    releaseState.currentVersion || '1.0.0',
+    releaseState.updatedAt || '',
+    releaseState.currentBuild || ''
+  );
+  const items = Array.isArray(releaseState.releases) ? releaseState.releases : [];
+  if (!items.length) {
+    list.innerHTML = '';
+    empty.textContent = t('releaseEmpty');
+    empty.classList.remove('hidden');
+    refreshReleaseToggleLabels();
+    return;
+  }
+
+  empty.classList.add('hidden');
+  list.innerHTML = items.map(entry => {
+    const notes = getReleaseNotesForCurrentLang(entry);
+    const noteHtml = notes.map(item => `<li>${item}</li>`).join('');
+    return `
+      <div class="release-item">
+        <h3>${entry.version || ''}</h3>
+        <time>${entry.date || ''}</time>
+        <ul>${noteHtml}</ul>
+      </div>
+    `;
+  }).join('');
+  refreshReleaseToggleLabels();
+}
+
+async function loadReleaseNotes() {
+  const candidates = ['releases.json', './releases.json', '/releases.json'];
+  for (const url of candidates) {
+    try {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) continue;
+      const data = await res.json();
+      releaseState.currentVersion = data.currentVersion || RELEASE_FALLBACK.currentVersion;
+      releaseState.currentBuild = data.currentBuild || RELEASE_FALLBACK.currentBuild;
+      releaseState.updatedAt = data.updatedAt || RELEASE_FALLBACK.updatedAt;
+      releaseState.releases = Array.isArray(data.releases) ? data.releases : [];
+      renderReleaseNotes();
+      return;
+    } catch (e) {
+      console.warn('loadReleaseNotes failed:', url, e);
+    }
+  }
+  renderReleaseNotes();
+}
+
+function syncPresetUI() {
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.pid === S.preset?.id);
+  });
+  const mPreset = document.getElementById('mPreset');
+  if (mPreset) {
+    mPreset.value = String(Math.max(0, PRESETS.findIndex(p => p.id === S.preset?.id)));
+  }
+  const guideSpec = GUIDE_SPECS[S.preset?.id];
+  const guideLegend = document.getElementById('guideLegend');
+  if (guideLegend) guideLegend.style.display = guideSpec ? '' : 'none';
+  if (guideSpec) updateGuideLegend(guideSpec, S.preset);
+  smartPrintDefaults(S.preset || PRESETS[0]);
+}
+
+function applyI18n() {
+  document.documentElement.lang = currentLang;
+  const textMap = {
+    appTitle: 'appTitle',
+    headerSub: 'headerSub',
+    exportBoxTitle: 'exportBoxTitle',
+    keepTransparentLabel: 'keepTransparentLabel',
+    sizeLimitLabel: 'sizeLimitLabel',
+    sizeLimitHint: 'sizeLimitHint',
+    afterExportTitle: 'afterExportTitle',
+    afterExportTitleMobile: 'afterExportTitle',
+    btnShareExported: 'btnShareExported',
+    btnLocateExported: 'btnLocateExported',
+    btnShareExportedMobile: 'btnShareExported',
+    btnLocateExportedMobile: 'btnLocateExported',
+    btnDlPrint: 'btnDlPrint',
+    btnCopyImg: 'btnCopyImg',
+    sectAi: 'sectAi',
+    sectSpecs: 'sectSpecs',
+    customSizeLabel: 'customSizeLabel',
+    applyCustomBtn: 'applyCustomBtn',
+    sectGuides: 'sectGuides',
+    guideToggleLabel: 'guideToggleLabel',
+    silToggleLabel: 'silToggleLabel',
+    guideLegend1: 'guideLegend1',
+    guideLegend2: 'guideLegend2',
+    guideLegend3: 'guideLegend3',
+    guideLegend4: 'guideLegend4',
+    guideLegend5: 'guideLegend5',
+    guideLegend6: 'guideLegend6',
+    guideLegend7: 'guideLegend7',
+    sectBg: 'sectBg',
+    sectClothes: 'sectClothes',
+    stickerYLabel: 'stickerYLabel',
+    sectAdjust: 'sectAdjust',
+    brightLabel: 'brightLabel',
+    contrastLabel: 'contrastLabel',
+    saturationLabel: 'saturationLabel',
+    resetAdjustBtn: 'resetAdjustBtn',
+    mBtnRmBg: 'btnRemoveBgShort',
+    btnReupload: 'btnReuploadShort',
+    mLangTog: 'langButtonShort',
+    exportKindSingle: 'exportKindSingle',
+    exportKindSheet: 'exportKindSheet',
+    langMenuTitle: 'langMenuTitle',
+    langMenuClose: 'langMenuClose',
+    releaseTitle: 'releaseTitle',
+    releaseClose: 'releaseClose',
+    step1Label: 'step1Label',
+    step2Label: 'step2Label',
+    step3Label: 'step3Label',
+    step4Label: 'step4Label',
+    dropTitle: 'dropTitle',
+    dropHint: 'dropHint',
+    canvasHint: 'canvasHint',
+    ldrTxt: 'loaderText',
+    btnReuploadFull: 'btnReuploadFull',
+    btnRst: 'btnReset',
+    btnToggle: 'btnToggleOriginal',
+    btnRmBg: 'btnRemoveBgFull',
+    btnGen: 'btnGenerate',
+    singlePreviewTitle: 'singlePreviewTitle',
+    printBoxTitle: 'printBoxTitle',
+    perRowLabel: 'perRowLabel',
+    rowCountLabel: 'rowCountLabel',
+    cutLineLabel: 'cutLineLabel',
+    privacyTitle: 'privacyTitle',
+    privacyDecline: 'privacyDecline',
+    privacyAccept: 'privacyAccept'
+  };
+  Object.entries(textMap).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = t(key);
+  });
+  const emptyMsgText = document.getElementById('emptyMsgText');
+  if (emptyMsgText) emptyMsgText.innerHTML = t('emptyMsgHtml');
+  const apiDesc = document.getElementById('apiDesc');
+  if (apiDesc) apiDesc.innerHTML = t('apiDescHtml');
+  const apiInp = document.getElementById('apiInp');
+  if (apiInp) apiInp.placeholder = t('apiPlaceholder');
+  const apiLink = document.getElementById('apiLink');
+  if (apiLink) apiLink.textContent = t('apiLinkText');
+  const privacyBody1 = document.getElementById('privacyBody1');
+  if (privacyBody1) privacyBody1.innerHTML = t('privacyBody1Html');
+  const privacyBody2 = document.getElementById('privacyBody2');
+  if (privacyBody2) privacyBody2.textContent = t('privacyBody2');
+  const privacyBody3 = document.getElementById('privacyBody3');
+  if (privacyBody3) privacyBody3.textContent = t('privacyBody3');
+  const sizeGuide = document.getElementById('sizeGuide');
+  if (sizeGuide) sizeGuide.innerHTML = t('sizeGuideHtml');
+  const btnDlSingle = document.getElementById('btnDlSingle');
+  if (btnDlSingle) btnDlSingle.textContent = document.getElementById('fmtPng')?.checked ? t('btnDlSinglePng') : t('btnDlSingleJpg');
+  const themeTog = document.getElementById('themeTog');
+  if (themeTog) {
+    themeTog.setAttribute('title', t('themeToggleTitle'));
+    themeTog.setAttribute('aria-label', t('themeToggleTitle'));
+  }
+  const releaseTog = document.getElementById('releaseTog');
+  if (releaseTog) {
+    releaseTog.setAttribute('title', t('releaseToggleTitle'));
+    releaseTog.setAttribute('aria-label', t('releaseToggleTitle'));
+  }
+  const mReleaseTog = document.getElementById('mReleaseTog');
+  if (mReleaseTog) {
+    mReleaseTog.setAttribute('title', t('releaseToggleTitle'));
+    mReleaseTog.setAttribute('aria-label', t('releaseToggleTitle'));
+  }
+  const mBtnRmBg = document.getElementById('mBtnRmBg');
+  if (mBtnRmBg) {
+    mBtnRmBg.setAttribute('title', t('btnRemoveBgShort'));
+    mBtnRmBg.setAttribute('aria-label', t('btnRemoveBgShort'));
+  }
+  const btnReupload = document.getElementById('btnReupload');
+  if (btnReupload) {
+    btnReupload.setAttribute('title', t('btnReuploadShort'));
+    btnReupload.setAttribute('aria-label', t('btnReuploadShort'));
+  }
+  const mLangTog = document.getElementById('mLangTog');
+  if (mLangTog) {
+    mLangTog.setAttribute('title', t('langMenuTitle'));
+    mLangTog.setAttribute('aria-label', t('langMenuTitle'));
+  }
+  const langTog = document.getElementById('langTog');
+  if (langTog) {
+    langTog.setAttribute('title', t('langMenuTitle'));
+    langTog.setAttribute('aria-label', t('langMenuTitle'));
+  }
+  document.getElementById('stickerOff')?.setAttribute('title', t('stickerNoneTitle'));
+  document.getElementById('stickerMale')?.setAttribute('title', t('stickerMaleTitle'));
+  document.getElementById('stickerFemale')?.setAttribute('title', t('stickerFemaleTitle'));
+  refreshPresetLabels();
+  syncPresetUI();
+  refreshBgLabels();
+  refreshSizePreviewLabel();
+  renderReleaseNotes();
+  renderLanguageMenu();
+  refreshExportMainText();
+  refreshAfterExportActions();
+}
+
+function setLanguage(lang) {
+  if (!I18N[lang]) return;
+  currentLang = lang;
+  localStorage.setItem(KEY_LANG, currentLang);
+  applyI18n();
+}
+
+function renderLanguageMenu() {
+  const list = document.getElementById('langList');
+  if (!list) return;
+  list.innerHTML = LANG_OPTIONS.map(lang => `
+    <button class="lang-item${lang.code === currentLang ? ' active' : ''}" type="button" data-lang="${lang.code}">
+      <span>${lang.label}</span>
+      <small>${lang.short}</small>
+    </button>
+  `).join('');
+  list.querySelectorAll('[data-lang]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setLanguage(btn.dataset.lang);
+      closeLanguageMenu();
+    });
+  });
+}
+
+function openLanguageMenu() {
+  document.getElementById('langModal')?.classList.remove('hidden');
+  renderLanguageMenu();
+}
+
+function closeLanguageMenu() {
+  document.getElementById('langModal')?.classList.add('hidden');
+}
+
+function openReleaseModal() {
+  document.getElementById('releaseModal')?.classList.remove('hidden');
+  renderReleaseNotes();
+}
+
+function closeReleaseModal() {
+  document.getElementById('releaseModal')?.classList.add('hidden');
+}
+
+function refreshAfterExportActions() {
+  [
+    ['afterExportBox', 'afterExportFile'],
+    ['afterExportBoxMobile', 'afterExportFileMobile']
+  ].forEach(([boxId, labelId]) => {
+    const box = document.getElementById(boxId);
+    const label = document.getElementById(labelId);
+    if (!box || !label) return;
+    if (S.lastExportFilename) {
+      box.classList.add('show');
+      label.textContent = t('savedFileLabel', S.lastExportFilename);
+    } else {
+      box.classList.remove('show');
+      label.textContent = '';
+    }
+  });
+}
+
+function syncBgSwatches(color) {
+  document.querySelectorAll('.swatch').forEach(sw => {
+    sw.classList.toggle('active', sw.dataset.hex === color);
+  });
+}
+
+function syncBgSelects(color) {
+  const bgKey = color === '#4A80C8' ? 'blue' : color === '#C83C3A' ? 'red' : color === '#FFFFFF' ? 'white' : '';
+  const mobileEl = document.getElementById('mBg');
+  const sharedEl = document.getElementById('bgSelect');
+  if (mobileEl) {
+    const mobileValues = Array.from(mobileEl.options).map(option => option.value);
+    if (mobileValues.includes(color)) mobileEl.value = color;
+    else if (bgKey && mobileValues.includes(bgKey)) mobileEl.value = bgKey;
+  }
+  if (sharedEl && bgKey) sharedEl.value = bgKey;
+}
+
+function applyBgColorSelection(color, options = {}) {
+  const { persist = true } = options;
+  S.bgColor = color;
+  if (persist) {
+    const bgKey = color === '#4A80C8' ? 'blue' : color === '#C83C3A' ? 'red' : 'white';
+    localStorage.setItem(KEY_BG, bgKey);
+  }
+  syncBgSwatches(color);
+  syncBgSelects(color);
+  updateOffscreen();
+  requestDraw();
+  if (S.resultDataUrl) generate();
+  saveDraft();
+}
 
 /***********************
  * UI 初始化
  ***********************/
 function initBgSelect() {
-  const el = document.getElementById('bgSelect');
+  const el = document.getElementById('bgSelect') || document.getElementById('mBg');
   if (!el) return;
+  if (localStorage.getItem(KEY_BG) === null) localStorage.setItem(KEY_BG, 'white');
   if (el.options.length === 0) {
     el.innerHTML = BG_OPTIONS.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
   }
   el.value = localStorage.getItem(KEY_BG) || 'white';
+  const initialHex = el.value === 'blue' ? '#4A80C8' : el.value === 'red' ? '#C83C3A' : '#FFFFFF';
+  S.bgColor = initialHex;
+  syncBgSwatches(initialHex);
+  el.dataset.bgBound = '1';
   el.addEventListener('change', () => {
-    localStorage.setItem(KEY_BG, el.value);
     const hex = el.value === 'blue' ? '#4A80C8' : el.value === 'red' ? '#C83C3A' : '#FFFFFF';
-    S.bgColor = hex;
-    updateOffscreen();
-    requestDraw();
+    applyBgColorSelection(hex);
   });
 }
 
+function ensureInitialDefaultsUI() {
+  if (localStorage.getItem(KEY_BG) === null) localStorage.setItem(KEY_BG, 'white');
+  S.bgColor = '#FFFFFF';
+  syncBgSelects(S.bgColor);
+  syncBgSwatches(S.bgColor);
+}
+
 function initFilenameControls() {
-  const prefixEl = document.getElementById('filenamePrefix');
-  const autoEl = document.getElementById('autoUniqueName');
-  if (!prefixEl || !autoEl) return;
+  if (localStorage.getItem(KEY_AUTO_UNIQUE) === null) {
+    localStorage.setItem(KEY_AUTO_UNIQUE, '1');
+  }
+}
 
-  prefixEl.value = localStorage.getItem(KEY_PREFIX) || '';
-  autoEl.checked = (localStorage.getItem(KEY_AUTO_UNIQUE) ?? '1') === '1';
-
-  prefixEl.addEventListener('input', () => localStorage.setItem(KEY_PREFIX, prefixEl.value || ''));
-  autoEl.addEventListener('change', () => localStorage.setItem(KEY_AUTO_UNIQUE, autoEl.checked ? '1' : '0'));
+function hasLoadedPhoto() {
+  return !!(S.origImg || S.noBgImg);
 }
 
 function getExportKind() {
@@ -685,12 +1861,42 @@ function getExportKind() {
 function getExportFormat() {
   return document.getElementById('exportFormat')?.value || 'jpg';
 }
+function syncExportFormatForPreset({ notify = false } = {}) {
+  if (!isChinaConsularPreset()) return;
+  const fmtEl = document.getElementById('exportFormat');
+  const fmtPng = document.getElementById('fmtPng');
+  const changed = getExportFormat() === 'png' || S.exportFormat === 'png';
+  if (fmtEl) fmtEl.value = 'jpg';
+  if (fmtPng) fmtPng.checked = false;
+  S.exportFormat = 'jpg';
+  refreshExportMainText();
+  if (notify && changed) toast(t('chinaConsularJpegOnly'));
+}
+function isChinaConsularPreset(preset = S.preset) {
+  return preset?.id === 'cn_pass' || preset?.id === 'cn_visa';
+}
+function hasChinaConsularMinPixels(img = S.origImg) {
+  const w = img?.naturalWidth || img?.width || 0;
+  const h = img?.naturalHeight || img?.height || 0;
+  return w >= 354 && h >= 472;
+}
+function enforceChinaConsularExportRules() {
+  if (!isChinaConsularPreset()) return true;
+  if (!hasChinaConsularMinPixels()) {
+    toast(t('chinaConsularMinPixels'));
+    return false;
+  }
+  const fmtEl = document.getElementById('exportFormat');
+  if (fmtEl && getExportFormat() === 'png') syncExportFormatForPreset({ notify: true });
+  return true;
+}
 function refreshExportMainText() {
   const kind = getExportKind();
-  const fmt = getExportFormat().toUpperCase();
   const btn = document.getElementById('btnExportMain');
   if (!btn) return;
-  btn.textContent = kind === 'single' ? `✓ 生成并导出 ${fmt}` : `✓ 导出排版图 ${fmt}`;
+  btn.textContent = kind === 'single' ? t('btnExportSingle') : t('btnExportSheet');
+  const btnDlSingle = document.getElementById('btnDlSingle');
+  if (btnDlSingle) btnDlSingle.textContent = getExportFormat().toUpperCase() === 'PNG' ? t('btnDlSinglePng') : t('btnDlSingleJpg');
 }
 
 /***********************
@@ -713,14 +1919,9 @@ function makeTimestamp() {
 function rand4() { return Math.random().toString(36).slice(2, 6); }
 
 function buildExportFilename({ kind, presetName, sizeText, ext }) {
-  const prefixEl = document.getElementById('filenamePrefix');
-  const autoEl = document.getElementById('autoUniqueName');
-
-  const userPrefix = sanitizeName(prefixEl?.value || '');
-  const autoUnique = !!autoEl?.checked;
-
-  const prefix = userPrefix || (kind === 'sheet' ? '排版图' : '证件照');
-  const safePreset = sanitizeName(presetName || '中国护照');
+  const autoUnique = (localStorage.getItem(KEY_AUTO_UNIQUE) ?? '1') === '1';
+  const prefix = kind === 'sheet' ? t('exportPrefixSheet') : t('exportPrefixSingle');
+  const safePreset = sanitizeName(presetName || localizePreset(PRESETS[0]).name);
   const safeSize = sanitizeName(sizeText || '33x48mm');
   const safeExt = (ext || 'jpg').toLowerCase() === 'png' ? 'png' : 'jpg';
 
@@ -750,18 +1951,26 @@ function onFile(e){
 
 // ═══ DATA ═══
 const PRESETS = [
-  { id:'cn_pass', name:'中国护照',        w:33,   h:48,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
-  { id:'cn_visa', name:'中国签证',        w:33,   h:48,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
-  { id:'cn_id',   name:'居民身份证',      w:26,   h:32,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
-  { id:'cn_drv',  name:'驾驶证',          w:22,   h:32,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
-  { id:'us_pass', name:'美国护照',        w:50.8, h:50.8, dpi:300, defaultBg:'#FFFFFF', note:'2×2 in' },
-  { id:'us_visa', name:'美国签证',        w:50.8, h:50.8, dpi:300, defaultBg:'#FFFFFF', note:'2×2 in' },
-  { id:'ca_pass', name:'加拿大护照',      w:50,   h:70,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
-  { id:'ca_visa', name:'加拿大签证',      w:50,   h:70,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
-  { id:'uk_visa', name:'英国签证',        w:35,   h:45,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
-  { id:'au_visa', name:'澳大利亚签证',    w:35,   h:45,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
-  { id:'jp_visa', name:'日本签证',        w:45,   h:45,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
-  { id:'eu_visa', name:'申根签证',        w:35,   h:45,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
+  { id:'cn_pass',      name:'中国护照',        w:33,   h:48,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
+  { id:'cn_visa',      name:'中国签证',        w:33,   h:48,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
+  { id:'cn_id',        name:'居民身份证',      w:26,   h:32,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
+  { id:'cn_drv',       name:'驾驶证',          w:22,   h:32,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
+  { id:'cn_ssc',       name:'社保卡',          w:26,   h:32,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
+  { id:'cn_teacher',   name:'教师资格证',      w:25,   h:35,   dpi:300, defaultBg:'#FFFFFF', note:'1寸' },
+  { id:'std_1inch',    name:'标准1寸',         w:25,   h:35,   dpi:300, defaultBg:'#FFFFFF', note:'通用' },
+  { id:'std_2inch',    name:'标准2寸',         w:35,   h:49,   dpi:300, defaultBg:'#FFFFFF', note:'通用' },
+  { id:'std_2inch_alt',name:'大2寸',           w:35,   h:53,   dpi:300, defaultBg:'#FFFFFF', note:'通用' },
+  { id:'us_pass',      name:'美国护照',        w:50.8, h:50.8, dpi:300, defaultBg:'#FFFFFF', note:'2×2 in' },
+  { id:'us_visa',      name:'美国签证',        w:50.8, h:50.8, dpi:300, defaultBg:'#FFFFFF', note:'2×2 in' },
+  { id:'ca_pass',      name:'加拿大护照',      w:50,   h:70,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
+  { id:'ca_visa',      name:'加拿大签证',      w:50,   h:70,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
+  { id:'uk_visa',      name:'英国签证',        w:35,   h:45,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
+  { id:'au_visa',      name:'澳大利亚签证',    w:35,   h:45,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
+  { id:'jp_visa',      name:'日本签证',        w:45,   h:45,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
+  { id:'eu_visa',      name:'申根签证',        w:35,   h:45,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
+  { id:'th_visa',      name:'泰国签证（普通签）',  w:35,   h:45,   dpi:300, defaultBg:'#FFFFFF', note:'35×45mm · 白底' },
+  { id:'th_visa_4060', name:'泰国签证（落地签）', w:40,   h:60,   dpi:300, defaultBg:'#FFFFFF', note:'40×60mm · 白底' },
+  { id:'vn_visa',      name:'越南签证',        w:40,   h:60,   dpi:300, defaultBg:'#FFFFFF', note:'白底' },
 ];
 const GUIDE_SPECS = {
   cn_pass: { topForbidden:3, topTarget:5, chinMin:7, chinMax:14, chinForbidden:7, faceMin:15, faceMax:22, headMin:28, headMax:33 },
@@ -811,9 +2020,13 @@ const S = {
   lastWheelAt: 0,
   activePointers: new Map(),
   gesture: { mode: 'none', startDist: 1, startScale: 1, center0: {x:0,y:0}, startTx:0, startTy:0 },
-  exportFormat: 'jpg',
-  exportKind: 'single'
+  exportFormat: 'png',
+  exportKind: 'single',
+  lastExportBlob: null,
+  lastExportFilename: '',
+  lastSavedLocation: 'Pictures/Visa Photo'
 };
+const releaseState = { ...RELEASE_FALLBACK };
 const STICKERS = {
   male: `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMTAwIj48cGF0aCBkPSJNMTAwIDMwIEw2MCA1MCBMNTAgMTAwIEwxNTAgMTAwIEwxNDAgNTAgWiIgZmlsbD0iIzEwMTAxMCIvPjxwYXRoIGQ9Ik0xMDAgMzAgTDg1IDQ1IEw4MCA1NSBMMTAwIDc1IEwxMjAgNTUgTDExNSA0NSBaIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTEwMCAzMCBMODAgNjAgTDEwMCAxMDAgTDEyMCA2MCBaIiBmaWxsPSIjMTU0NDkwIi8+PC9zdmc+`,
   female: `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMTAwIj48cGF0aCBkPSJNMTAwIDI1IEw1MCA1MCBMNDAgMTAwIEwxNjAgMTAwIEwxNTAgNTAgWiIgZmlsbD0iIzIwMjAyMCIvPjxwYXRoIGQ9Ik0xMDAgMjUgTDkwIDQwIEw4NSA1NSBMMTAwIDcwIEwxMTUgNTUgTDExMCA0MCBaIiBmaWxsPSIjZmZmIi8+PC9zdmc+`
@@ -832,15 +2045,12 @@ function init() {
     btn.dataset.pid = p.id;
     btn.innerHTML = `<div><div class="pb-name">${p.name}</div><div class="pb-sub">${p.w}×${p.h}mm${p.note?' · '+p.note:''}</div></div><span class="pb-badge">${p.w}×${p.h}</span>`;
     btn.onclick = () => {
-      S.preset=p;
-      if(p.defaultBg){ S.bgColor=p.defaultBg; document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active')); document.querySelector(`.swatch[data-hex="${p.defaultBg}"]`)?.classList.add('active'); }
-      document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
-      const gs=GUIDE_SPECS[p.id];
-      document.getElementById('guideLegend').style.display=gs?'':'none';
-      updateGuideLegend(gs, p);
-      smartPrintDefaults(p);
-      drawEdit(); if(S.resultDataUrl) generate();
+      S.preset = p;
+      if (p.defaultBg) S.bgColor = p.defaultBg;
+      syncExportFormatForPreset({ notify: true });
+      syncPresetUI();
       syncMobileUI();
+      drawEdit(); if(S.resultDataUrl) generate();
     };
     list.appendChild(btn);
   });
@@ -863,8 +2073,7 @@ function init() {
   ci.oninput = e => { S.bgColor=e.target.value; document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active')); csw.classList.add('active'); requestDraw(); if(S.resultDataUrl) generate(); syncMobileUI(); };
   csw.appendChild(ci); strip.appendChild(csw);
 
-  updateGuideLegend(GUIDE_SPECS[PRESETS[0].id], PRESETS[0]);
-  smartPrintDefaults(PRESETS[0]);
+  syncPresetUI();
 
   // Theme
   const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -872,7 +2081,7 @@ function init() {
   document.getElementById('themeTog').onclick = toggleTheme;
 
   // API key
-  if (S.apiKey) { document.getElementById('apiInp').value=S.apiKey; showApiSt('✓ 已保存', '#2a7a4e'); }
+  if (S.apiKey) { document.getElementById('apiInp').value=S.apiKey; showApiSt(t('apiSaved'), '#2a7a4e'); }
   else {
     // Wait for DOM then collapse if no key
     setTimeout(() => {
@@ -954,59 +2163,10 @@ function init() {
   initMobileBgSelect();
   initMobileExportSync();
   initFilenameControls();
+  initBgSelect();
+  ensureInitialDefaultsUI();
   refreshExportMainText();
   restoreDraft();
-}
-
-/***********************
- * 文件名配置（持久化）
- ***********************/
-function initFilenameControls() {
-  const prefixEl = document.getElementById('filenamePrefix');
-  const autoEl = document.getElementById('autoUniqueName');
-  if (!prefixEl || !autoEl) return;
-
-  const savedPrefix = localStorage.getItem('vp_filename_prefix');
-  const savedAuto = localStorage.getItem('vp_auto_unique_name');
-
-  if (savedPrefix !== null) prefixEl.value = savedPrefix;
-  autoEl.checked = savedAuto === null ? true : savedAuto === '1';
-
-  prefixEl.addEventListener('input', () => localStorage.setItem('vp_filename_prefix', prefixEl.value || ''));
-  autoEl.addEventListener('change', () => localStorage.setItem('vp_auto_unique_name', autoEl.checked ? '1' : '0'));
-}
-
-function sanitizeName(input) {
-  return String(input || '').trim()
-    .replace(/[\\/:*?"<>|]/g, '_')
-    .replace(/\s+/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '').slice(0, 50);
-}
-
-function pad2(n) { return String(n).padStart(2, '0'); }
-
-function makeTimestamp() {
-  const d = new Date();
-  return d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + '_' +
-         pad2(d.getHours()) + pad2(d.getMinutes()) + pad2(d.getSeconds());
-}
-
-function random4() { return Math.random().toString(36).slice(2, 6); }
-
-function buildExportFilename({ kind, presetName, sizeText, ext }) {
-  const prefixEl = document.getElementById('filenamePrefix');
-  const autoEl = document.getElementById('autoUniqueName');
-  const userPrefix = sanitizeName(prefixEl ? prefixEl.value : '');
-  const autoUnique = autoEl ? !!autoEl.checked : true;
-
-  const basePrefix = userPrefix || (kind === 'sheet' ? '排版图' : '证件照');
-  const safePreset = sanitizeName(presetName || '中国护照');
-  const safeSize = sanitizeName(sizeText || '33x48mm');
-  const safeExt = (ext || 'jpg').toLowerCase() === 'png' ? 'png' : 'jpg';
-
-  let filename = `${basePrefix}_${safePreset}_${safeSize}`;
-  if (autoUnique) filename += `_${makeTimestamp()}_${random4()}`;
-  filename += `.${safeExt}`;
-  return filename;
 }
 
 function initMobileExportSync() {
@@ -1015,7 +2175,8 @@ function initMobileExportSync() {
   if (!kindEl || !fmtEl) return;
 
   kindEl.value = S.exportKind || 'single';
-  fmtEl.value = S.exportFormat || 'jpg';
+  fmtEl.value = S.exportFormat || 'png';
+  document.getElementById('fmtPng').checked = (fmtEl.value === 'png');
 
   kindEl.addEventListener('change', (e) => {
     S.exportKind = e.target.value;
@@ -1031,17 +2192,24 @@ function initMobileExportSync() {
   refreshExportMainText();
 }
 
-function refreshExportMainText() {
-  const btn = document.getElementById('btnExportMain');
-  if (!btn) return;
-  const kind = S.exportKind || 'single';
-  const fmt = (S.exportFormat || 'jpg').toUpperCase();
-  btn.textContent = kind === 'single' ? `✓ 生成并导出 ${fmt}` : `✓ 导出排版图 ${fmt}`;
-}
-
 async function doExportMain() {
-  const kind = S.exportKind || 'single';
-  const ext = S.exportFormat || 'jpg';
+  if (!hasLoadedPhoto()) {
+    toast(t('noPhotoYet'));
+    return;
+  }
+  if (!enforceChinaConsularExportRules()) return;
+  if (S.origImg && !S.noBgImg) {
+    const shouldRemoveBgFirst = window.confirm(t('confirmRemoveBg'));
+    if (shouldRemoveBgFirst) {
+      await doRemoveBg();
+    }
+    return;
+  }
+
+  const kind = getExportKind();
+  const ext = getExportFormat();
+  S.exportKind = kind;
+  S.exportFormat = ext;
   const p = S.preset;
   const filename = buildExportFilename({
     kind,
@@ -1051,13 +2219,11 @@ async function doExportMain() {
   });
 
   if (kind === 'single') {
-    await generate(true, filename); 
+    if (!S.resultDataUrl) await generate();
+    await dlSingle(filename, ext);
   } else {
     if (!S.resultDataUrl) await generate();
-    const cols = +document.getElementById('rCol').value;
-    const rows = +document.getElementById('rRow').value;
-    const cut = document.getElementById('cutChk').checked;
-    await exportSheet(cols, rows, cut, filename);
+    await dlPrint(filename, ext);
   }
 }
 
@@ -1075,10 +2241,8 @@ function initMobilePresetSelect() {
   sel.addEventListener('change', (e) => {
     const p = PRESETS[Number(e.target.value)];
     S.preset = p;
-    // Sync desktop UI
-    document.querySelectorAll('.preset-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.pid === p.id);
-    });
+    syncExportFormatForPreset({ notify: true });
+    syncPresetUI();
     updateOffscreen(); requestDraw(); saveDraft();
   });
 }
@@ -1086,21 +2250,19 @@ function initMobilePresetSelect() {
 function initMobileBgSelect() {
   const sel = document.getElementById('mBg');
   if (!sel) return;
+  if (sel.dataset.bgBound === '1') return;
+  if (sel.options.length === 0) {
+    sel.innerHTML = BG_COLORS.map(c => `<option value="${c.hex}">${c.lbl}</option>`).join('');
+  }
   sel.addEventListener('change', (e) => {
-    S.bgColor = e.target.value;
-    // Sync desktop UI
-    document.querySelectorAll('.swatch').forEach(sw => {
-      sw.classList.toggle('active', sw.dataset.hex === S.bgColor);
-    });
-    requestDraw(); saveDraft();
+    applyBgColorSelection(e.target.value, { persist: false });
   });
 }
 
 function syncMobileUI() {
-  const mP = document.getElementById('mPreset');
-  if (mP) mP.value = String(Math.max(0, PRESETS.findIndex(p => p.id === S.preset?.id)));
-  const mB = document.getElementById('mBg');
-  if (mB) mB.value = S.bgColor;
+  syncPresetUI();
+  syncBgSelects(S.bgColor);
+  syncBgSwatches(S.bgColor);
 }
 
 function downscaleIfNeeded(img, maxDim) {
@@ -1122,7 +2284,7 @@ function downscaleIfNeeded(img, maxDim) {
 function saveKey() {
   S.apiKey = document.getElementById('apiInp').value.trim();
   localStorage.setItem('rmBgKey', S.apiKey);
-  showApiSt(S.apiKey ? '✓ 已保存' : '已清除', S.apiKey ? '#2a7a4e' : '#9a9890');
+  showApiSt(S.apiKey ? t('apiSaved') : t('apiCleared'), S.apiKey ? '#2a7a4e' : '#9a9890');
 }
 function showApiSt(msg, color) {
   const el = document.getElementById('apiSt'); el.textContent=msg; el.style.color=color;
@@ -1146,9 +2308,9 @@ async function copyToClipboard() {
     const blob = await res.blob();
     const type = blob.type || 'image/png';
     await navigator.clipboard.write([new ClipboardItem({ [type]: blob })]);
-    toast('✓ 已复制到剪贴板');
+    toast(t('copiedOk'));
   } catch(e) {
-    toast('复制失败，请手动右键另存图片');
+    toast(t('copyFailed'));
   }
 }
 
@@ -1166,7 +2328,7 @@ function resetVal(type) {
   input.value = 100;
   S.userAdjusted = true;
   onAdj();
-  toast(`已重置${type==='B'?'亮度':type==='C'?'对比度':'饱和度'}`);
+  toast(t('resetValue', t(type==='B' ? 'brightLabel' : type==='C' ? 'contrastLabel' : 'saturationLabel')));
 }
 
 function triggerUp() { document.getElementById('fi').value=''; document.getElementById('fi').click(); }
@@ -1192,6 +2354,10 @@ function loadFile(file) {
     const img = new Image();
     img.onload = async () => {
       const processedImg = await downscaleIfNeeded(img, 4096);
+      if (isChinaConsularPreset(S.preset) && !hasChinaConsularMinPixels(processedImg)) {
+        toast(t('chinaConsularMinPixels'));
+        return;
+      }
       S.origImg=processedImg; S.noBgImg=null; S.useNoBg=false; S.resultDataUrl=null;
       S.userAdjusted = false;
       resetPos(processedImg);
@@ -1378,7 +2544,6 @@ async function saveDraft() {
 
 async function restoreDraft() {
   try {
-    const db = await openDB();
     let draft = null;
 
     // 1) 先尝试 IndexedDB 草稿
@@ -1448,7 +2613,7 @@ async function restoreDraft() {
         const tx = db.transaction('drafts', 'readwrite');
         tx.objectStore('drafts').delete('last');
       } catch (_) {}
-      toast('检测到旧草稿损坏，已自动清理');
+      toast(t('draftCorruptCleared'));
     }
 
     // 6) 同步 UI
@@ -1456,7 +2621,7 @@ async function restoreDraft() {
     if (btnToggle) {
       if (S.noBgImg) {
         btnToggle.style.display = 'inline-flex';
-        btnToggle.textContent = S.useNoBg ? '查看原图' : '查看抠图';
+        btnToggle.textContent = S.useNoBg ? t('viewOriginal') : t('viewCutout');
       } else {
         btnToggle.style.display = 'none';
       }
@@ -1494,6 +2659,8 @@ function applyDraftMeta(d) {
   S.scale = d.scale ?? S.scale ?? 1;
   S.rotate = d.rotate ?? S.rotate ?? 0;
   S.useNoBg = !!d.useNoBg;
+  syncExportFormatForPreset();
+  syncPresetUI();
 }
 
 function openDB() {
@@ -1588,10 +2755,15 @@ function estimateSize() {
   if (!S.origImg) return;
   const c = renderSingleCanvas();
   const format = document.getElementById('fmtPng').checked ? 'image/png' : 'image/jpeg';
-  const quality = format === 'image/jpeg' ? 0.9 : 1.0;
+  const quality = format === 'image/jpeg' ? 0.95 : 1.0;
+  const maxKB = parseInt(document.getElementById('maxKB')?.value, 10) || 0;
   c.toBlob(blob => {
     if (blob) {
-      document.getElementById('sizePrev').innerText = `预计大小: ~${Math.round(blob.size/1024)} KB`;
+      let sizeKB = Math.round(blob.size / 1024);
+      if (maxKB > 0 && format === 'image/jpeg') {
+        sizeKB = Math.min(sizeKB, maxKB);
+      }
+      document.getElementById('sizePrev').innerText = `${t('sizePrevLabel')}: ~${sizeKB} KB`;
     }
   }, format, quality);
 }
@@ -1649,8 +2821,8 @@ function getFilter() {
 function applyCustom() {
   const w=Math.max(10,parseInt(document.getElementById('csW').value)||35);
   const h=Math.max(10,parseInt(document.getElementById('csH').value)||45);
-  S.preset={id:'custom',name:'自定义',w,h,dpi:300};
-  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+  S.preset={id:'custom',name:t('customPresetName'),w,h,dpi:300};
+  syncPresetUI();
   resetPos(); drawEdit(); if(S.resultDataUrl) generate();
   saveDraft();
 }
@@ -1778,32 +2950,62 @@ function drawGuides(ctx, ox, oy, fw, fh) {
 function drawSilhouette(ctx, ox, oy, fw, fh) {
   const pw=S.preset.w, ph=S.preset.h;
   const mX=mm=>fw*mm/pw, mY=mm=>fh*mm/ph;
+  const gs = GUIDE_SPECS[S.preset.id];
   
   ctx.save();
   ctx.beginPath(); ctx.rect(ox,oy,fw,fh); ctx.clip();
-  ctx.strokeStyle='rgba(184, 136, 42, 0.7)'; // 这里的色值对应 var(--gold)
+  ctx.strokeStyle='rgba(184, 136, 42, 0.7)';
   ctx.lineWidth=2;
-  
-  // Outer head oval (approx 70-80% height)
-  // 标准人像：头顶距上边约 3.5mm，眼睛距下边约 55-60% 高度
-  const headW=mX(pw*0.6); 
-  const headH=mY(ph*0.75);
-  // cy 定位在眼睛高度，通常在头部椭圆的中心微偏下
+
   const cx=ox+fw/2;
-  const topBuffer=mY(5);
-  const cy=oy + topBuffer + headH/2; 
-  
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, headW/2, headH/2, 0, 0, Math.PI*2);
-  ctx.stroke();
-  
-  // Eye line (horizontal through the oval center approx)
-  ctx.lineWidth=1;
-  ctx.setLineDash([6,4]);
-  ctx.beginPath(); ctx.moveTo(ox, cy); ctx.lineTo(ox+fw, cy); ctx.stroke();
-  
-  // Middle vertical line (face axis)
-  ctx.beginPath(); ctx.moveTo(cx, cy-headH/2); ctx.lineTo(cx, cy+headH/2); ctx.stroke();
+  if (gs && isChinaConsularPreset(S.preset)) {
+    const outerHeadW = mX(gs.faceMax + 6);
+    const outerHeadH = mY(gs.headMax + 5);
+    const innerHeadW = mX(gs.faceMin + 6);
+    const innerHeadH = mY(gs.headMin + 3);
+    const outerTop = oy + mY(gs.topForbidden);
+    const innerTop = oy + mY(gs.topTarget);
+    const outerCy = outerTop + outerHeadH / 2;
+    const innerCy = innerTop + innerHeadH / 2;
+
+    ctx.fillStyle='rgba(212,168,74,0.05)';
+    ctx.beginPath();
+    ctx.ellipse(cx, outerCy, outerHeadW/2, outerHeadH/2, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle='rgba(184,136,42,0.78)';
+    ctx.beginPath();
+    ctx.ellipse(cx, outerCy, outerHeadW/2, outerHeadH/2, 0, 0, Math.PI*2);
+    ctx.stroke();
+
+    ctx.setLineDash([5,4]);
+    ctx.strokeStyle='rgba(212,168,74,0.92)';
+    ctx.beginPath();
+    ctx.ellipse(cx, innerCy, innerHeadW/2, innerHeadH/2, 0, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.lineWidth=1;
+    ctx.setLineDash([6,4]);
+    ctx.beginPath(); ctx.moveTo(cx, outerCy-outerHeadH/2); ctx.lineTo(cx, outerCy+outerHeadH/2); ctx.stroke();
+    const eyeLineY = oy + mY(gs.topTarget + (gs.headMin * 0.55));
+    ctx.beginPath(); ctx.moveTo(cx-innerHeadW/2, eyeLineY); ctx.lineTo(cx+innerHeadW/2, eyeLineY); ctx.stroke();
+    ctx.setLineDash([]);
+  } else {
+    const headW=mX(pw*0.6); 
+    const headH=mY(ph*0.75);
+    const topBuffer=mY(5);
+    const cy=oy + topBuffer + headH/2; 
+
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, headW/2, headH/2, 0, 0, Math.PI*2);
+    ctx.stroke();
+
+    ctx.lineWidth=1;
+    ctx.setLineDash([6,4]);
+    ctx.beginPath(); ctx.moveTo(ox, cy); ctx.lineTo(ox+fw, cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, cy-headH/2); ctx.lineTo(cx, cy+headH/2); ctx.stroke();
+    ctx.setLineDash([]);
+  }
   
   ctx.restore();
 }
@@ -1832,16 +3034,44 @@ function smartAlign() {
   const faceH = maxY - minY;
   const cv = document.getElementById('editCanvas');
   const {w:pw,h:ph} = S.preset;
+  const gs = GUIDE_SPECS[S.preset.id];
   const asp = pw/ph;
   let fw=cv.width, fh=cv.width/asp; if(fh>cv.height){fh=cv.height;fw=cv.height*asp;}
   const ox=(cv.width-fw)/2, oy=(cv.height-fh)/2;
+  const mX = mm => fw * mm / pw;
+  const mY = mm => fh * mm / ph;
+
+  if (gs && isChinaConsularPreset(S.preset)) {
+    const headScanBottom = Math.min(c.height - 1, Math.round(minY + faceH * 0.58));
+    let headMinX = c.width, headMaxX = 0;
+    for (let y = minY; y <= headScanBottom; y++) {
+      for (let x = 0; x < c.width; x++) {
+        if (data[(y * c.width + x) * 4 + 3] > 10) {
+          if (x < headMinX) headMinX = x;
+          if (x > headMaxX) headMaxX = x;
+        }
+      }
+    }
+
+    const headW = headMaxX > headMinX ? (headMaxX - headMinX) : faceW;
+    const targetHeadH = mY((gs.headMin + gs.headMax) / 2);
+    const targetHeadW = mX((gs.faceMin + gs.faceMax) / 2);
+    const scaleByHeight = targetHeadH / faceH;
+    const scaleByWidth = targetHeadW / headW;
+
+    S.scale = Math.min(scaleByHeight, scaleByWidth);
+    S.tx = ox + (fw / 2) - ((headMinX + headW / 2) * S.scale);
+    S.ty = oy + mY((gs.topForbidden + gs.topTarget) / 2) - (minY * S.scale);
+    S.rotate = 0;
+    const rotEl = document.getElementById('rotLbl'); if(rotEl) rotEl.textContent='0°';
+    return;
+  }
   
   // Align head (top 20% to bottom 85% approx)
   const targetH = fh * 0.75;
   S.scale = targetH / faceH;
   // Center horizontally
   S.tx = ox + (fw/2) - (minX + faceW/2) * S.scale;
-  const mY = mm => fh * mm / ph;
   // Align top
   S.ty = oy + mY(5) - (minY) * S.scale;
   S.rotate = 0;
@@ -1906,6 +3136,7 @@ async function doRemoveBg() {
       document.getElementById('clothesSect').style.display = 'block';
       toast('✓ 云端抠图成功！');
       updateOffscreen(); requestDraw(); saveDraft();
+      void offerSaveFullCutout();
     };
     img.onerror = () => { throw new Error('结果图解析失败'); };
     img.src = url;
@@ -2006,6 +3237,7 @@ async function doLocalRemoveBg(keepOverride) {
     document.getElementById('clothesSect').style.display = 'block';
     toast('✓ 本地抠图完成 (离线模式)');
     updateOffscreen(); requestDraw(); saveDraft();
+    void offerSaveFullCutout();
     return true;
   } catch (e) {
     console.warn('[Local Removal Failed]', e);
@@ -2018,6 +3250,29 @@ async function doLocalRemoveBg(keepOverride) {
 
 function canvasToBlob(cv, type='image/png', quality=1) {
   return new Promise(resolve => cv.toBlob(resolve, type, quality));
+}
+
+async function offerSaveFullCutout() {
+  if (!S.noBgImg) return;
+  const shouldSave = window.confirm(t('confirmSaveCutout'));
+  if (!shouldSave) return;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = S.noBgImg.naturalWidth || S.noBgImg.width;
+  canvas.height = S.noBgImg.naturalHeight || S.noBgImg.height;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(S.noBgImg, 0, 0, canvas.width, canvas.height);
+
+  const blob = await canvasToBlob(canvas, 'image/png', 1);
+  const localizedPreset = localizePreset(S.preset);
+  const filename = buildExportFilename({
+    kind: 'single',
+    presetName: `${localizedPreset.name}_cutout_full`,
+    sizeText: `${canvas.width}x${canvas.height}px`,
+    ext: 'png'
+  });
+  await exportWithShareOrFallback(blob, filename);
 }
 
 // ═══ TOGGLE ORIGINAL / NO-BG ═══
@@ -2041,9 +3296,10 @@ function setSticker(type) {
 function generate() {
   const src = S.useNoBg ? S.noBgImg : S.origImg;
   if (!src) return;
-  setLdr(true,'生成证件照…'); setStep(4);
+  setLdr(true, t('loaderGenerating')); setStep(4);
 
-  setTimeout(async ()=>{
+  return new Promise((resolve, reject) => {
+    setTimeout(async ()=>{
     try {
       const {w:pw,h:ph,dpi}=S.preset;
       const oW=mm2px(pw,dpi), oH=mm2px(ph,dpi);
@@ -2103,35 +3359,36 @@ function generate() {
 
       S.resultDataUrl = finalData;
       const fileSizeKB = Math.round((S.resultDataUrl.split(',')[1]||'').length * 0.75 / 1024);
-      const bgDisplay = S.bgColor === 'transparent' ? '透明' : (S.bgColor || '#FFFFFF').toUpperCase();
+      const bgLabels = BG_LABELS[currentLang] || BG_LABELS.zh;
+      const bgDisplay = S.bgColor === 'transparent' ? (bgLabels.transparent || 'Transparent') : (bgLabels[S.bgColor] || (S.bgColor || '#FFFFFF').toUpperCase());
+      const localizedPreset = localizePreset(S.preset);
       
       document.getElementById('resultPrev').src = S.resultDataUrl;
       document.getElementById('infoTbl').innerHTML = `
-        <tr><td>规格</td><td>${S.preset.name}</td></tr>
-        <tr><td>尺寸</td><td>${pw}×${ph} mm</td></tr>
-        <tr><td>像素</td><td>${oW}×${oH} px</td></tr>
-        <tr><td>分辨率</td><td>${dpi} dpi</td></tr>
-        <tr><td>文件大小</td><td>${fileSizeKB} KB</td></tr>
-        <tr><td>背景</td><td>${bgDisplay}</td></tr>
-        <tr><td>抠图</td><td>${S.useNoBg?'✓ AI 抠图':'原图背景'}</td></tr>`;
+        <tr><td>${t('infoSpec')}</td><td>${localizedPreset.name}</td></tr>
+        <tr><td>${t('infoSize')}</td><td>${pw}×${ph} mm</td></tr>
+        <tr><td>${t('infoPixels')}</td><td>${oW}×${oH} px</td></tr>
+        <tr><td>${t('infoDpi')}</td><td>${dpi} dpi</td></tr>
+        <tr><td>${t('infoFileSize')}</td><td>${fileSizeKB} KB</td></tr>
+        <tr><td>${t('infoBg')}</td><td>${bgDisplay}</td></tr>
+        <tr><td>${t('infoCutout')}</td><td>${S.useNoBg ? t('infoCutoutYes') : t('infoCutoutNo')}</td></tr>`;
       
       document.getElementById('prevBox').classList.add('show');
       document.getElementById('printBox').classList.add('show');
       document.getElementById('dlBox').classList.add('show');
+      document.getElementById('sizePrev').innerText = `${t('sizePrevLabel')}: ~${fileSizeKB} KB`;
       updatePrint();
-      toast('✓ 证件照已生成');
-      
-      // 移动端一键流：生成后自动启动分享/导出
-      if (arguments[0] === true && isMobile()) {
-        dlSingle();
-      }
+      toast(t('generatedOk'));
+      resolve(finalData);
     } catch(e) {
       console.error(e);
-      toast('生成失败: ' + e.message);
+      toast(t('generateFailed', e.message));
+      reject(e);
     } finally {
       setLdr(false);
     }
-  }, 100);
+    }, 100);
+  });
 }
 
 // Smart default print layout based on photo size vs 6-inch paper (152x101mm)
@@ -2172,9 +3429,222 @@ function updatePrint() {
 }
 
 // ═══ DOWNLOAD / EXPORT BLOBS ═══
+async function saveToGalleryNoAlbum(blob, filename) {
+  const cap = window.Capacitor;
+  if (!cap?.isNativePlatform?.()) return false;
+  const Media = cap?.Plugins?.Media;
+  if (!Media) return false;
+
+  console.log('[Media plugin methods]', Object.keys(Media).join(', '));
+
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(String(reader.result || ''));
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+  const baseName = String(filename || 'photo')
+    .replace(/\.[^.]+$/, '')
+    .replace(/[\\/:*?"<>|]/g, '_')
+    .trim() || 'photo';
+  const albumName = 'Visa Photo';
+  let albumIdentifier = null;
+
+  const resolveAlbumIdentifier = async () => {
+    if (typeof Media.getAlbums !== 'function') return albumIdentifier;
+    try {
+      const albums = await Media.getAlbums();
+      const match = albums?.albums?.find(a => a?.name === albumName && a?.identifier);
+      if (match?.identifier) albumIdentifier = match.identifier;
+    } catch (e) {
+      console.warn('getAlbums failed:', e);
+    }
+    return albumIdentifier;
+  };
+
+  if (typeof Media.getAlbumsPath === 'function') {
+    try {
+      const albumsPath = await Media.getAlbumsPath();
+      if (albumsPath?.path) albumIdentifier = `${albumsPath.path}/${albumName}`;
+    } catch (e) {
+      console.warn('getAlbumsPath failed:', e);
+    }
+  }
+
+  await resolveAlbumIdentifier();
+
+  if (typeof Media.createAlbum === 'function') {
+    try {
+      await Media.createAlbum({ name: albumName });
+    } catch (e) {
+      const msg = String(e?.message || e || '');
+      if (!/already exists/i.test(msg)) console.warn('createAlbum failed:', e);
+    }
+  }
+
+  await resolveAlbumIdentifier();
+
+  if (typeof Media.savePhoto === 'function') {
+    try {
+      await Media.savePhoto({
+        path: dataUrl,
+        albumIdentifier,
+        fileName: baseName
+      });
+      S.lastSavedLocation = 'Pictures/Visa Photo';
+      return true;
+    } catch (e) {
+      console.warn('savePhoto(path) failed:', e);
+      await resolveAlbumIdentifier();
+      if (albumIdentifier) {
+        try {
+          await Media.savePhoto({
+            path: dataUrl,
+            albumIdentifier,
+            fileName: baseName
+          });
+          S.lastSavedLocation = 'Pictures/Visa Photo';
+          return true;
+        } catch (retryError) {
+          console.warn('savePhoto(path) retry failed:', retryError);
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+async function saveToGalleryNative(blob, filename) {
+  const cap = window.Capacitor;
+  const nativeShare = cap?.Plugins?.ExportShare;
+  if (!cap?.isNativePlatform?.() || !nativeShare?.saveToGallery) return false;
+
+  try {
+    const dataUrl = await blobToDataUrl(blob);
+    const result = await nativeShare.saveToGallery({
+      filename,
+      mimeType: blob.type || 'image/jpeg',
+      dataUrl,
+      albumName: 'Visa Photo'
+    });
+    S.lastSavedLocation = result?.relativePath || 'Pictures/Visa Photo';
+    return true;
+  } catch (e) {
+    console.warn('native saveToGallery failed:', e);
+    return false;
+  }
+}
+
+async function exportWithShareOrFallback(blob, filename) {
+  // A) 先尝试写入系统图库
+  try {
+    const ok = await saveToGalleryNative(blob, filename) || await saveToGalleryNoAlbum(blob, filename);
+    if (ok) {
+      S.lastExportBlob = blob;
+      S.lastExportFilename = filename;
+      refreshAfterExportActions();
+      toast?.(t('savedToGallery'));
+      return;
+    }
+  } catch (e) { console.warn('Media save failed:', e); }
+
+  // B) 系统分享
+  const file = new File([blob], filename, { type: blob.type || 'image/jpeg' });
+  if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: '证件照导出' });
+      S.lastExportBlob = blob;
+      S.lastExportFilename = filename;
+      refreshAfterExportActions();
+      toast?.(t('sharePrompt'));
+      return;
+    } catch (e) {
+      if (e.name !== 'AbortError') console.warn('share failed:', e);
+    }
+  }
+
+  // C) 最终兜底下载
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  S.lastExportBlob = blob;
+  S.lastExportFilename = filename;
+  refreshAfterExportActions();
+  toast?.(t('downloadTriggered'));
+}
+
+async function blobToDataUrl(blob) {
+  return await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(String(reader.result || ''));
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+function getMinJpegSizeKBForPreset(preset) {
+  const pid = preset?.id;
+  if (pid === 'cn_pass' || pid === 'cn_visa') return 30;
+  return 0;
+}
+
+async function ensureMinJpegBlobSize(blob, minKB) {
+  if (!blob || !minKB || blob.size >= minKB * 1024) return blob;
+  const padBytes = (minKB * 1024) - blob.size;
+  if (padBytes <= 0) return blob;
+  return new Blob([blob, new Uint8Array(padBytes)], { type: blob.type || 'image/jpeg' });
+}
+
+async function shareLastExportNative() {
+  const cap = window.Capacitor;
+  const nativeShare = cap?.Plugins?.ExportShare;
+  if (!cap?.isNativePlatform?.() || !nativeShare?.shareFile) return false;
+
+  try {
+    const dataUrl = await blobToDataUrl(S.lastExportBlob);
+    await nativeShare.shareFile({
+      filename: S.lastExportFilename,
+      mimeType: S.lastExportBlob?.type || 'image/png',
+      dataUrl
+    });
+    return true;
+  } catch (e) {
+    console.warn('native share failed:', e);
+    return false;
+  }
+}
+
+async function shareLastExport() {
+  if (!S.lastExportBlob || !S.lastExportFilename) {
+    toast(t('noExportYet'));
+    return;
+  }
+  const file = new File([S.lastExportBlob], S.lastExportFilename, { type: S.lastExportBlob.type || 'image/png' });
+  if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: S.lastExportFilename });
+      return;
+    } catch (e) {
+      if (e.name !== 'AbortError') console.warn('shareLastExport failed:', e);
+      return;
+    }
+  }
+  if (await shareLastExportNative()) return;
+  toast(t('shareUnavailable'));
+}
+
+function showSavedLocation() {
+  const path = S.lastSavedLocation || 'Pictures/Visa Photo';
+  window.alert(`${t('savedLocationTitle')}\n\n${t('savedLocationBody', path)}`);
+}
+
 async function exportSingleBlob(ext = 'jpg') {
   const mime = ext === 'png' ? 'image/png' : 'image/jpeg';
   const quality = ext === 'png' ? undefined : 0.95;
+  const minJpegKB = ext === 'png' ? 0 : getMinJpegSizeKBForPreset(S?.preset);
 
   // 1) 优先用结果图
   if (S?.resultDataUrl) {
@@ -2192,17 +3662,19 @@ async function exportSingleBlob(ext = 'jpg') {
     const ctx = c.getContext('2d');
     ctx.drawImage(img, 0, 0);
 
-    return await new Promise((resolve, reject) =>
+    const blob = await new Promise((resolve, reject) =>
       c.toBlob(b => b ? resolve(b) : reject(new Error('single toBlob failed')), mime, quality)
     );
+    return await ensureMinJpegBlobSize(blob, minJpegKB);
   }
 
   // 2) 兜底：从编辑画布导出
   const ec = document.getElementById('editCanvas');
   if (ec && typeof ec.toBlob === 'function') {
-    return await new Promise((resolve, reject) =>
+    const blob = await new Promise((resolve, reject) =>
       ec.toBlob(b => b ? resolve(b) : reject(new Error('editCanvas toBlob failed')), mime, quality)
     );
+    return await ensureMinJpegBlobSize(blob, minJpegKB);
   }
 
   throw new Error('请先上传并点击“生成”');
@@ -2260,54 +3732,59 @@ async function exportSheetBlob(ext = 'jpg') {
 
   const mime = ext === 'png' ? 'image/png' : 'image/jpeg';
   const quality = ext === 'png' ? undefined : 0.95;
-  return await new Promise((resolve, reject) =>
+  const blob = await new Promise((resolve, reject) =>
     pc.toBlob(b => b ? resolve(b) : reject(new Error('sheet toBlob failed')), mime, quality)
   );
+  return await ensureMinJpegBlobSize(blob, ext === 'png' ? 0 : getMinJpegSizeKBForPreset(S?.preset));
 }
 
-async function exportWithShareOrFallback(blob, filename) {
-  const file = new File([blob], filename, { type: blob.type || 'image/jpeg' });
-  if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({
-        files: [file],
-        title: '证件照导出',
-        text: '请选择“保存到相册/文件”完成保存'
-      });
-      toast?.('请在系统面板中选择保存位置');
-      return;
-    } catch (e) {
-      if (e.name !== 'AbortError') console.warn('share failed', e);
-    }
+async function dlSingle(filenameOverride, extOverride) {
+  if (!hasLoadedPhoto()) {
+    toast(t('noPhotoYet'));
+    return;
   }
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1500);
-  toast?.('已触发下载');
+  if (!enforceChinaConsularExportRules()) return;
+  const kind = 'single';
+  const ext = extOverride || getExportFormat();
+  const presetName = S?.preset?.name || '中国护照';
+  const sizeText = (S?.preset?.w && S?.preset?.h) ? `${S.preset.w}x${S.preset.h}mm` : '33x48mm';
+  const filename = filenameOverride || buildExportFilename({ kind, presetName, sizeText, ext });
+  const blob = await exportSingleBlob(ext);
+  await exportWithShareOrFallback(blob, filename);
+}
+
+async function dlPrint(filenameOverride, extOverride) {
+  if (!hasLoadedPhoto()) {
+    toast(t('noPhotoYet'));
+    return;
+  }
+  if (!enforceChinaConsularExportRules()) return;
+  const kind = 'sheet';
+  const ext = extOverride || getExportFormat();
+  const presetName = S?.preset?.name || '中国护照';
+  const sizeText = (S?.preset?.w && S?.preset?.h) ? `${S.preset.w}x${S.preset.h}mm` : '33x48mm';
+  const filename = filenameOverride || buildExportFilename({ kind, presetName, sizeText, ext });
+  const blob = await exportSheetBlob(ext);
+  await exportWithShareOrFallback(blob, filename);
+}
+
+async function exportSheet(cols, rows, cut, filename) {
+  const colEl = document.getElementById('rCol');
+  const rowEl = document.getElementById('rRow');
+  const cutEl = document.getElementById('cutChk');
+  if (colEl) colEl.value = String(cols);
+  if (rowEl) rowEl.value = String(rows);
+  if (cutEl) cutEl.checked = !!cut;
+  updatePrint();
+  await dlPrint(filename, getExportFormat());
 }
 
 async function onExportMainClick() {
   try {
-    const kind = getExportKind();
-    const ext = getExportFormat();
-    const presetName = S?.preset?.name || '中国护照';
-    const sizeText = (S?.preset?.w && S?.preset?.h) ? `${S.preset.w}x${S.preset.h}mm` : '33x48mm';
-    const filename = buildExportFilename({ kind, presetName, sizeText, ext });
-
-    let blob;
-    if (kind === 'sheet') {
-      blob = await exportSheetBlob(ext);
-    } else {
-      blob = await exportSingleBlob(ext);
-    }
-
-    if (!blob) throw new Error('未生成文件');
-    await exportWithShareOrFallback(blob, filename);
+    await doExportMain();
   } catch (err) {
     console.error(err);
-    toast?.(`导出失败：${err.message || err}`);
+    toast?.(t('exportFailed', err.message || err));
   }
 }
 
@@ -2357,13 +3834,17 @@ function toast(msg){
 
 function updateGuideLegend(gs, p) {
   if (!gs) return;
+  const ovalLegend = isChinaConsularPreset(p)
+    ? `${t('guideLegend6')} · ${t('chinaDoubleOvalGuide')}`
+    : t('guideLegend6');
   document.getElementById('guideLegend').innerHTML = `
-    <div class="gl-item"><div class="gl-dot" style="background:rgba(200,50,40,0.35)"></div>红色禁区 — 头顶需在上方 &gt; ${gs.topForbidden}mm，下巴需在底边上方 &gt; ${gs.chinForbidden}mm</div>
-    <div class="gl-item"><div class="gl-dot" style="background:rgba(200,160,20,0.4)"></div>头顶目标区 — 距上边 ${gs.topForbidden}–${gs.topTarget}mm（黄色区域）</div>
-    <div class="gl-item"><div class="gl-dot" style="background:rgba(40,160,80,0.3)"></div>下巴目标区 — 距底边 ${gs.chinMin}–${gs.chinMax}mm（绿色区域）</div>
-    <div class="gl-item"><div class="gl-dot" style="border:1.5px solid rgba(40,160,80,0.8)"></div>脸宽范围（不含耳）${gs.faceMin}–${gs.faceMax}mm</div>
-    <div class="gl-item"><div class="gl-dot" style="border:1.5px dashed rgba(200,160,20,0.8)"></div>HH 中心线 — 对齐鼻梁居中</div>
-    <div class="gl-item" style="color:var(--ink3);font-style:italic">头部高度（下巴到头顶）：${gs.headMin}–${gs.headMax}mm</div>`;
+    <div class="gl-item"><div class="gl-dot" style="background:rgba(200,50,40,0.35)"></div><span>${t('guideLegend1')}</span></div>
+    <div class="gl-item"><div class="gl-dot" style="background:rgba(200,160,20,0.4)"></div><span>${t('guideLegend2')}</span></div>
+    <div class="gl-item"><div class="gl-dot" style="background:rgba(40,160,80,0.3)"></div><span>${t('guideLegend3')}</span></div>
+    <div class="gl-item"><div class="gl-dot" style="border:1.5px solid rgba(40,160,80,0.8)"></div><span>${t('guideLegend4')}</span></div>
+    <div class="gl-item"><div class="gl-dot" style="border:1.5px dashed rgba(200,160,20,0.8)"></div><span>${t('guideLegend5')}</span></div>
+    <div class="gl-item"><div class="gl-dot" style="border:1.5px solid var(--gold);border-radius:50%"></div><span>${ovalLegend}</span></div>
+    <div class="gl-item" style="color:var(--ink3);font-style:italic"><span>${t('guideLegend7')}</span></div>`;
 }
 
 init();
@@ -2373,6 +3854,20 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('exportFormat')?.addEventListener('change', refreshExportMainText);
   document.getElementById('btnExportMain')?.addEventListener('click', onExportMainClick);
   document.getElementById('btnReupload')?.addEventListener('click', triggerUp);
+  document.getElementById('releaseTog')?.addEventListener('click', openReleaseModal);
+  document.getElementById('mReleaseTog')?.addEventListener('click', openReleaseModal);
+  document.getElementById('langTog')?.addEventListener('click', openLanguageMenu);
+  document.getElementById('mLangTog')?.addEventListener('click', openLanguageMenu);
+  document.getElementById('langMenuClose')?.addEventListener('click', closeLanguageMenu);
+  document.getElementById('releaseClose')?.addEventListener('click', closeReleaseModal);
+  document.getElementById('langModal')?.addEventListener('click', (e) => {
+    if (e.target?.id === 'langModal') closeLanguageMenu();
+  });
+  document.getElementById('releaseModal')?.addEventListener('click', (e) => {
+    if (e.target?.id === 'releaseModal') closeReleaseModal();
+  });
+  applyI18n();
+  loadReleaseNotes();
 });
 </script>
 </body>

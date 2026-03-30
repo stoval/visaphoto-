@@ -1,0 +1,38 @@
+{
+    "currentVersion":  "1.0",
+    "updatedAt":  "2026-03-30",
+    "releases":  [
+                     {
+                         "version":  "1.0",
+                         "date":  "2026-03-30",
+                         "notes":  {
+                                       "zh":  [
+                                                  "新增中英繁中日语韩语多语言界面与系统语言自动识别。",
+                                                  "优化移动端工具栏布局，导出、背景、抠图与换图分组更清晰。",
+                                                  "修复导出链路、分享兜底、首次默认项和空白导出等问题。"
+                                              ],
+                                       "en":  [
+                                                  "Added multilingual UI for Simplified Chinese, English, Traditional Chinese, Japanese, and Korean with system-language detection.",
+                                                  "Refined the mobile toolbar so export, background, cutout, and re-upload actions feel more structured.",
+                                                  "Fixed export flow regressions, share fallback, first-run defaults, and blank-file export issues."
+                                              ],
+                                       "zh-TW":  [
+                                                     "新增簡中、英文、繁中、日文、韓文多語介面與系統語言自動辨識。",
+                                                     "優化手機版工具列，讓匯出、背景、去背與換圖分組更清楚。",
+                                                     "修正匯出流程、分享兜底、首次預設值與空白匯出等問題。"
+                                                 ],
+                                       "ja":  [
+                                                  "簡体字・英語・繁体字・日本語・韓国語の多言語 UI とシステム言語自動判定を追加しました。",
+                                                  "モバイルツールバーを再整理し、書き出し・背景・切り抜き・再アップロードの導線を改善しました。",
+                                                  "書き出しフロー、共有フォールバック、初回既定値、空ファイル書き出しの問題を修正しました。"
+                                              ],
+                                       "ko":  [
+                                                  "중국어 간체, 영어, 번체, 일본어, 한국어 다국어 UI와 시스템 언어 자동 감지를 추가했습니다.",
+                                                  "모바일 툴바를 정리해 내보내기, 배경, 누끼, 다시 업로드 흐름을 더 명확하게 만들었습니다.",
+                                                  "내보내기 흐름, 공유 폴백, 첫 실행 기본값, 빈 파일 내보내기 문제를 수정했습니다."
+                                              ]
+                                   }
+                     }
+                 ],
+    "currentBuild":  "1"
+}

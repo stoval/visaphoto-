@@ -1,8 +1,13 @@
 {
-  "appId": "com.basidehealing.visaphoto",
+  "appId": "com.baysidehealing.visaphoto",
   "appName": "Visa Photo",
   "webDir": "www",
   "bundledWebRuntime": false,
+  "plugins": {
+    "Media": {
+      "androidGalleryMode": true
+    }
+  },
   "server": {
     "androidScheme": "https"
   }

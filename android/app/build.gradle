@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.basidehealing.visaphoto"
+    namespace = "com.baysidehealing.visaphoto"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.basidehealing.visaphoto"
+        applicationId "com.baysidehealing.visaphoto"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -21,12 +21,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
-}
-
-repositories {
-    flatDir{
-        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
     }
 }
 
