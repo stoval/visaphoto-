@@ -5,7 +5,7 @@
   "bundledWebRuntime": false,
   "plugins": {
     "Media": {
-      "androidGalleryMode": true
+      "androidGalleryMode": false
     }
   },
   "server": {

@@ -25,8 +25,7 @@
     "@capacitor/core": "^8.3.0"
   },
   "dependencies": {
-    "@capacitor-community/media": "^9.1.0",
-    "@capacitor/filesystem": "^8.1.2"
+    "@capacitor-community/media": "^9.1.0"
   }
 }
 
