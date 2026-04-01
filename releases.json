@@ -1,7 +1,33 @@
 {
-    "currentVersion":  "1.2",
+    "currentVersion":  "1.3",
     "updatedAt":  "2026-04-01",
     "releases":  [
+                     {
+                         "version":  "1.3",
+                         "date":  "2026-04-01",
+                         "notes":  {
+                                       "zh":  [
+                                                  "抠图完成后默认改为提示保存白底 JPG，更适合分享、上传和申请使用。",
+                                                  "补充更清晰的上传拍摄建议，强调纯墙面背景、避开窗户和逆光，减少白边与残边问题。"
+                                              ],
+                                       "en":  [
+                                                  "Changed the post-cutout save flow to recommend a white-background JPG by default, which is more practical for sharing, uploading, and applications.",
+                                                  "Added clearer photo capture guidance, emphasizing a plain wall background and avoiding windows or backlight to reduce halos and edge artifacts."
+                                              ],
+                                       "zh-TW":  [
+                                                     "去背完成後預設改為提示保存白底 JPG，更適合分享、上傳與申請使用。",
+                                                     "補充更清楚的拍攝建議，強調純牆面背景並避開窗戶與逆光，以減少白邊與殘邊問題。"
+                                                 ],
+                                       "ja":  [
+                                                  "背景除去後は白背景 JPG の保存を既定で案内するようにし、共有・アップロード・申請で使いやすくしました。",
+                                                  "無地の壁背景や窓・逆光回避を強調する撮影ガイダンスを追加し、白フチや残りフチを減らしやすくしました。"
+                                              ],
+                                       "ko":  [
+                                                  "누끼 완료 후 기본 저장 안내를 흰 배경 JPG로 변경해 공유, 업로드, 신청에 더 적합하게 만들었습니다.",
+                                                  "단색 벽 배경과 창문·역광 회피를 강조하는 촬영 가이드를 추가해 흰 테두리와 잔여 가장자리를 줄이기 쉽게 했습니다."
+                                              ]
+                                   }
+                     },
                      {
                          "version":  "1.2",
                          "date":  "2026-04-01",
@@ -96,5 +122,5 @@
                                    }
                      }
                  ],
-    "currentBuild":  "4"
+    "currentBuild":  "5"
 }
