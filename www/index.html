@@ -370,8 +370,8 @@ body { font-family: 'Noto Sans SC', sans-serif; background: var(--bg0); color: v
 .empty .ei { font-size: 28px; margin-bottom: 7px; }
 
 /* TOAST */
-.toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(60px); background: var(--ink); color: var(--bg0); padding: 10px 20px; border-radius: 20px; font-size: 13px; transition: transform .3s cubic-bezier(.34,1.56,.64,1); z-index: 999; pointer-events: none; }
-.toast.show { transform: translateX(-50%) translateY(0); }
+.toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(60px); opacity: 0; visibility: hidden; background: var(--ink); color: var(--bg0); padding: 10px 20px; border-radius: 20px; font-size: 13px; line-height: 1.45; max-width: calc(100vw - 32px); text-align: center; transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .22s ease, visibility 0s linear .22s; z-index: 999; pointer-events: none; }
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; visibility: visible; transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .22s ease; }
 
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-thumb { background: var(--bg2); border-radius: 2px; }
@@ -916,6 +916,7 @@ const I18N = {
     customPresetName: '自定义',
     confirmRemoveBg: '当前还未执行“AI 抠图”。直接导出可能因背景不纯导致审核失败。\n\n是否先执行抠图？',
     confirmSaveCutout: '抠图已完成。\n\n是否顺手保存一张整张透明 PNG，方便后续分享或备用？',
+    confirmSaveChinaCutout: '抠图已完成。\n\n中国护照/签证申请通常需要先准备一张白底原始照片，再到官方网站裁剪上传。\n\n是否现在保存这张白底申请图？',
     savedToGallery: '已保存到系统相册/图库',
     sharePrompt: '请在系统面板选择保存到相册/文件',
     downloadTriggered: '已触发下载',
@@ -1058,6 +1059,7 @@ const I18N = {
     customPresetName: 'Custom',
     confirmRemoveBg: 'AI background removal has not been run yet. Exporting now may fail background checks.\n\nDo you want to remove the background first?',
     confirmSaveCutout: 'Cutout is ready.\n\nDo you want to save a full transparent PNG now for sharing or backup?',
+    confirmSaveChinaCutout: 'Cutout is ready.\n\nChina passport/visa applications usually require saving a clean white-background photo first, then cropping it on the official website.\n\nDo you want to save this white-background application photo now?',
     savedToGallery: 'Saved to the system gallery',
     sharePrompt: 'Choose Save to Photos/Files in the system sheet',
     downloadTriggered: 'Download started',
@@ -1200,6 +1202,7 @@ const I18N = {
     customPresetName: '自訂',
     confirmRemoveBg: '目前尚未執行「AI 去背」。直接匯出可能因背景不純而導致審核失敗。\n\n是否先執行去背？',
     confirmSaveCutout: '去背已完成。\n\n是否順手保存一張完整透明 PNG，方便後續分享或備用？',
+    confirmSaveChinaCutout: '去背已完成。\n\n中國護照/簽證申請通常需要先準備一張白底原始照片，再到官方網站裁切上傳。\n\n是否現在保存這張白底申請圖？',
     savedToGallery: '已保存到系統相簿/圖庫',
     sharePrompt: '請在系統面板中選擇保存到相簿/檔案',
     downloadTriggered: '已觸發下載',
@@ -1342,6 +1345,7 @@ const I18N = {
     customPresetName: 'カスタム',
     confirmRemoveBg: 'まだ「AI 背景除去」を実行していません。このまま書き出すと背景審査に落ちる可能性があります。\n\n先に背景を削除しますか？',
     confirmSaveCutout: '背景除去が完了しました。\n\n共有や予備用に、透過 PNG の全体画像を今保存しますか？',
+    confirmSaveChinaCutout: '背景除去が完了しました。\n\n中国パスポート/ビザ申請では、まず白背景の元写真を保存し、その後公式サイトでトリミングする流れが一般的です。\n\nこの白背景の申請用写真を今保存しますか？',
     savedToGallery: 'システムのギャラリーに保存しました',
     sharePrompt: 'システム共有で写真またはファイルへ保存を選んでください',
     downloadTriggered: 'ダウンロードを開始しました',
@@ -1484,6 +1488,7 @@ const I18N = {
     customPresetName: '사용자 설정',
     confirmRemoveBg: '아직 "AI 배경 제거"를 실행하지 않았습니다. 지금 내보내면 배경 검사에 실패할 수 있습니다.\n\n먼저 배경을 제거할까요?',
     confirmSaveCutout: '누끼가 완료되었습니다.\n\n공유나 예비용으로 전체 투명 PNG를 지금 저장할까요?',
+    confirmSaveChinaCutout: '누끼가 완료되었습니다.\n\n중국 여권/비자 신청은 먼저 흰 배경 원본 사진을 저장한 뒤, 공식 사이트에서 자르는 흐름이 일반적입니다.\n\n지금 이 흰 배경 신청용 사진을 저장할까요?',
     savedToGallery: '시스템 갤러리에 저장했습니다',
     sharePrompt: '시스템 공유 패널에서 사진 또는 파일 저장을 선택하세요',
     downloadTriggered: '다운로드를 시작했습니다',
@@ -3366,7 +3371,9 @@ function canvasToBlob(cv, type='image/png', quality=1) {
 
 async function offerSaveFullCutout() {
   if (!S.noBgImg) return;
-  const shouldSave = window.confirm(t('confirmSaveCutout'));
+  const shouldSave = window.confirm(
+    isChinaConsularPreset() ? t('confirmSaveChinaCutout') : t('confirmSaveCutout')
+  );
   if (!shouldSave) return;
 
   const canvas = document.createElement('canvas');
@@ -3374,15 +3381,22 @@ async function offerSaveFullCutout() {
   canvas.height = S.noBgImg.naturalHeight || S.noBgImg.height;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (isChinaConsularPreset()) {
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
   ctx.drawImage(S.noBgImg, 0, 0, canvas.width, canvas.height);
 
-  const blob = await canvasToBlob(canvas, 'image/png', 1);
+  const ext = isChinaConsularPreset() ? 'jpg' : 'png';
+  const mime = ext === 'jpg' ? 'image/jpeg' : 'image/png';
+  const quality = ext === 'jpg' ? 0.95 : 1;
+  const blob = await canvasToBlob(canvas, mime, quality);
   const localizedPreset = localizePreset(S.preset);
   const filename = buildExportFilename({
     kind: 'single',
-    presetName: `${localizedPreset.name}_cutout_full`,
+    presetName: isChinaConsularPreset() ? `${localizedPreset.name}_application_photo` : `${localizedPreset.name}_cutout_full`,
     sizeText: `${canvas.width}x${canvas.height}px`,
-    ext: 'png'
+    ext
   });
   await exportWithShareOrFallback(blob, filename, { countQuota: false });
 }
@@ -3929,8 +3943,17 @@ function setLdr(show,txt=''){
 }
 let _tt;
 function toast(msg){
-  const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show');
-  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),3000);
+  const el=document.getElementById('toast');
+  if (!el) return;
+  el.textContent=msg;
+  el.classList.add('show');
+  clearTimeout(_tt);
+  _tt=setTimeout(()=>{
+    el.classList.remove('show');
+    setTimeout(() => {
+      if (!el.classList.contains('show')) el.textContent = '';
+    }, 260);
+  },3000);
 }
 
 function updateGuideLegend(gs, p) {
