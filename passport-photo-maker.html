@@ -871,7 +871,8 @@ const I18N = {
     step3Label: '调整位置',
     step4Label: '生成导出',
     dropTitle: '点击或拖拽上传照片',
-    dropHint: 'JPG / PNG · 建议正面免冠照',
+    dropHint: 'JPG / PNG · 建议纯墙面背景，避开窗户和逆光',
+    dropHintChina: 'JPG / PNG · 中国护照/签证建议纯墙面背景、正面均匀光线，避开窗户和逆光',
     canvasHint: '拖动调整 · 滚轮/双指缩放 · 方向键微移 · Shift+方向键粗移',
     loaderText: '处理中...',
     btnReuploadFull: '↑ 重新上传',
@@ -1014,7 +1015,8 @@ const I18N = {
     step3Label: 'Adjust',
     step4Label: 'Export',
     dropTitle: 'Tap or drag to upload a photo',
-    dropHint: 'JPG / PNG · Front-facing portrait recommended',
+    dropHint: 'JPG / PNG · Plain wall background recommended · Avoid windows and backlight',
+    dropHintChina: 'JPG / PNG · For China passport/visa, use a plain wall background with even front lighting · Avoid windows and backlight',
     canvasHint: 'Drag to move · Wheel/pinch to zoom · Arrow keys for fine move · Shift+Arrow for coarse move',
     loaderText: 'Processing...',
     btnReuploadFull: '↑ Re-upload',
@@ -1157,7 +1159,8 @@ const I18N = {
     step3Label: '調整位置',
     step4Label: '生成匯出',
     dropTitle: '點擊或拖曳以上傳照片',
-    dropHint: 'JPG / PNG · 建議使用正面免冠照',
+    dropHint: 'JPG / PNG · 建議使用純牆面背景，避開窗戶與逆光',
+    dropHintChina: 'JPG / PNG · 中國護照/簽證建議使用純牆面背景與均勻正面光線，避開窗戶與逆光',
     canvasHint: '拖曳調整 · 滾輪/雙指縮放 · 方向鍵微移 · Shift+方向鍵粗移',
     loaderText: '處理中...',
     btnReuploadFull: '↑ 重新上傳',
@@ -1300,7 +1303,8 @@ const I18N = {
     step3Label: '位置調整',
     step4Label: '書き出し',
     dropTitle: 'タップまたはドラッグして写真をアップロード',
-    dropHint: 'JPG / PNG · 正面向きの写真を推奨',
+    dropHint: 'JPG / PNG · 無地の壁を背景にし、窓や逆光を避けてください',
+    dropHintChina: 'JPG / PNG · 中国パスポート/ビザは無地の壁背景と均一な正面光を推奨。窓や逆光は避けてください',
     canvasHint: 'ドラッグで移動 · ホイール/ピンチで拡大縮小 · 矢印キーで微調整 · Shift+矢印で大きく移動',
     loaderText: '処理中...',
     btnReuploadFull: '↑ 再アップロード',
@@ -1443,7 +1447,8 @@ const I18N = {
     step3Label: '위치 조정',
     step4Label: '내보내기',
     dropTitle: '탭하거나 드래그해서 사진 업로드',
-    dropHint: 'JPG / PNG · 정면 증명사진 권장',
+    dropHint: 'JPG / PNG · 단색 벽 배경 권장 · 창문과 역광은 피하세요',
+    dropHintChina: 'JPG / PNG · 중국 여권/비자는 단색 벽 배경과 고른 정면 조명을 권장합니다 · 창문과 역광은 피하세요',
     canvasHint: '드래그로 이동 · 휠/핀치로 확대 · 방향키 미세 이동 · Shift+방향키 큰 이동',
     loaderText: '처리 중...',
     btnReuploadFull: '↑ 다시 업로드',
@@ -1683,6 +1688,10 @@ function syncPresetUI() {
   const guideLegend = document.getElementById('guideLegend');
   if (guideLegend) guideLegend.style.display = guideSpec ? '' : 'none';
   if (guideSpec) updateGuideLegend(guideSpec, S.preset);
+  const dropHint = document.getElementById('dropHint');
+  if (dropHint) {
+    dropHint.textContent = isChinaConsularPreset(S.preset) ? t('dropHintChina') : t('dropHint');
+  }
   smartPrintDefaults(S.preset || PRESETS[0]);
 }
 
@@ -3327,13 +3336,15 @@ async function doLocalRemoveBg(keepOverride) {
     const { width:w, height:h } = S.origImg;
     const c = document.createElement('canvas'); c.width=w; c.height=h;
     const ctx = c.getContext('2d');
+    const refinedMask = buildRefinedMaskCanvas(result.segmentationMask, w, h);
     
     // 强制使用 PNG 高质量流水线
     ctx.clearRect(0, 0, w, h);
     ctx.drawImage(S.origImg, 0, 0, w, h);
     ctx.globalCompositeOperation = 'destination-in';
-    ctx.drawImage(result.segmentationMask, 0, 0, w, h);
+    ctx.drawImage(refinedMask, 0, 0, w, h);
     ctx.globalCompositeOperation = 'source-over';
+    decontaminateCutoutEdges(c);
 
     const outBlob = await canvasToBlob(c, 'image/png', 1);
     const outImg = await blobToImg(outBlob);
@@ -3367,6 +3378,90 @@ async function doLocalRemoveBg(keepOverride) {
 
 function canvasToBlob(cv, type='image/png', quality=1) {
   return new Promise(resolve => cv.toBlob(resolve, type, quality));
+}
+
+function smoothstep(edge0, edge1, x) {
+  const t = Math.max(0, Math.min(1, (x - edge0) / Math.max(1e-6, edge1 - edge0)));
+  return t * t * (3 - 2 * t);
+}
+
+function buildRefinedMaskCanvas(mask, width, height) {
+  const srcCanvas = document.createElement('canvas');
+  srcCanvas.width = width;
+  srcCanvas.height = height;
+  const srcCtx = srcCanvas.getContext('2d', { willReadFrequently: true });
+  srcCtx.clearRect(0, 0, width, height);
+  srcCtx.drawImage(mask, 0, 0, width, height);
+
+  const srcImage = srcCtx.getImageData(0, 0, width, height);
+  const src = srcImage.data;
+  const alphaBase = new Uint8ClampedArray(width * height);
+  const alphaTight = new Uint8ClampedArray(width * height);
+
+  for (let i = 0, p = 0; i < src.length; i += 4, p++) {
+    const confidence = src[i] / 255;
+    const soft = smoothstep(0.42, 0.88, confidence);
+    const tight = smoothstep(0.54, 0.94, confidence);
+    alphaBase[p] = Math.round(soft * 255);
+    alphaTight[p] = Math.round(tight * 255);
+  }
+
+  const eroded = new Uint8ClampedArray(width * height);
+  for (let y = 0; y < height; y++) {
+    const row = y * width;
+    for (let x = 0; x < width; x++) {
+      const idx = row + x;
+      let minA = alphaTight[idx];
+      for (let dy = -1; dy <= 1; dy++) {
+        const ny = y + dy;
+        if (ny < 0 || ny >= height) continue;
+        const nrow = ny * width;
+        for (let dx = -1; dx <= 1; dx++) {
+          const nx = x + dx;
+          if (nx < 0 || nx >= width) continue;
+          const a = alphaTight[nrow + nx];
+          if (a < minA) minA = a;
+        }
+      }
+      eroded[idx] = minA;
+    }
+  }
+
+  const refinedCanvas = document.createElement('canvas');
+  refinedCanvas.width = width;
+  refinedCanvas.height = height;
+  const refinedCtx = refinedCanvas.getContext('2d', { willReadFrequently: true });
+  const refinedImage = refinedCtx.createImageData(width, height);
+  const out = refinedImage.data;
+
+  for (let i = 0, p = 0; i < out.length; i += 4, p++) {
+    const alpha = Math.min(255, Math.round(alphaBase[p] * 0.45 + eroded[p] * 0.95));
+    out[i] = 255;
+    out[i + 1] = 255;
+    out[i + 2] = 255;
+    out[i + 3] = alpha;
+  }
+
+  refinedCtx.putImageData(refinedImage, 0, 0);
+  return refinedCanvas;
+}
+
+function decontaminateCutoutEdges(canvas) {
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = img.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const a = data[i + 3];
+    if (a <= 0 || a >= 250) continue;
+    const alpha = a / 255;
+    const restore = Math.min(1.55, 1 / Math.max(alpha, 0.62));
+    data[i] = Math.min(255, Math.round(data[i] * restore));
+    data[i + 1] = Math.min(255, Math.round(data[i + 1] * restore));
+    data[i + 2] = Math.min(255, Math.round(data[i + 2] * restore));
+  }
+
+  ctx.putImageData(img, 0, 0);
 }
 
 async function offerSaveFullCutout() {

@@ -1,7 +1,69 @@
 {
-    "currentVersion":  "1.0",
-    "updatedAt":  "2026-03-30",
+    "currentVersion":  "1.2",
+    "updatedAt":  "2026-04-01",
     "releases":  [
+                     {
+                         "version":  "1.2",
+                         "date":  "2026-04-01",
+                         "notes":  {
+                                       "zh":  [
+                                                  "新增上传拍摄建议，明确提示纯墙面背景、避开窗户与逆光；中国护照/签证场景会显示更明确的白底申请拍摄建议。",
+                                                  "继续优化抠图前引导与申请流程提示，帮助减少因原始照片条件不佳导致的白边和残边问题。"
+                                              ],
+                                       "en":  [
+                                                  "Added clearer upload guidance recommending a plain wall background and avoiding windows or backlight, with stronger prompts for China passport/visa photos.",
+                                                  "Improved pre-cutout guidance and application-flow hints to help reduce halos and edge artifacts caused by poor source photos."
+                                              ],
+                                       "zh-TW":  [
+                                                     "新增上傳拍攝建議，明確提示使用純牆面背景並避開窗戶與逆光；中國護照/簽證場景會顯示更明確的白底申請拍攝建議。",
+                                                     "持續優化去背前引導與申請流程提示，協助減少因原始照片條件不佳造成的白邊與殘邊問題。"
+                                                 ],
+                                       "ja":  [
+                                                  "無地の壁背景と窓・逆光回避を案内するアップロードガイダンスを追加し、中国パスポート/ビザ向けにはより明確な白背景申請写真の案内を表示するようにしました。",
+                                                  "元画像条件が悪い場合の白フチや残りフチを減らせるよう、切り抜き前ガイダンスと申請フロー案内を改善しました。"
+                                              ],
+                                       "ko":  [
+                                                  "단색 벽 배경과 창문·역광 회피를 안내하는 업로드 가이드를 추가했고, 중국 여권/비자 사진에는 더 명확한 흰 배경 신청용 안내를 표시하도록 했습니다.",
+                                                  "원본 사진 조건이 좋지 않을 때 생기는 흰 테두리와 잔여 가장자리를 줄일 수 있도록 누끼 전 가이드와 신청 흐름 안내를 개선했습니다."
+                                              ]
+                                   }
+                     },
+                     {
+                         "version":  "1.1",
+                         "date":  "2026-04-01",
+                         "notes":  {
+                                       "zh":  [
+                                                  "新增 Google Play 应用内购买，3 次免费导出后可解锁无限导出。",
+                                                  "精简 Android 存储权限与 Media 配置，减少不必要的读取权限。",
+                                                  "优化中国护照/签证流程，抠图后会明确提示保存白底申请图。",
+                                                  "修复抠图阶段中英文混杂、导出文件名语言错位，以及手机端 toast 残留小方块问题。"
+                                              ],
+                                       "en":  [
+                                                  "Added Google Play in-app purchase support with 3 free exports before unlocking unlimited exports.",
+                                                  "Tightened Android storage permissions and Media configuration to reduce unnecessary read access.",
+                                                  "Improved the China passport/visa workflow with a clear prompt to save a white-background application photo after cutout.",
+                                                  "Fixed mixed-language cutout messages, localized export filenames, and the lingering mobile toast artifact."
+                                              ],
+                                       "zh-TW":  [
+                                                     "新增 Google Play 應用內購買，3 次免費匯出後可解鎖無限匯出。",
+                                                     "精簡 Android 儲存權限與 Media 設定，減少不必要的讀取權限。",
+                                                     "優化中國護照/簽證流程，去背後會明確提示保存白底申請圖。",
+                                                     "修正去背階段中英混雜、匯出檔名語言錯位，以及手機端 toast 殘留小方塊問題。"
+                                                 ],
+                                       "ja":  [
+                                                  "Google Play アプリ内課金を追加し、無料書き出し 3 回後に無制限書き出しを解放できるようにしました。",
+                                                  "Android のストレージ権限と Media 設定を整理し、不要な読み取り権限を削減しました。",
+                                                  "中国パスポート/ビザ向けに、切り抜き後に白背景の申請用写真を保存する案内を追加しました。",
+                                                  "切り抜き時の言語混在、書き出しファイル名の言語ずれ、モバイル toast の残像を修正しました。"
+                                              ],
+                                       "ko":  [
+                                                  "Google Play 인앱 구매를 추가하여 무료 내보내기 3회 후 무제한 내보내기를 해제할 수 있게 했습니다.",
+                                                  "Android 저장소 권한과 Media 설정을 정리해 불필요한 읽기 권한을 줄였습니다.",
+                                                  "중국 여권/비자 흐름을 개선해 누끼 후 흰 배경 신청용 사진 저장 안내를 추가했습니다.",
+                                                  "누끼 단계의 혼합 언어 문구, 내보내기 파일명 언어 불일치, 모바일 toast 잔상 문제를 수정했습니다."
+                                              ]
+                                   }
+                     },
                      {
                          "version":  "1.0",
                          "date":  "2026-03-30",
@@ -34,5 +96,5 @@
                                    }
                      }
                  ],
-    "currentBuild":  "2"
+    "currentBuild":  "4"
 }
