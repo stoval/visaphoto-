@@ -1,7 +1,38 @@
 {
-    "currentVersion":  "1.3",
-    "updatedAt":  "2026-04-01",
+    "currentVersion":  "1.4",
+    "updatedAt":  "2026-04-12",
     "releases":  [
+                     {
+                         "version":  "1.4",
+                         "date":  "2026-04-12",
+                         "notes":  {
+                                       "zh":  [
+                                                  "统一浅色主题与头部层级，优化上传区、信息表格和导出确认弹窗的视觉细节。",
+                                                  "打赏流程改为更轻量的 PayPal 提示，并避免在抠图后的白底中间保存步骤打扰用户。",
+                                                  "补齐上传提示、多语言文案和中国签证白底保存提示，使桌面与移动端体验更一致。"
+                                              ],
+                                       "en":  [
+                                                  "Unified the light theme and header hierarchy, refining the upload area, info table, and export confirmation visuals.",
+                                                  "Made the PayPal support flow lighter and stopped prompting for support during the intermediate white-background save after cutout.",
+                                                  "Completed the upload guidance, multilingual copy, and China visa white-background save prompt so desktop and mobile feel more consistent."
+                                              ],
+                                       "zh-TW":  [
+                                                     "統一淺色主題與頂部層級，優化上傳區、資訊表格與匯出確認彈窗的視覺細節。",
+                                                     "打賞流程改為更輕量的 PayPal 提示，並避免在去背後的白底中間保存步驟打擾使用者。",
+                                                     "補齊上傳提示、多語文案與中國簽證白底保存提示，讓桌面與行動端體驗更一致。"
+                                                 ],
+                                       "ja":  [
+                                                  "ライトテーマとヘッダー階層を統一し、アップロード領域、情報テーブル、書き出し確認ダイアログの見た目を整えました。",
+                                                  "PayPal サポート導線をより軽くし、背景除去後の白背景保存という中間ステップでは案内を出さないようにしました。",
+                                                  "アップロード案内、多言語文言、中国ビザ向け白背景保存案内を補完し、デスクトップとモバイルの体験をそろえました。"
+                                              ],
+                                       "ko":  [
+                                                  "라이트 테마와 헤더 위계를 통일하고 업로드 영역, 정보 표, 내보내기 확인 팝업의 시각 디테일을 다듬었습니다.",
+                                                  "PayPal 후원 흐름을 더 가볍게 바꾸고 누끼 후 흰 배경 중간 저장 단계에서는 후원 안내가 뜨지 않게 했습니다.",
+                                                  "업로드 안내, 다국어 문구, 중국 비자용 흰 배경 저장 안내를 보완해 데스크톱과 모바일 경험을 더 일관되게 맞췄습니다."
+                                              ]
+                                   }
+                     },
                      {
                          "version":  "1.3",
                          "date":  "2026-04-01",
@@ -122,5 +153,5 @@
                                    }
                      }
                  ],
-    "currentBuild":  "5"
+    "currentBuild":  "6"
 }
