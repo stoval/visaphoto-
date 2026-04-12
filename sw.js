@@ -1,4 +1,4 @@
-const CACHE_NAME = 'visaphoto-v5';
+const CACHE_NAME = 'visaphoto-v6';
 
 const MP_BASE = './vendor/mediapipe/selfie_segmentation/';
 const MP_ASSETS = [
@@ -25,6 +25,7 @@ const APP_ASSETS = [
   './src/export.js',
   './src/storage.js',
   './src/data/presets.js',
+  './donation-config.json',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',

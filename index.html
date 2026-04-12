@@ -49,12 +49,16 @@
 </div>
 
 <header class="header">
-  <div class="header-icon">📷</div>
+  <div class="header-side header-side-left">
+    <div class="header-icon">📷</div>
+  </div>
   <h1 id="appTitle">证件照制作</h1>
-    <button class="theme-tog" id="releaseTog" title="版本信息" aria-label="版本信息">v1.0</button>
+  <div class="header-side header-side-right">
+    <button class="header-release" id="releaseTog" title="版本信息" aria-label="版本信息">v1.0</button>
     <button class="theme-tog" id="themeTog" title="切换主题" aria-label="切换深浅主题">🌓</button>
     <button class="theme-tog lang-tog" id="langTog" title="切换语言" aria-label="切换语言">🌐</button>
-  <span class="header-sub" id="headerSub">本地运行 · 不上传隐私数据</span>
+    <span class="header-sub" id="headerSub">本地运行 · 不上传隐私数据</span>
+  </div>
 </header>
 
 <div class="layout">
@@ -116,6 +120,26 @@
         <input type="range" id="rS" min="0" max="200" value="100" oninput="onAdj()">
       </div>
       <button class="btn btn-ghost" id="resetAdjustBtn" style="width:100%;font-size:12px;margin-top:2px" onclick="resetAdj()">↺ 重置调整</button>
+    </div>
+
+    <div class="sect hidden" id="supportSect">
+      <div class="mini-lbl" id="sectSupport">支持项目</div>
+      <div class="api-box">
+        <div class="api-title" id="donationSettingsTitle">打赏设置 (PayPal)</div>
+        <p id="donationSettingsHint">填写 PayPal 邮箱或 paypal.me 链接。配置后，用户成功下载/保存后会看到轻提示。</p>
+        <div id="donationSettingsView" class="hidden">
+          <div class="report-note donation-account donation-settings-account" id="donationPaypalValue"></div>
+          <div class="modal-btns donation-settings-actions">
+            <button class="modal-decline" id="donationEditBtn" type="button">修改</button>
+            <button class="modal-decline" id="donationClearBtn" type="button">清除</button>
+          </div>
+        </div>
+        <div id="donationSettingsForm">
+          <input class="api-inp" id="donationPaypalInput" type="text" placeholder="例如：name@example.com 或 paypal.me/yourname">
+          <button class="api-save" id="donationSaveBtn" type="button">保存打赏账号</button>
+        </div>
+        <div class="api-st" id="donationPaypalStatus"></div>
+      </div>
     </div>
 
   </div>
@@ -273,6 +297,18 @@
     <div class="release-empty hidden" id="releaseEmpty">暂无更新记录</div>
     <div class="modal-btns">
       <button class="modal-decline" id="releaseClose" type="button">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="donationModal">
+  <div class="modal-box donation-modal">
+    <h2 id="donationTitle">如果这个工具帮到了你</h2>
+    <p id="donationBody">愿意打赏支持一下吗？比如可以考虑打赏到下面设置的 PayPal 账户。</p>
+    <div class="report-note donation-account" id="donationAccount"></div>
+    <div class="modal-btns">
+      <button class="modal-decline" id="donationLater" type="button">暂时不用</button>
+      <button class="modal-accept" id="donationConfirm" type="button">去打赏</button>
     </div>
   </div>
 </div>

@@ -1,4 +1,4 @@
-import { PRESETS, GUIDE_SPECS, BG_COLORS, BG_OPTIONS, LANG_OPTIONS, KEY_BG } from './data/presets.js';
+import { PRESETS, GUIDE_SPECS, BG_COLORS, BG_OPTIONS, LANG_OPTIONS, KEY_BG, KEY_DONATION_PAYPAL, KEY_DONATION_LAST_PROMPT } from './data/presets.js';
 import { S } from './state.js';
 import {
   t,
@@ -65,6 +65,132 @@ function openReleaseModal() {
 
 function closeReleaseModal() {
   document.getElementById('releaseModal')?.classList.add('hidden');
+}
+
+function getDonationPaypalValue() {
+  return String(localStorage.getItem(KEY_DONATION_PAYPAL) || '').trim();
+}
+
+async function loadDonationConfig() {
+  const candidates = ['donation-config.json', './donation-config.json', '/donation-config.json'];
+  for (const url of candidates) {
+    try {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) continue;
+      const data = await res.json();
+      const paypal = String(data?.paypal || data?.paypalMe || '').trim();
+      if (paypal) {
+        localStorage.setItem(KEY_DONATION_PAYPAL, paypal);
+      }
+      return paypal;
+    } catch (e) {
+      console.warn('loadDonationConfig failed:', url, e);
+    }
+  }
+  return '';
+}
+
+function normalizeDonationLink(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  if (/^https?:\/\//i.test(raw)) return raw;
+  if (/^paypal\.me\//i.test(raw)) return `https://${raw}`;
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw)) {
+    return `https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=${encodeURIComponent(raw)}`;
+  }
+  return `https://www.paypal.com/paypalme/${encodeURIComponent(raw.replace(/^@+/, ''))}`;
+}
+
+function refreshDonationSettingsUI() {
+  const paypal = getDonationPaypalValue();
+  const sect = document.getElementById('supportSect');
+  const input = document.getElementById('donationPaypalInput');
+  const form = document.getElementById('donationSettingsForm');
+  const view = document.getElementById('donationSettingsView');
+  const valueEl = document.getElementById('donationPaypalValue');
+  if (sect) sect.classList.toggle('hidden', !!paypal);
+  if (input) input.value = paypal;
+  if (form) form.classList.toggle('hidden', !!paypal);
+  if (view) view.classList.toggle('hidden', !paypal);
+  if (valueEl) valueEl.textContent = paypal ? t('donationConfiguredLabel', paypal) : '';
+}
+
+function saveDonationSettings() {
+  const input = document.getElementById('donationPaypalInput');
+  const status = document.getElementById('donationPaypalStatus');
+  if (!input) return;
+  const value = String(input.value || '').trim();
+  if (value) {
+    localStorage.setItem(KEY_DONATION_PAYPAL, value);
+    localStorage.removeItem(KEY_DONATION_LAST_PROMPT);
+    if (status) status.textContent = t('donationSaveOk');
+  } else {
+    localStorage.removeItem(KEY_DONATION_PAYPAL);
+    localStorage.removeItem(KEY_DONATION_LAST_PROMPT);
+    if (status) status.textContent = t('donationSaveCleared');
+  }
+  refreshDonationSettingsUI();
+}
+
+function editDonationSettings() {
+  const form = document.getElementById('donationSettingsForm');
+  const view = document.getElementById('donationSettingsView');
+  const input = document.getElementById('donationPaypalInput');
+  const status = document.getElementById('donationPaypalStatus');
+  form?.classList.remove('hidden');
+  view?.classList.add('hidden');
+  if (status) status.textContent = '';
+  input?.focus();
+  input?.select();
+}
+
+function clearDonationSettings() {
+  localStorage.removeItem(KEY_DONATION_PAYPAL);
+  localStorage.removeItem(KEY_DONATION_LAST_PROMPT);
+  const status = document.getElementById('donationPaypalStatus');
+  if (status) status.textContent = t('donationSaveCleared');
+  refreshDonationSettingsUI();
+}
+
+function closeDonationModal() {
+  document.getElementById('donationModal')?.classList.add('hidden');
+}
+
+let donationPromptTimer = null;
+
+function openDonationModal() {
+  const paypal = getDonationPaypalValue();
+  if (!paypal) return false;
+  const modal = document.getElementById('donationModal');
+  const account = document.getElementById('donationAccount');
+  const confirm = document.getElementById('donationConfirm');
+  const normalized = normalizeDonationLink(paypal);
+  const prefersPaypalMe = /paypal\.me\//i.test(normalized);
+  if (account) {
+    account.dataset.value = paypal;
+    account.textContent = t('donationAccountLabel', normalized || paypal);
+  }
+  if (confirm) confirm.textContent = prefersPaypalMe ? t('donationConfirmPaypalMe') : t('donationConfirm');
+  modal?.classList.remove('hidden');
+  return true;
+}
+
+function scheduleDonationModal() {
+  const paypal = getDonationPaypalValue();
+  if (!paypal) return false;
+  if (donationPromptTimer) window.clearTimeout(donationPromptTimer);
+  donationPromptTimer = window.setTimeout(() => {
+    donationPromptTimer = null;
+    openDonationModal();
+  }, 700);
+  return true;
+}
+
+function openDonationLink() {
+  const url = normalizeDonationLink(getDonationPaypalValue());
+  if (!url) return;
+  window.open(url, '_blank', 'noopener,noreferrer');
+  closeDonationModal();
 }
 
 function refreshAfterExportActions() {
@@ -369,6 +495,7 @@ function init() {
   const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   document.documentElement.setAttribute('data-theme', savedTheme);
   document.getElementById('themeTog').onclick = toggleTheme;
+  refreshDonationSettingsUI();
 
   initEditorInteractions();
 
@@ -416,12 +543,15 @@ setExportHooks({
   refreshAfterExportActions,
   syncBgSelects,
   syncBgSwatches,
-  syncBgControlState
+  syncBgControlState,
+  maybePromptDonation: scheduleDonationModal
 });
 
 export function bootstrap() {
   init();
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
+    await loadDonationConfig();
+    refreshDonationSettingsUI();
     void refreshPremiumStatus();
     initExportControls();
     document.getElementById('btnReupload')?.addEventListener('click', triggerUp);
@@ -431,11 +561,23 @@ export function bootstrap() {
     document.getElementById('mLangTog')?.addEventListener('click', openLanguageMenu);
     document.getElementById('langMenuClose')?.addEventListener('click', closeLanguageMenu);
     document.getElementById('releaseClose')?.addEventListener('click', closeReleaseModal);
+    document.getElementById('donationSaveBtn')?.addEventListener('click', saveDonationSettings);
+    document.getElementById('donationEditBtn')?.addEventListener('click', editDonationSettings);
+    document.getElementById('donationClearBtn')?.addEventListener('click', clearDonationSettings);
+    document.getElementById('donationPaypalInput')?.addEventListener('input', () => {
+      const status = document.getElementById('donationPaypalStatus');
+      if (status) status.textContent = '';
+    });
+    document.getElementById('donationLater')?.addEventListener('click', closeDonationModal);
+    document.getElementById('donationConfirm')?.addEventListener('click', openDonationLink);
     document.getElementById('langModal')?.addEventListener('click', (e) => {
       if (e.target?.id === 'langModal') closeLanguageMenu();
     });
     document.getElementById('releaseModal')?.addEventListener('click', (e) => {
       if (e.target?.id === 'releaseModal') closeReleaseModal();
+    });
+    document.getElementById('donationModal')?.addEventListener('click', (e) => {
+      if (e.target?.id === 'donationModal') closeDonationModal();
     });
     applyI18n();
     loadReleaseNotes();

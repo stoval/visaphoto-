@@ -38,7 +38,8 @@ const S = {
   exportKind: 'single',
   lastExportBlob: null,
   lastExportFilename: '',
-  lastSavedLocation: 'Pictures/Visa Photo',
+  lastSavedLocation: '',
+  lastExportTarget: '',
   premiumUnlocked: false,
   premiumPrice: ''
 };

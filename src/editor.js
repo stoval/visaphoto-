@@ -831,6 +831,13 @@ function toggleNoBg() {
 
 
 function generate() {
+  if (S.origImg && !S.noBgImg) {
+    const shouldRemoveBgFirst = window.confirm(t('confirmRemoveBg'));
+    if (shouldRemoveBgFirst) {
+      return doRemoveBg();
+    }
+    return Promise.resolve(null);
+  }
   const src = S.useNoBg ? S.noBgImg : S.origImg;
   if (!src) return;
   editorHooks.setLdr(true, t('loaderGenerating')); editorHooks.setStep(4);

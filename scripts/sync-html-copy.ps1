@@ -21,6 +21,9 @@ $androidManifestTarget = Join-Path $root 'android\app\src\main\assets\public\man
 $swSource = Join-Path $root 'sw.js'
 $wwwSwTarget = Join-Path $root 'www\sw.js'
 $androidSwTarget = Join-Path $root 'android\app\src\main\assets\public\sw.js'
+$donationConfigSource = Join-Path $root 'donation-config.json'
+$wwwDonationConfigTarget = Join-Path $root 'www\donation-config.json'
+$androidDonationConfigTarget = Join-Path $root 'android\app\src\main\assets\public\donation-config.json'
 $buildGradle = Join-Path $root 'android\app\build.gradle'
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 $legacyRedirectHtml = @'
@@ -85,6 +88,11 @@ if (Test-Path $manifestSource) {
 if (Test-Path $swSource) {
     Copy-Item -Path $swSource -Destination $wwwSwTarget -Force
     Copy-Item -Path $swSource -Destination $androidSwTarget -Force
+}
+
+if (Test-Path $donationConfigSource) {
+    Copy-Item -Path $donationConfigSource -Destination $wwwDonationConfigTarget -Force
+    Copy-Item -Path $donationConfigSource -Destination $androidDonationConfigTarget -Force
 }
 
 if (Test-Path $releaseSource) {

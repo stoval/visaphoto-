@@ -76,6 +76,14 @@ const I18N = {
     chinaDoubleOvalGuide: '双椭圆头部目标区',
     guideLegend7: '↑ 规格因所选证件而变化',
     sectBg: '背景颜色',
+    sectSupport: '支持项目',
+    donationSettingsTitle: '打赏设置 (PayPal)',
+    donationSettingsHint: '建议优先填写 paypal.me 链接，用户点击后可以更直接进入打赏页面。也支持 PayPal 邮箱。',
+    donationSettingsPlaceholder: '例如：paypal.me/yourname',
+    donationSettingsSave: '保存打赏账号',
+    donationSaveOk: '✓ 已保存打赏账号',
+    donationSaveCleared: '已清除打赏账号',
+    donationConfiguredLabel: value => `当前 PayPal：${value}`,
     sectClothes: '正装替换 (Beta)',
     stickerNoneTitle: '无',
     stickerMaleTitle: '男装',
@@ -91,8 +99,8 @@ const I18N = {
     step3Label: '调整位置',
     step4Label: '生成导出',
     dropTitle: '点击或拖拽上传照片',
-    dropHint: 'JPG / PNG · 建议纯墙面背景，避开窗户和逆光',
-    dropHintChina: 'JPG / PNG · 中国护照/签证建议纯墙面背景、正面均匀光线，避开窗户和逆光',
+    dropHint: 'JPG / PNG · 推荐人像模式拍摄 · 纯色背景 · 正面均匀光 · 避开逆光',
+    dropHintChina: 'JPG / PNG · 推荐人像模式拍摄 · 纯色背景 · 正面均匀光 · 避开逆光',
     canvasHint: '拖动调整 · 滚轮/双指缩放 · 方向键微移 · Shift+方向键粗移',
     loaderText: '处理中...',
     btnReuploadFull: '↑ 重新上传',
@@ -166,7 +174,14 @@ const I18N = {
     shareUnavailable: '当前设备不支持原文件分享，请到文件中发送',
     savedLocationTitle: '保存位置',
     savedLocationBody: path => `Android 通常保存在：\n${path}\n\n如果系统相册未立即显示，请到文件管理中查看，或等待媒体索引刷新。`,
-    savedFileLabel: name => `最近导出：${name}`
+    savedLocationBrowserBody: filename => `当前是浏览器下载。\n\n请到浏览器默认下载目录查看${filename ? `：\n${filename}` : '，或打开浏览器的下载列表。'}`,
+    savedFileLabel: name => `最近导出：${name}`,
+    donationTitle: '如果这个工具对你有帮助',
+    donationBody: '喜欢这个工具的话，欢迎请我喝杯咖啡 ☕',
+    donationAccountLabel: value => `PayPal：${value}`,
+    donationLater: '下次再说',
+    donationConfirm: '打开 PayPal',
+    donationConfirmPaypalMe: '打开 PayPal'
   },
   en: {
     appTitle: 'Visa Photo Maker',
@@ -231,6 +246,14 @@ const I18N = {
     chinaDoubleOvalGuide: 'Dual-oval head target zone',
     guideLegend7: '↑ Guide changes with the selected document',
     sectBg: 'Background',
+    sectSupport: 'Support',
+    donationSettingsTitle: 'Donation Settings (PayPal)',
+    donationSettingsHint: 'Prefer a paypal.me link so users can jump more directly into the tip flow. PayPal email is still supported.',
+    donationSettingsPlaceholder: 'Example: paypal.me/yourname',
+    donationSettingsSave: 'Save PayPal',
+    donationSaveOk: '✓ Donation account saved',
+    donationSaveCleared: 'Donation account cleared',
+    donationConfiguredLabel: value => `Current PayPal: ${value}`,
     sectClothes: 'Outfit Replace (Beta)',
     stickerNoneTitle: 'None',
     stickerMaleTitle: 'Male outfit',
@@ -246,8 +269,8 @@ const I18N = {
     step3Label: 'Adjust',
     step4Label: 'Export',
     dropTitle: 'Tap or drag to upload a photo',
-    dropHint: 'JPG / PNG · Plain wall background recommended · Avoid windows and backlight',
-    dropHintChina: 'JPG / PNG · For China passport/visa, use a plain wall background with even front lighting · Avoid windows and backlight',
+    dropHint: 'JPG / PNG · Portrait mode recommended · Solid background · Even front lighting · Avoid backlight',
+    dropHintChina: 'JPG / PNG · Portrait mode recommended · Solid background · Even front lighting · Avoid backlight',
     canvasHint: 'Drag to move · Wheel/pinch to zoom · Arrow keys for fine move · Shift+Arrow for coarse move',
     loaderText: 'Processing...',
     btnReuploadFull: '↑ Re-upload',
@@ -321,7 +344,14 @@ const I18N = {
     shareUnavailable: 'Original-file sharing is not available on this device. Please send it from Files.',
     savedLocationTitle: 'Saved Location',
     savedLocationBody: path => `Android usually saves it here:\n${path}\n\nIf it does not appear in Gallery yet, check your file manager or wait for media indexing.`,
-    savedFileLabel: name => `Last export: ${name}`
+    savedLocationBrowserBody: filename => `This was downloaded by the browser.\n\nCheck your browser's default Downloads folder${filename ? `:\n${filename}` : ', or open the browser downloads list.'}`,
+    savedFileLabel: name => `Last export: ${name}`,
+    donationTitle: 'If this tool was helpful',
+    donationBody: 'If you like this tool, you can buy me a coffee ☕',
+    donationAccountLabel: value => `PayPal: ${value}`,
+    donationLater: 'Maybe later',
+    donationConfirm: 'Open PayPal',
+    donationConfirmPaypalMe: 'Open PayPal'
   },
   'zh-TW': {
     appTitle: '證件照製作',
@@ -386,6 +416,14 @@ const I18N = {
     chinaDoubleOvalGuide: '雙橢圓頭部目標區',
     guideLegend7: '↑ 規格會隨所選證件而變化',
     sectBg: '背景顏色',
+    sectSupport: '支持專案',
+    donationSettingsTitle: '打賞設定 (PayPal)',
+    donationSettingsHint: '建議優先填入 paypal.me 連結，使用者點擊後可以更直接進入打賞頁。也支援 PayPal 信箱。',
+    donationSettingsPlaceholder: '例如：paypal.me/yourname',
+    donationSettingsSave: '保存打賞帳號',
+    donationSaveOk: '✓ 已保存打賞帳號',
+    donationSaveCleared: '已清除打賞帳號',
+    donationConfiguredLabel: value => `目前 PayPal：${value}`,
     sectClothes: '正裝替換 (Beta)',
     stickerNoneTitle: '無',
     stickerMaleTitle: '男裝',
@@ -401,8 +439,8 @@ const I18N = {
     step3Label: '調整位置',
     step4Label: '生成匯出',
     dropTitle: '點擊或拖曳以上傳照片',
-    dropHint: 'JPG / PNG · 建議使用純牆面背景，避開窗戶與逆光',
-    dropHintChina: 'JPG / PNG · 中國護照/簽證建議使用純牆面背景與均勻正面光線，避開窗戶與逆光',
+    dropHint: 'JPG / PNG · 建議使用人像模式拍攝 · 純色背景 · 正面光線均勻 · 避開逆光',
+    dropHintChina: 'JPG / PNG · 建議使用人像模式拍攝 · 純色背景 · 正面光線均勻 · 避開逆光',
     canvasHint: '拖曳調整 · 滾輪/雙指縮放 · 方向鍵微移 · Shift+方向鍵粗移',
     loaderText: '處理中...',
     btnReuploadFull: '↑ 重新上傳',
@@ -476,7 +514,14 @@ const I18N = {
     shareUnavailable: '目前裝置不支援原始檔分享，請改由檔案管理傳送。',
     savedLocationTitle: '保存位置',
     savedLocationBody: path => `Android 通常保存在：\n${path}\n\n如果系統相簿尚未立即顯示，請到檔案管理查看，或等待媒體索引刷新。`,
-    savedFileLabel: name => `最近匯出：${name}`
+    savedLocationBrowserBody: filename => `目前是瀏覽器下載。\n\n請到瀏覽器預設下載資料夾查看${filename ? `：\n${filename}` : '，或開啟瀏覽器下載清單。'}`,
+    savedFileLabel: name => `最近匯出：${name}`,
+    donationTitle: '如果這個工具對你有幫助',
+    donationBody: '喜歡這個工具的話，歡迎請我喝杯咖啡 ☕',
+    donationAccountLabel: value => `PayPal：${value}`,
+    donationLater: '下次再說',
+    donationConfirm: '開啟 PayPal',
+    donationConfirmPaypalMe: '開啟 PayPal'
   },
   ja: {
     appTitle: '証明写真メーカー',
@@ -541,6 +586,14 @@ const I18N = {
     chinaDoubleOvalGuide: '二重楕円の頭部目標ゾーン',
     guideLegend7: '↑ 選択した証明書に応じて変わります',
     sectBg: '背景色',
+    sectSupport: 'サポート',
+    donationSettingsTitle: '投げ銭設定 (PayPal)',
+    donationSettingsHint: 'paypal.me リンクを優先すると、ユーザーがより直接的に投げ銭ページへ進めます。PayPal メールアドレスも利用できます。',
+    donationSettingsPlaceholder: '例: paypal.me/yourname',
+    donationSettingsSave: 'PayPal を保存',
+    donationSaveOk: '✓ PayPal を保存しました',
+    donationSaveCleared: 'PayPal 設定を消去しました',
+    donationConfiguredLabel: value => `現在の PayPal: ${value}`,
     sectClothes: '服装置換 (Beta)',
     stickerNoneTitle: 'なし',
     stickerMaleTitle: '男性服',
@@ -556,8 +609,8 @@ const I18N = {
     step3Label: '位置調整',
     step4Label: '書き出し',
     dropTitle: 'タップまたはドラッグして写真をアップロード',
-    dropHint: 'JPG / PNG · 無地の壁を背景にし、窓や逆光を避けてください',
-    dropHintChina: 'JPG / PNG · 中国パスポート/ビザは無地の壁背景と均一な正面光を推奨。窓や逆光は避けてください',
+    dropHint: 'JPG / PNG · ポートレートモード推奨 · 単色背景 · 正面から均一な光 · 逆光を避ける',
+    dropHintChina: 'JPG / PNG · ポートレートモード推奨 · 単色背景 · 正面から均一な光 · 逆光を避ける',
     canvasHint: 'ドラッグで移動 · ホイール/ピンチで拡大縮小 · 矢印キーで微調整 · Shift+矢印で大きく移動',
     loaderText: '処理中...',
     btnReuploadFull: '↑ 再アップロード',
@@ -631,7 +684,14 @@ const I18N = {
     shareUnavailable: 'この端末では元ファイル共有を利用できません。ファイルアプリから送信してください。',
     savedLocationTitle: '保存場所',
     savedLocationBody: path => `通常 Android では次に保存されます:\n${path}\n\nギャラリーにすぐ表示されない場合は、ファイルアプリで確認するかメディア更新をお待ちください。`,
-    savedFileLabel: name => `最近の書き出し: ${name}`
+    savedLocationBrowserBody: filename => `これはブラウザからダウンロードされました。\n\nブラウザ既定のダウンロード先を確認してください${filename ? `:\n${filename}` : '。またはダウンロード一覧を開いてください。'}`,
+    savedFileLabel: name => `最近の書き出し: ${name}`,
+    donationTitle: 'このツールが役に立ったら',
+    donationBody: '気に入っていただけたら、コーヒーをごちそうしてもらえるとうれしいです ☕',
+    donationAccountLabel: value => `PayPal: ${value}`,
+    donationLater: 'また今度',
+    donationConfirm: 'PayPal を開く',
+    donationConfirmPaypalMe: 'PayPal を開く'
   },
   ko: {
     appTitle: '증명사진 만들기',
@@ -696,6 +756,14 @@ const I18N = {
     chinaDoubleOvalGuide: '이중 타원형 머리 목표 구역',
     guideLegend7: '↑ 선택한 문서에 따라 가이드가 바뀝니다',
     sectBg: '배경색',
+    sectSupport: '후원',
+    donationSettingsTitle: '후원 설정 (PayPal)',
+    donationSettingsHint: 'paypal.me 링크를 우선 사용하면 사용자가 더 바로 후원 페이지로 이동할 수 있습니다. PayPal 이메일도 지원합니다.',
+    donationSettingsPlaceholder: '예: paypal.me/yourname',
+    donationSettingsSave: 'PayPal 저장',
+    donationSaveOk: '✓ 후원 계정이 저장되었습니다',
+    donationSaveCleared: '후원 계정이 지워졌습니다',
+    donationConfiguredLabel: value => `현재 PayPal: ${value}`,
     sectClothes: '정장 교체 (Beta)',
     stickerNoneTitle: '없음',
     stickerMaleTitle: '남성 정장',
@@ -711,8 +779,8 @@ const I18N = {
     step3Label: '위치 조정',
     step4Label: '내보내기',
     dropTitle: '탭하거나 드래그해서 사진 업로드',
-    dropHint: 'JPG / PNG · 단색 벽 배경 권장 · 창문과 역광은 피하세요',
-    dropHintChina: 'JPG / PNG · 중국 여권/비자는 단색 벽 배경과 고른 정면 조명을 권장합니다 · 창문과 역광은 피하세요',
+    dropHint: 'JPG / PNG · 인물 모드 촬영 권장 · 단색 배경 · 정면의 고른 조명 · 역광 피하기',
+    dropHintChina: 'JPG / PNG · 인물 모드 촬영 권장 · 단색 배경 · 정면의 고른 조명 · 역광 피하기',
     canvasHint: '드래그로 이동 · 휠/핀치로 확대 · 방향키 미세 이동 · Shift+방향키 큰 이동',
     loaderText: '처리 중...',
     btnReuploadFull: '↑ 다시 업로드',
@@ -786,7 +854,14 @@ const I18N = {
     shareUnavailable: '이 기기에서는 원본 파일 공유를 지원하지 않습니다. 파일 앱에서 전송해 주세요.',
     savedLocationTitle: '저장 위치',
     savedLocationBody: path => `Android에서는 보통 여기에 저장됩니다:\n${path}\n\n갤러리에 바로 보이지 않으면 파일 관리자에서 확인하거나 미디어 인덱싱을 기다려 주세요.`,
-    savedFileLabel: name => `최근 내보내기: ${name}`
+    savedLocationBrowserBody: filename => `현재 브라우저 다운로드로 저장되었습니다.\n\n브라우저 기본 다운로드 폴더를 확인하세요${filename ? `:\n${filename}` : ', 또는 브라우저 다운로드 목록을 열어 보세요.'}`,
+    savedFileLabel: name => `최근 내보내기: ${name}`,
+    donationTitle: '이 도구가 도움이 되었다면',
+    donationBody: '이 도구가 마음에 드셨다면 커피 한 잔 후원해 주세요 ☕',
+    donationAccountLabel: value => `PayPal: ${value}`,
+    donationLater: '다음에',
+    donationConfirm: 'PayPal 열기',
+    donationConfirmPaypalMe: 'PayPal 열기'
   }
 };
 let currentLang = localStorage.getItem(KEY_LANG) || 'zh';
@@ -971,6 +1046,10 @@ function applyI18n() {
     guideLegend6: 'guideLegend6',
     guideLegend7: 'guideLegend7',
     sectBg: 'sectBg',
+    sectSupport: 'sectSupport',
+    donationSettingsTitle: 'donationSettingsTitle',
+    donationSettingsHint: 'donationSettingsHint',
+    donationSettingsSave: 'donationSettingsSave',
     sectClothes: 'sectClothes',
     stickerYLabel: 'stickerYLabel',
     sectAdjust: 'sectAdjust',
@@ -1007,7 +1086,11 @@ function applyI18n() {
     cutLineLabel: 'cutLineLabel',
     privacyTitle: 'privacyTitle',
     privacyDecline: 'privacyDecline',
-    privacyAccept: 'privacyAccept'
+    privacyAccept: 'privacyAccept',
+    donationTitle: 'donationTitle',
+    donationBody: 'donationBody',
+    donationLater: 'donationLater',
+    donationConfirm: 'donationConfirm'
   };
   Object.entries(textMap).forEach(([id, key]) => {
     const el = document.getElementById(id);
@@ -1021,6 +1104,10 @@ function applyI18n() {
   if (privacyBody2) privacyBody2.textContent = t('privacyBody2');
   const privacyBody3 = document.getElementById('privacyBody3');
   if (privacyBody3) privacyBody3.textContent = t('privacyBody3');
+  const donationInput = document.getElementById('donationPaypalInput');
+  if (donationInput) donationInput.placeholder = t('donationSettingsPlaceholder');
+  const donationAccount = document.getElementById('donationAccount');
+  if (donationAccount?.dataset.value) donationAccount.textContent = t('donationAccountLabel', donationAccount.dataset.value);
   const sizeGuide = document.getElementById('sizeGuide');
   if (sizeGuide) sizeGuide.innerHTML = t('sizeGuideHtml');
   const btnDlSingle = document.getElementById('btnDlSingle');

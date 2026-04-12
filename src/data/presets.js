@@ -121,5 +121,7 @@ export const KEY_BG               = 'vp_bg';
 export const KEY_LANG             = 'vp_lang';
 export const KEY_FREE_EXPORT_USED = 'vp_free_export_used';
 export const KEY_PREMIUM_UNLOCKED = 'vp_premium_unlocked';
+export const KEY_DONATION_PAYPAL = 'vp_donation_paypal';
+export const KEY_DONATION_LAST_PROMPT = 'vp_donation_last_prompt';
 export const FREE_EXPORT_LIMIT    = 3;
 export const PREMIUM_UNLOCK_PRODUCT_ID = 'visaphoto_premium_unlock';

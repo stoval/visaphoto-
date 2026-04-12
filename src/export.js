@@ -6,6 +6,8 @@ import {
   KEY_BG,
   KEY_FREE_EXPORT_USED,
   KEY_PREMIUM_UNLOCKED,
+  KEY_DONATION_PAYPAL,
+  KEY_DONATION_LAST_PROMPT,
   FREE_EXPORT_LIMIT,
   PREMIUM_UNLOCK_PRODUCT_ID
 } from './data/presets.js';
@@ -18,11 +20,33 @@ const exportHooks = {
   refreshAfterExportActions: () => {},
   syncBgSelects: () => {},
   syncBgSwatches: () => {},
-  syncBgControlState: () => {}
+  syncBgControlState: () => {},
+  maybePromptDonation: () => false
 };
 
 function setExportHooks(next = {}) {
   Object.assign(exportHooks, next);
+}
+
+function shouldPromptDonation() {
+  const host = String(window.location?.hostname || '').toLowerCase();
+  const protocol = String(window.location?.protocol || '').toLowerCase();
+  if (protocol === 'file:' || host === 'localhost' || host === '127.0.0.1') {
+    return true;
+  }
+  const lastPromptAt = Number(localStorage.getItem(KEY_DONATION_LAST_PROMPT) || '0');
+  const cooldownMs = 24 * 60 * 60 * 1000;
+  return !lastPromptAt || (Date.now() - lastPromptAt) > cooldownMs;
+}
+
+function maybePromptDonationAfterSuccess() {
+  if (!shouldPromptDonation()) return;
+  const paypal = String(localStorage.getItem(KEY_DONATION_PAYPAL) || '').trim();
+  if (!paypal) return;
+  const opened = !!exportHooks.maybePromptDonation();
+  if (opened) {
+    localStorage.setItem(KEY_DONATION_LAST_PROMPT, String(Date.now()));
+  }
 }
 
 function getConsularExportSpecText() {
@@ -107,6 +131,14 @@ function getBillingPlugin() {
 
 function isNativePurchaseEnvironment() {
   return !!window.Capacitor?.isNativePlatform?.();
+}
+
+function getNativePlatform() {
+  return String(window.Capacitor?.getPlatform?.() || '').toLowerCase();
+}
+
+function isAndroidNativeEnvironment() {
+  return isNativePurchaseEnvironment() && getNativePlatform() === 'android';
 }
 
 
@@ -334,6 +366,20 @@ function isMobile() {
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
+function isDesktopEnvironment() {
+  if (typeof navigator.userAgentData?.mobile === 'boolean') {
+    return navigator.userAgentData.mobile === false;
+  }
+  const ua = String(navigator.userAgent || '');
+  return /Windows NT|Macintosh|X11|Linux x86_64|Win64|WOW64/i.test(ua);
+}
+
+function shouldUseWebShare() {
+  if (isAndroidNativeEnvironment()) return true;
+  if (isDesktopEnvironment()) return false;
+  return isMobile();
+}
+
 
 async function copyToClipboard() {
   if (!S.resultDataUrl) return;
@@ -351,7 +397,7 @@ async function copyToClipboard() {
 
 async function saveToGalleryNoAlbum(blob, filename) {
   const cap = window.Capacitor;
-  if (!cap?.isNativePlatform?.()) return false;
+  if (!isAndroidNativeEnvironment()) return false;
   const Media = cap?.Plugins?.Media;
   if (!Media) return false;
 
@@ -439,7 +485,7 @@ async function saveToGalleryNoAlbum(blob, filename) {
 async function saveToGalleryNative(blob, filename) {
   const cap = window.Capacitor;
   const nativeShare = cap?.Plugins?.ExportShare;
-  if (!cap?.isNativePlatform?.() || !nativeShare?.saveToGallery) return false;
+  if (!isAndroidNativeEnvironment() || !nativeShare?.saveToGallery) return false;
 
   try {
     const dataUrl = await blobToDataUrl(blob);
@@ -465,9 +511,11 @@ async function exportWithShareOrFallback(blob, filename, options = {}) {
     if (ok) {
       S.lastExportBlob = blob;
       S.lastExportFilename = filename;
+      S.lastExportTarget = 'android-gallery';
       exportHooks.refreshAfterExportActions();
       if (countQuota) markExportConsumed();
       exportHooks.toast(t('savedToGallery'));
+      maybePromptDonationAfterSuccess();
       return;
     }
   } catch (e) {
@@ -475,14 +523,17 @@ async function exportWithShareOrFallback(blob, filename, options = {}) {
   }
 
   const file = new File([blob], filename, { type: blob.type || 'image/jpeg' });
-  if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
+  if (shouldUseWebShare() && navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
     try {
       await navigator.share({ files: [file], title: '证件照导出' });
       S.lastExportBlob = blob;
       S.lastExportFilename = filename;
+      S.lastExportTarget = 'share-sheet';
+      S.lastSavedLocation = '';
       exportHooks.refreshAfterExportActions();
       if (countQuota) markExportConsumed();
       exportHooks.toast(t('sharePrompt'));
+      maybePromptDonationAfterSuccess();
       return;
     } catch (e) {
       if (e.name !== 'AbortError') console.warn('share failed:', e);
@@ -499,9 +550,12 @@ async function exportWithShareOrFallback(blob, filename, options = {}) {
   setTimeout(() => URL.revokeObjectURL(url), 1500);
   S.lastExportBlob = blob;
   S.lastExportFilename = filename;
+  S.lastExportTarget = 'browser-download';
+  S.lastSavedLocation = '';
   exportHooks.refreshAfterExportActions();
   if (countQuota) markExportConsumed();
   exportHooks.toast(t('downloadTriggered'));
+  maybePromptDonationAfterSuccess();
 }
 
 async function blobToDataUrl(blob) {
@@ -555,7 +609,7 @@ async function shareLastExport() {
     return;
   }
   const file = new File([S.lastExportBlob], S.lastExportFilename, { type: S.lastExportBlob.type || 'image/png' });
-  if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
+  if (shouldUseWebShare() && navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
     try {
       await navigator.share({ files: [file], title: S.lastExportFilename });
       return;
@@ -570,8 +624,13 @@ async function shareLastExport() {
 
 
 function showSavedLocation() {
-  const path = S.lastSavedLocation || 'Pictures/Visa Photo';
-  window.alert(`${t('savedLocationTitle')}\n\n${t('savedLocationBody', path)}`);
+  if (isAndroidNativeEnvironment() && S.lastExportTarget === 'android-gallery') {
+    const path = S.lastSavedLocation || 'Pictures/Visa Photo';
+    window.alert(`${t('savedLocationTitle')}\n\n${t('savedLocationBody', path)}`);
+    return;
+  }
+  const filename = S.lastExportFilename || '';
+  window.alert(`${t('savedLocationTitle')}\n\n${t('savedLocationBrowserBody', filename)}`);
 }
 
 
