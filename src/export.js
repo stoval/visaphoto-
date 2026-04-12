@@ -505,7 +505,7 @@ async function saveToGalleryNative(blob, filename) {
 
 
 async function exportWithShareOrFallback(blob, filename, options = {}) {
-  const { countQuota = true } = options;
+  const { countQuota = true, promptDonation = true } = options;
   try {
     const ok = await saveToGalleryNative(blob, filename) || await saveToGalleryNoAlbum(blob, filename);
     if (ok) {
@@ -515,7 +515,7 @@ async function exportWithShareOrFallback(blob, filename, options = {}) {
       exportHooks.refreshAfterExportActions();
       if (countQuota) markExportConsumed();
       exportHooks.toast(t('savedToGallery'));
-      maybePromptDonationAfterSuccess();
+      if (promptDonation) maybePromptDonationAfterSuccess();
       return;
     }
   } catch (e) {
@@ -533,7 +533,7 @@ async function exportWithShareOrFallback(blob, filename, options = {}) {
       exportHooks.refreshAfterExportActions();
       if (countQuota) markExportConsumed();
       exportHooks.toast(t('sharePrompt'));
-      maybePromptDonationAfterSuccess();
+      if (promptDonation) maybePromptDonationAfterSuccess();
       return;
     } catch (e) {
       if (e.name !== 'AbortError') console.warn('share failed:', e);
@@ -555,7 +555,7 @@ async function exportWithShareOrFallback(blob, filename, options = {}) {
   exportHooks.refreshAfterExportActions();
   if (countQuota) markExportConsumed();
   exportHooks.toast(t('downloadTriggered'));
-  maybePromptDonationAfterSuccess();
+  if (promptDonation) maybePromptDonationAfterSuccess();
 }
 
 async function blobToDataUrl(blob) {

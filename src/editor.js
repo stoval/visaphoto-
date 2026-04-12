@@ -790,12 +790,40 @@ function canvasToBlob(cv, type='image/png', quality=1) {
   return new Promise(resolve => cv.toBlob(resolve, type, quality));
 }
 
+function confirmCutoutSave() {
+  return new Promise(resolve => {
+    const modal = document.getElementById('cutoutSaveModal');
+    const body = document.getElementById('cutoutSaveBody');
+    const btnCancel = document.getElementById('cutoutSaveCancel');
+    const btnConfirm = document.getElementById('cutoutSaveConfirm');
+    if (!modal || !body || !btnCancel || !btnConfirm) {
+      resolve(window.confirm(isChinaConsularPreset() ? t('confirmSaveChinaCutout') : t('confirmSaveCutout')));
+      return;
+    }
+
+    body.textContent = isChinaConsularPreset() ? t('confirmSaveChinaCutout') : t('confirmSaveCutout');
+    modal.classList.remove('hidden');
+
+    const cleanup = (result) => {
+      modal.classList.add('hidden');
+      btnCancel.removeEventListener('click', onCancel);
+      btnConfirm.removeEventListener('click', onConfirm);
+      modal.removeEventListener('click', onOverlay);
+      resolve(result);
+    };
+    const onCancel = () => cleanup(false);
+    const onConfirm = () => cleanup(true);
+    const onOverlay = (e) => { if (e.target === modal) cleanup(false); };
+    btnCancel.addEventListener('click', onCancel);
+    btnConfirm.addEventListener('click', onConfirm);
+    modal.addEventListener('click', onOverlay);
+  });
+}
+
 
 async function offerSaveFullCutout() {
   if (!S.noBgImg) return;
-  const shouldSave = window.confirm(
-    isChinaConsularPreset() ? t('confirmSaveChinaCutout') : t('confirmSaveCutout')
-  );
+  const shouldSave = await confirmCutoutSave();
   if (!shouldSave) return;
 
   const canvas = document.createElement('canvas');
@@ -818,7 +846,7 @@ async function offerSaveFullCutout() {
     sizeText: `${canvas.width}x${canvas.height}px`,
     ext
   });
-  await editorHooks.exportWithShareOrFallback(blob, filename, { countQuota: false });
+  await editorHooks.exportWithShareOrFallback(blob, filename, { countQuota: false, promptDonation: false });
 }
 
 

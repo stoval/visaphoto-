@@ -50,7 +50,7 @@ const I18N = {
     exportReportSize: '体积',
     exportReportBackground: '背景',
     exportReportRecommendation: '建议',
-    exportReportReady: '已按当前规则生成。保存前请再确认头顶、下巴和脸宽仍在辅助线范围内。',
+    exportReportReady: '',
     exportReportAutoOptimized: '已自动优化',
     exportReportRecommendedRange: '推荐上传范围 40–120 KB',
     releaseEmpty: '暂无更新记录',
@@ -145,7 +145,10 @@ const I18N = {
     customPresetName: '自定义',
     confirmRemoveBg: '当前还未执行“AI 抠图”。直接导出可能因背景不纯导致审核失败。\n\n是否先执行抠图？',
     confirmSaveCutout: '抠图已完成。\n\n是否现在保存一张白底 JPG，方便后续分享、上传或备用？',
-    confirmSaveChinaCutout: '抠图已完成。\n\n中国护照/签证申请通常需要先准备一张白底原始照片，再到官方网站裁剪上传。\n\n是否现在保存这张白底申请图？',
+    confirmSaveChinaCutout: '已替换为白底背景，符合中国签证申请要求。是否保存这张白底图？',
+    cutoutSaveTitle: '抠图已完成',
+    cutoutSaveCancel: '取消',
+    cutoutSaveConfirm: '保存',
     savedToGallery: '已保存到系统相册/图库',
     sharePrompt: '请在系统面板选择保存到相册/文件',
     downloadTriggered: '已触发下载',
@@ -220,7 +223,7 @@ const I18N = {
     exportReportSize: 'File size',
     exportReportBackground: 'Background',
     exportReportRecommendation: 'Recommendation',
-    exportReportReady: 'Ready to save. Please double-check head top, chin, and face width against the guide before saving.',
+    exportReportReady: '',
     exportReportAutoOptimized: 'Auto-optimized',
     exportReportRecommendedRange: 'Recommended upload range 40-120 KB',
     releaseEmpty: 'No release notes yet.',
@@ -315,7 +318,10 @@ const I18N = {
     customPresetName: 'Custom',
     confirmRemoveBg: 'AI background removal has not been run yet. Exporting now may fail background checks.\n\nDo you want to remove the background first?',
     confirmSaveCutout: 'Cutout is ready.\n\nDo you want to save a white-background JPG now for sharing, uploading, or backup?',
-    confirmSaveChinaCutout: 'Cutout is ready.\n\nChina passport/visa applications usually require saving a clean white-background photo first, then cropping it on the official website.\n\nDo you want to save this white-background application photo now?',
+    confirmSaveChinaCutout: 'The background has been replaced with white and now matches China visa application requirements. Save this white-background photo now?',
+    cutoutSaveTitle: 'Cutout Ready',
+    cutoutSaveCancel: 'Cancel',
+    cutoutSaveConfirm: 'Save',
     savedToGallery: 'Saved to the system gallery',
     sharePrompt: 'Choose Save to Photos/Files in the system sheet',
     downloadTriggered: 'Download started',
@@ -390,7 +396,7 @@ const I18N = {
     exportReportSize: '大小',
     exportReportBackground: '背景',
     exportReportRecommendation: '建議',
-    exportReportReady: '已依目前規則生成。保存前請再確認頭頂、下巴與臉寬仍在輔助線範圍內。',
+    exportReportReady: '',
     exportReportAutoOptimized: '已自動優化',
     exportReportRecommendedRange: '建議上傳範圍 40–120 KB',
     releaseEmpty: '暫無更新記錄',
@@ -485,7 +491,10 @@ const I18N = {
     customPresetName: '自訂',
     confirmRemoveBg: '目前尚未執行「AI 去背」。直接匯出可能因背景不純而導致審核失敗。\n\n是否先執行去背？',
     confirmSaveCutout: '去背已完成。\n\n是否現在保存一張白底 JPG，方便後續分享、上傳或備用？',
-    confirmSaveChinaCutout: '去背已完成。\n\n中國護照/簽證申請通常需要先準備一張白底原始照片，再到官方網站裁切上傳。\n\n是否現在保存這張白底申請圖？',
+    confirmSaveChinaCutout: '已替換為白底背景，符合中國簽證申請要求。是否保存這張白底圖？',
+    cutoutSaveTitle: '去背已完成',
+    cutoutSaveCancel: '取消',
+    cutoutSaveConfirm: '保存',
     savedToGallery: '已保存到系統相簿/圖庫',
     sharePrompt: '請在系統面板中選擇保存到相簿/檔案',
     downloadTriggered: '已觸發下載',
@@ -560,7 +569,7 @@ const I18N = {
     exportReportSize: 'サイズ',
     exportReportBackground: '背景',
     exportReportRecommendation: '案内',
-    exportReportReady: '現在のルールで生成済みです。保存前に頭頂・あご・顔幅がガイド範囲内か再確認してください。',
+    exportReportReady: '',
     exportReportAutoOptimized: '自動最適化済み',
     exportReportRecommendedRange: '推奨アップロード範囲 40–120 KB',
     releaseEmpty: '更新履歴はまだありません。',
@@ -655,7 +664,10 @@ const I18N = {
     customPresetName: 'カスタム',
     confirmRemoveBg: 'まだ「AI 背景除去」を実行していません。このまま書き出すと背景審査に落ちる可能性があります。\n\n先に背景を削除しますか？',
     confirmSaveCutout: '背景除去が完了しました。\n\n共有・アップロード・予備用に、白背景 JPG を今保存しますか？',
-    confirmSaveChinaCutout: '背景除去が完了しました。\n\n中国パスポート/ビザ申請では、まず白背景の元写真を保存し、その後公式サイトでトリミングする流れが一般的です。\n\nこの白背景の申請用写真を今保存しますか？',
+    confirmSaveChinaCutout: '白背景に置き換えられ、中国ビザ申請要件に合っています。この白背景画像を保存しますか？',
+    cutoutSaveTitle: '切り抜き完了',
+    cutoutSaveCancel: 'キャンセル',
+    cutoutSaveConfirm: '保存',
     savedToGallery: 'システムのギャラリーに保存しました',
     sharePrompt: 'システム共有で写真またはファイルへ保存を選んでください',
     downloadTriggered: 'ダウンロードを開始しました',
@@ -730,7 +742,7 @@ const I18N = {
     exportReportSize: '크기',
     exportReportBackground: '배경',
     exportReportRecommendation: '안내',
-    exportReportReady: '현재 규칙에 맞게 생성되었습니다. 저장 전 머리 윗부분, 턱, 얼굴 너비가 가이드 안에 있는지 다시 확인해 주세요.',
+    exportReportReady: '',
     exportReportAutoOptimized: '자동 최적화됨',
     exportReportRecommendedRange: '권장 업로드 범위 40–120 KB',
     releaseEmpty: '업데이트 기록이 아직 없습니다.',
@@ -825,7 +837,10 @@ const I18N = {
     customPresetName: '사용자 설정',
     confirmRemoveBg: '아직 "AI 배경 제거"를 실행하지 않았습니다. 지금 내보내면 배경 검사에 실패할 수 있습니다.\n\n먼저 배경을 제거할까요?',
     confirmSaveCutout: '누끼가 완료되었습니다.\n\n공유, 업로드, 예비용으로 흰 배경 JPG를 지금 저장할까요?',
-    confirmSaveChinaCutout: '누끼가 완료되었습니다.\n\n중국 여권/비자 신청은 먼저 흰 배경 원본 사진을 저장한 뒤, 공식 사이트에서 자르는 흐름이 일반적입니다.\n\n지금 이 흰 배경 신청용 사진을 저장할까요?',
+    confirmSaveChinaCutout: '배경이 흰색으로 바뀌어 중국 비자 신청 요건에 맞습니다. 이 흰 배경 사진을 저장할까요?',
+    cutoutSaveTitle: '누끼 완료',
+    cutoutSaveCancel: '취소',
+    cutoutSaveConfirm: '저장',
     savedToGallery: '시스템 갤러리에 저장했습니다',
     sharePrompt: '시스템 공유 패널에서 사진 또는 파일 저장을 선택하세요',
     downloadTriggered: '다운로드를 시작했습니다',
@@ -1133,6 +1148,14 @@ function applyI18n() {
   if (exportReportCancel) exportReportCancel.textContent = t('exportReportCancel');
   const exportReportConfirm = document.getElementById('exportReportConfirm');
   if (exportReportConfirm) exportReportConfirm.textContent = t('exportReportConfirm');
+  const cutoutSaveTitle = document.getElementById('cutoutSaveTitle');
+  if (cutoutSaveTitle) cutoutSaveTitle.textContent = t('cutoutSaveTitle');
+  const cutoutSaveBody = document.getElementById('cutoutSaveBody');
+  if (cutoutSaveBody) cutoutSaveBody.textContent = t('confirmSaveChinaCutout');
+  const cutoutSaveCancel = document.getElementById('cutoutSaveCancel');
+  if (cutoutSaveCancel) cutoutSaveCancel.textContent = t('cutoutSaveCancel');
+  const cutoutSaveConfirm = document.getElementById('cutoutSaveConfirm');
+  if (cutoutSaveConfirm) cutoutSaveConfirm.textContent = t('cutoutSaveConfirm');
   const mBtnRmBg = document.getElementById('mBtnRmBg');
   if (mBtnRmBg) {
     mBtnRmBg.setAttribute('title', t('btnRemoveBgShort'));

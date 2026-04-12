@@ -430,7 +430,7 @@ body {
 
 .info-tbl { width: 100%; border-collapse: collapse; font-size: 11px; font-family: 'DM Mono', monospace; }
 .info-tbl td { padding: 3px 2px; border-bottom: 1px solid var(--bg2); }
-.info-tbl td:first-child { color: var(--ink3); }
+.info-tbl td:first-child { color: var(--ink3); vertical-align: top; white-space: nowrap; }
 .info-tbl td:last-child { text-align: right; font-weight: 500; color: var(--ink); }
 .info-tbl tr:last-child td { border-bottom: none; }
 
