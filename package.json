@@ -4,6 +4,7 @@
   "description": "",
   "main": "sw.js",
   "scripts": {
+    "preview": "node scripts/serve.js",
     "sync:html": "powershell -ExecutionPolicy Bypass -File scripts/sync-html-copy.ps1",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

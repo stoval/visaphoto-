@@ -1,4 +1,4 @@
-const CACHE_NAME = 'visaphoto-v4';
+const CACHE_NAME = 'visaphoto-v5';
 
 const MP_BASE = './vendor/mediapipe/selfie_segmentation/';
 const MP_ASSETS = [
@@ -15,6 +15,16 @@ const MP_ASSETS = [
 const APP_ASSETS = [
   './',
   './index.html',
+  './passport-photo-maker.html',
+  './styles/main.css',
+  './src/main.js',
+  './src/ui.js',
+  './src/i18n.js',
+  './src/state.js',
+  './src/editor.js',
+  './src/export.js',
+  './src/storage.js',
+  './src/data/presets.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
