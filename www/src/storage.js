@@ -104,7 +104,8 @@ async function saveDraft() {
 
 function applyDraftMeta(d) {
   if (!d) return;
-  S.preset = PRESETS.find(p => p.id === d.presetId) || S.preset || PRESETS[0];
+  const presetId = d.presetId === 'cn_visa' ? 'cn_pass' : d.presetId;
+  S.preset = PRESETS.find(p => p.id === presetId) || S.preset || PRESETS[0];
   S.bgColor = d.bgColor || S.bgColor || '#FFFFFF';
   S.bright = d.bright ?? S.bright ?? 100;
   S.contrast = d.contrast ?? S.contrast ?? 100;

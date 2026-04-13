@@ -71,6 +71,10 @@ function getDonationPaypalValue() {
   return String(localStorage.getItem(KEY_DONATION_PAYPAL) || '').trim();
 }
 
+function isAndroidNativeDonationDisabled() {
+  return !!window.Capacitor?.isNativePlatform?.() && String(window.Capacitor?.getPlatform?.() || '').toLowerCase() === 'android';
+}
+
 async function loadDonationConfig() {
   const candidates = ['donation-config.json', './donation-config.json', '/donation-config.json'];
   for (const url of candidates) {
@@ -108,7 +112,11 @@ function refreshDonationSettingsUI() {
   const form = document.getElementById('donationSettingsForm');
   const view = document.getElementById('donationSettingsView');
   const valueEl = document.getElementById('donationPaypalValue');
-  if (sect) sect.classList.toggle('hidden', !!paypal);
+  const donationDisabled = isAndroidNativeDonationDisabled();
+  if (sect) {
+    sect.classList.toggle('hidden', donationDisabled || !!paypal);
+  }
+  if (donationDisabled) return;
   if (input) input.value = paypal;
   if (form) form.classList.toggle('hidden', !!paypal);
   if (view) view.classList.toggle('hidden', !paypal);
@@ -159,6 +167,7 @@ function closeDonationModal() {
 let donationPromptTimer = null;
 
 function openDonationModal() {
+  if (isAndroidNativeDonationDisabled()) return false;
   const paypal = getDonationPaypalValue();
   if (!paypal) return false;
   const modal = document.getElementById('donationModal');
@@ -176,6 +185,7 @@ function openDonationModal() {
 }
 
 function scheduleDonationModal() {
+  if (isAndroidNativeDonationDisabled()) return false;
   const paypal = getDonationPaypalValue();
   if (!paypal) return false;
   if (donationPromptTimer) window.clearTimeout(donationPromptTimer);

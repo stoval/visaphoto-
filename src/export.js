@@ -40,6 +40,7 @@ function shouldPromptDonation() {
 }
 
 function maybePromptDonationAfterSuccess() {
+  if (isNativePurchaseEnvironment() && getNativePlatform() === 'android') return;
   if (!shouldPromptDonation()) return;
   const paypal = String(localStorage.getItem(KEY_DONATION_PAYPAL) || '').trim();
   if (!paypal) return;
