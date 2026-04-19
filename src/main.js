@@ -4,11 +4,15 @@ import { generate, dlSingle, dlPrint, copyToClipboard, shareLastExport, showSave
 import { updatePrint } from './editor.js';
 import { S } from './state.js';
 
+function getServiceWorkerPath() {
+  return String(window.VISAPICS_SW_PATH || './sw.js');
+}
+
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return;
   if (!/^https?:$/.test(window.location.protocol)) return;
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch((err) => {
+    navigator.serviceWorker.register(getServiceWorkerPath()).catch((err) => {
       console.warn('SW register failed:', err);
     });
   });

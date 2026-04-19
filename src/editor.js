@@ -703,10 +703,11 @@ async function doLocalRemoveBg(keepOverride) {
   editorHooks.setStep(2);
 
   try {
-    const MP_BASE = '/vendor/mediapipe/selfie_segmentation/'; 
+    const assetBase = String(window.VISAPICS_ASSET_BASE || './');
+    const MP_BASE = new URL('vendor/mediapipe/selfie_segmentation/', new URL(assetBase, window.location.href)).toString();
     const selfie = new SelfieSegmentation({
       locateFile: file => {
-        const u = MP_BASE + file;
+        const u = new URL(file, MP_BASE).toString();
         console.log('[MediaPipe locateFile]', file, '=>', u);
         return u;
       }

@@ -1057,7 +1057,13 @@ function renderReleaseNotes() {
 }
 
 async function loadReleaseNotes() {
-  const candidates = ['releases.json', './releases.json', '/releases.json'];
+  const configured = String(window.VISAPICS_RELEASES_URL || '').trim();
+  const candidates = [
+    ...(configured ? [configured] : []),
+    'releases.json',
+    './releases.json',
+    '/releases.json'
+  ];
   for (const url of candidates) {
     try {
       const res = await fetch(url, { cache: 'no-store' });

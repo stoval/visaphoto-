@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VisaPics | Create Passport and Visa Photos Privately in Your Browser</title>
+<meta name="description" content="Create passport, visa, and ID photos directly in your browser. Remove backgrounds, choose standard sizes, and export ready-to-use images quickly and privately.">
+<meta property="og:title" content="VisaPics | Create Passport and Visa Photos Privately in Your Browser">
+<meta property="og:description" content="Upload a portrait, remove the background, choose a photo format, and export a ready-to-use image in minutes.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="../icon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="VisaPics | Create Passport and Visa Photos Privately in Your Browser">
+<meta name="twitter:description" content="Upload a portrait, remove the background, choose a photo format, and export a ready-to-use image in minutes.">
+<meta name="twitter:image" content="../icon-512.png">
+<script>
+window.VISAPICS_ASSET_BASE = '../';
+window.VISAPICS_RELEASES_URL = '../releases.json';
+window.VISAPICS_SW_PATH = './sw.js';
+</script>
+<script src="../vendor/mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
+<meta name="theme-color" content="#0b1020">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+<!-- MOBILE TOOLBAR (Sticky Top) -->
+<div class="mobile-toolbar mobile-only">
+  <!-- Row 1: Spec & Language -->
+  <div class="m-row row-main">
+    <select id="mPreset" class="m-ctl"></select>
+    <button id="mReleaseTog" class="m-ctl m-icon-btn m-subtle" type="button" aria-label="Version info" title="Version info">v1.0</button>
+    <button id="mLangTog" class="m-ctl m-icon-btn m-subtle m-lang-btn" type="button" aria-label="Choose language" title="Choose language">
+      <svg class="lang-ico" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M11.99,2C6.47,2 2,6.48 2,12s4.47,10 9.99,10C17.52,22 22,17.52 22,12S17.52,2 11.99,2zM18.91,8h-3.08c-0.33,-1.42 -0.87,-2.75 -1.58,-3.97 1.85,0.73 3.42,2.1 4.66,3.97zM12,4.04c0.83,1.2 1.48,2.53 1.91,3.96h-3.82c0.43,-1.43 1.08,-2.76 1.91,-3.96zM4.26,14C4.1,13.35 4,12.68 4,12s0.1,-1.35 0.26,-2h3.38c-0.09,0.66 -0.14,1.32 -0.14,2s0.05,1.34 0.14,2L4.26,14zM4.26,10h3.38c0.16,-2.16 0.87,-4.12 1.98,-5.76C7.38,4.98 5.48,6.23 4.26,10zM10.22,4.24C9.51,5.46 8.97,6.79 8.64,8h3.08C11.01,6.79 10.59,5.46 10.22,4.24zM12,19.96c-0.83,-1.2 -1.48,-2.53 -1.91,-3.96h3.82c-0.43,1.43 -1.08,2.76 -1.91,3.96zM14.34,14H9.66c-0.09,-0.66 -0.16,-1.32 -0.16,-2s0.07,-1.35 0.16,-2h4.68c0.09,0.65 0.16,1.32 0.16,2s-0.07,1.34 -0.16,2zM15.82,19.97c0.71,-1.22 1.25,-2.55 1.58,-3.97h-3.08c0.33,1.42 0.75,2.75 1.5,3.97zM16.75,14c0.09,-0.66 0.15,-1.32 0.15,-2s-0.06,-1.34 -0.15,-2h3.38c0.16,0.65 0.26,1.32 0.26,2s-0.1,1.35 -0.26,2h-3.38zM18.91,16h-3.08c-0.33,1.42 -0.87,2.75 -1.58,3.97 1.85,-0.73 3.42,-2.1 4.66,-3.97z"/>
+      </svg>
+      <span class="m-lang-text" id="mLangTogText">中</span>
+    </button>
+  </div>
+  
+  <!-- Row 2: Export Config -->
+  <div class="m-row row-export">
+    <select id="exportKind" class="m-ctl">
+      <option value="single" id="exportKindSingle">Single photo</option>
+      <option value="sheet" id="exportKindSheet">Print sheet (6 in)</option>
+    </select>
+    <select id="exportFormat" class="m-ctl">
+      <option value="jpg">JPG</option>
+      <option value="png">PNG</option>
+    </select>
+    <button id="btnExportMain" class="btn btn-gold m-ctl m-icon-btn" style="font-weight:600">Download</button>
+  </div>
+
+  <!-- Row 3: BG & Actions -->
+  <div class="m-row row-tools">
+    <select id="mBg" class="m-ctl"></select>
+    <button class="m-ctl m-icon-btn m-primary-mini" id="mBtnRmBg" type="button" onclick="doRemoveBg()" aria-label="Remove background" title="Remove background">Remove BG</button>
+    <button id="btnReupload" class="m-ctl m-icon-btn m-subtle" type="button" aria-label="Choose a new photo" title="Choose a new photo">New photo</button>
+  </div>
+</div>
+
+<header class="header">
+  <div class="header-side header-side-left">
+    <div class="header-icon">📷</div>
+  </div>
+  <div id="appTitle">VisaPics</div>
+  <div class="header-side header-side-right">
+    <button class="header-release" id="releaseTog" title="Version info" aria-label="Version info">v1.0</button>
+    <button class="theme-tog" id="themeTog" title="Toggle theme" aria-label="Toggle theme">🌓</button>
+    <button class="theme-tog lang-tog" id="langTog" title="Choose language" aria-label="Choose language">🌐</button>
+    <span class="header-sub" id="headerSub">Private browser-based photo tool</span>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ══ LEFT ══ -->
+  <div class="panel-l desktop-only">
+
+    <div class="sect" id="startPanel">
+      <div class="mini-lbl" id="documentTypeLabel">Document type</div>
+      <select id="presetSelect" class="preset-select"></select>
+      <p class="start-panel-hint" id="documentTypeHint">Choose a passport, visa, or ID photo format before you upload.</p>
+    </div>
+
+    <details class="advanced-panel desktop-only">
+      <summary class="advanced-summary">
+        <span id="advancedOptionsLabel">Advanced options</span>
+        <small id="advancedOptionsHint">Guides, custom size, background, and adjustments</small>
+      </summary>
+      <div class="advanced-content">
+        <div class="sect">
+          <div class="mini-lbl" id="customSizeLabel">Custom size (mm)</div>
+          <div class="cs-row">
+            <input class="cs-inp" type="number" id="csW" value="35" min="10" max="200" aria-label="Custom width in millimetres">
+            <div class="cs-x">×</div>
+            <input class="cs-inp" type="number" id="csH" value="45" min="10" max="200" aria-label="Custom height in millimetres">
+          </div>
+          <button class="btn btn-ghost" id="applyCustomBtn" style="width:100%;margin-top:6px;font-size:12px" onclick="applyCustom()">Apply size</button>
+        </div>
+
+        <div class="sect">
+          <div class="mini-lbl" id="sectGuides">Alignment guides</div>
+          <div class="tog-row">
+            <span id="guideToggleLabel">Show guides</span>
+            <label class="toggle"><input type="checkbox" id="guideChk" checked onchange="S.showGuides=this.checked;drawEdit()" aria-label="Show alignment guides"><div class="t-tr"></div></label>
+          </div>
+          <div class="tog-row">
+            <span id="silToggleLabel">Show portrait outline (Beta)</span>
+            <label class="toggle"><input type="checkbox" id="silChk" checked onchange="S.showSil=this.checked;drawEdit()" aria-label="Show portrait silhouette"><div class="t-tr"></div></label>
+          </div>
+          <div class="guide-legend" id="guideLegend">
+            <div class="gl-item"><div class="gl-dot" style="background:rgba(200,50,40,0.35)"></div><span id="guideLegend1">Keep the top of the head and chin outside the red area</span></div>
+            <div class="gl-item"><div class="gl-dot" style="background:rgba(200,160,20,0.4)"></div><span id="guideLegend2">Top-of-head guide (3-5 mm from the top edge)</span></div>
+            <div class="gl-item"><div class="gl-dot" style="background:rgba(40,160,80,0.3)"></div><span id="guideLegend3">Chin guide (7-14 mm from the bottom edge)</span></div>
+            <div class="gl-item"><div class="gl-dot" style="border:1.5px solid rgba(40,160,80,0.8)"></div><span id="guideLegend4">Face width guide (up to 22 mm)</span></div>
+            <div class="gl-item"><div class="gl-dot" style="border:1.5px dashed rgba(200,160,20,0.8)"></div><span id="guideLegend5">Center line for the nose bridge</span></div>
+            <div class="gl-item"><div class="gl-dot" style="border:1.5px solid var(--gold);border-radius:50%"></div><span id="guideLegend6">Portrait outline for head and eye alignment</span></div>
+            <div class="gl-item" style="color:var(--ink3);font-style:italic"><span id="guideLegend7">↑ Guide changes with the selected document</span></div>
+          </div>
+        </div>
+
+        <div class="sect">
+          <div class="mini-lbl" id="sectBg">背景颜色</div>
+          <div class="bg-strip" id="bgStrip"></div>
+        </div>
+
+        <div class="sect">
+          <div class="mini-lbl" id="sectAdjust">图像调整</div>
+          <div class="rng-row">
+            <label onclick="resetVal('B')"><span id="brightLabel">亮度</span> <span id="vB">100</span>%</label>
+            <input type="range" id="rB" min="50" max="200" value="100" oninput="onAdj()" aria-label="Brightness">
+          </div>
+          <div class="rng-row">
+            <label onclick="resetVal('C')"><span id="contrastLabel">对比度</span> <span id="vC">100</span>%</label>
+            <input type="range" id="rC" min="50" max="200" value="100" oninput="onAdj()" aria-label="Contrast">
+          </div>
+          <div class="rng-row">
+            <label onclick="resetVal('S')"><span id="saturationLabel">饱和度</span> <span id="vS">100</span>%</label>
+            <input type="range" id="rS" min="0" max="200" value="100" oninput="onAdj()" aria-label="Saturation">
+          </div>
+          <button class="btn btn-ghost" id="resetAdjustBtn" style="width:100%;font-size:12px;margin-top:2px" onclick="resetAdj()">↺ 重置调整</button>
+        </div>
+      </div>
+    </details>
+
+  </div>
+
+  <!-- ══ CENTER ══ -->
+  <div class="center">
+
+    <section class="product-hero">
+      <div class="hero-copy">
+        <div class="hero-eyebrow" id="heroEyebrow">Private browser-based photo tool</div>
+        <h1 class="hero-title" id="heroTitle">Create passport and visa photos privately in your browser</h1>
+        <p class="hero-subtitle" id="heroSubtitle">Choose a document type, upload a portrait, remove the background, and export a ready-to-use photo in minutes — without sending your image to a remote server.</p>
+        <div class="hero-actions">
+          <button class="btn btn-gold" id="heroUploadCta" type="button">Upload a Photo</button>
+          <button class="btn btn-ghost" id="heroFormatsCta" type="button">See Supported Formats</button>
+        </div>
+        <div class="hero-trust" id="heroTrustLine">Runs locally · Your photo stays on your device</div>
+      </div>
+      <div class="hero-features">
+        <article class="feature-card">
+          <h3 id="feature1Title">Private processing</h3>
+          <p id="feature1Body">Your photo is processed in your browser and stays on your device during editing.</p>
+        </article>
+        <article class="feature-card">
+          <h3 id="feature2Title">Automatic background removal</h3>
+          <p id="feature2Body">Remove the background quickly and fine-tune the result before export.</p>
+        </article>
+        <article class="feature-card">
+          <h3 id="feature3Title">Built-in photo formats</h3>
+          <p id="feature3Body">Choose from common passport, visa, and ID photo sizes for multiple countries.</p>
+        </article>
+        <article class="feature-card">
+          <h3 id="feature4Title">Flexible export</h3>
+          <p id="feature4Body">Download a single photo or a print-ready sheet in JPG or PNG.</p>
+        </article>
+      </div>
+    </section>
+
+    <div class="steps-bar">
+      <div class="step-item active" id="st1"><span class="step-n">1</span><span id="step1Label">Upload</span></div>
+      <div class="step-item" id="st2"><span class="step-n">2</span><span id="step2Label">Remove Background</span></div>
+      <div class="step-item" id="st3"><span class="step-n">3</span><span id="step3Label">Adjust</span></div>
+      <div class="step-item" id="st4"><span class="step-n">4</span><span id="step4Label">Download</span></div>
+    </div>
+
+    <section class="start-card">
+      <div class="section-kicker" id="startHereLabel">Start here</div>
+      <h3 class="section-title" id="startHereTitle">Choose a format and upload your photo</h3>
+      <p class="section-copy" id="startHereBody">Pick a preset size for your document, or enter a custom size if needed. Then upload a clear portrait photo to begin.</p>
+    </section>
+
+    <div class="drop-zone" id="dz" onclick="document.getElementById('fi').click()">
+      <div class="dz-icon">📤</div>
+      <p id="dropTitle">Upload a portrait photo</p>
+      <span id="dropSubTitle">Drag and drop an image here, or click to choose a file</span>
+      <span id="dropHint">JPG / PNG · Portrait mode recommended · Solid background · Even front lighting · Avoid backlight</span>
+      <input type="file" id="fi" accept="image/*" style="display:none" onchange="onFile(event)">
+    </div>
+
+    <div class="workflow-grid">
+      <section class="info-card">
+        <div class="section-kicker" id="howItWorksLabel">How it works</div>
+        <h3 class="section-title" id="howItWorksTitle">Create a compliant photo in 4 steps</h3>
+        <ol class="flow-list">
+          <li><strong id="flow1Title">Upload a photo</strong><span id="flow1Body">Choose a clear portrait from your phone or computer.</span></li>
+          <li><strong id="flow2Title">Remove the background</strong><span id="flow2Body">Automatically remove the background and refine the framing if needed.</span></li>
+          <li><strong id="flow3Title">Choose size and background</strong><span id="flow3Body">Select the required format and background color for your document.</span></li>
+          <li><strong id="flow4Title">Download your final photo</strong><span id="flow4Body">Export a digital photo or a print-ready sheet.</span></li>
+        </ol>
+      </section>
+      <section class="info-card">
+        <div class="section-kicker" id="bestResultsLabel">Best results</div>
+        <h3 class="section-title" id="bestResultsTitle">Tips for a cleaner photo</h3>
+        <ul class="tips-list">
+          <li id="tip1">Use a front-facing portrait</li>
+          <li id="tip2">Keep lighting even across the face</li>
+          <li id="tip3">Avoid strong backlight</li>
+          <li id="tip4">Use a plain background if possible</li>
+          <li id="tip5">Leave enough space around the head and shoulders</li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="stage" id="stage">
+      <div class="canvas-wrap" id="cf">
+        <canvas id="editCanvas" width="420" height="420"></canvas>
+      </div>
+      <div class="canvas-hint" id="canvasHint">拖动调整 · 滚轮/双指缩放 · 方向键微移 · Shift+方向键粗移</div>
+      <div class="adj-row">
+        <button class="adj-btn" title="缩小" onclick="adjScale(-0.05)">－</button>
+        <button class="adj-btn" title="放大" onclick="adjScale(0.05)">＋</button>
+        <div class="adj-sep"></div>
+        <button class="adj-btn" title="逆时针旋转" onclick="adjRotate(-1)">↺</button>
+        <span id="rotLbl" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--ink3);min-width:30px;text-align:center">0°</span>
+        <button class="adj-btn" title="顺时针旋转" onclick="adjRotate(1)">↻</button>
+        <div class="adj-sep"></div>
+        <button class="adj-btn" title="向左" onclick="adjMove(-2,0)">←</button>
+        <button class="adj-btn" title="向上" onclick="adjMove(0,-2)">↑</button>
+        <button class="adj-btn" title="向下" onclick="adjMove(0,2)">↓</button>
+        <button class="adj-btn" title="向右" onclick="adjMove(2,0)">→</button>
+      </div>
+      <div class="loader" id="ldr"><div class="spin"></div><span id="ldrTxt">处理中...</span></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="btnReuploadFull" onclick="triggerUp()">↑ 重新上传</button>
+        <button class="btn btn-ghost" id="btnRst" onclick="resetPos()" disabled>重置</button>
+        <button class="btn btn-ghost" id="btnToggle" onclick="toggleNoBg()" disabled style="display:none">切换原图</button>
+        <button class="btn btn-dark" id="btnRmBg" onclick="doRemoveBg()" disabled>✦ AI 抠图</button>
+        <button class="btn btn-gold" id="btnGen" onclick="generate()" disabled>✓ 生成</button>
+      </div>
+
+      <div class="rbox mobile-only" id="afterExportBoxMobile" style="width:100%;max-width:470px">
+        <div class="rbox-hd" id="afterExportTitleMobile">导出后操作</div>
+        <div class="rbox-bd">
+          <div id="afterExportFileMobile" style="font-size:11px;font-family:'DM Mono',monospace;color:var(--ink2);align-self:stretch;word-break:break-all"></div>
+          <button class="btn btn-dark" id="btnShareExportedMobile" style="width:100%" onclick="shareLastExport()">↗ 分享生成文件</button>
+          <button class="btn btn-ghost" id="btnLocateExportedMobile" style="width:100%" onclick="showSavedLocation()">📁 查看保存位置</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ RIGHT ══ -->
+  <div class="panel-r desktop-only">
+
+    <div id="emptyMsg" class="empty">
+      <div class="ei">🪪</div>
+      <span id="emptyMsgText">上传并处理照片后<br>预览结果显示在这里</span>
+    </div>
+
+    <div class="rbox" id="prevBox">
+      <div class="rbox-hd" id="singlePreviewTitle">单张预览</div>
+      <div class="rbox-bd">
+        <img id="resultPrev" src="" alt="证件照生成预览">
+        <table class="info-tbl" id="infoTbl"></table>
+      </div>
+    </div>
+
+    <div class="rbox" id="printBox">
+      <div class="rbox-hd" id="printBoxTitle">打印排版 (6寸纸)</div>
+      <div class="rbox-bd">
+        <div class="rng-row" style="width:100%">
+          <label><span id="perRowLabel">每行张数</span> <span id="vCol">4</span></label>
+          <input type="range" id="rCol" min="2" max="6" value="4" step="1" oninput="updatePrint()">
+        </div>
+        <div class="rng-row" style="width:100%">
+          <label><span id="rowCountLabel">行数</span> <span id="vRow">2</span></label>
+          <input type="range" id="rRow" min="1" max="5" value="2" step="1" oninput="updatePrint()">
+        </div>
+        <div class="tog-row">
+          <span id="cutLineLabel">显示裁切线</span>
+          <label class="toggle">
+            <input type="checkbox" id="cutChk" checked onchange="updatePrint()">
+            <div class="t-tr"></div>
+          </label>
+        </div>
+        <div class="print-wrap" id="printWrap" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <div class="rbox" id="dlBox">
+      <div class="rbox-hd" id="exportBoxTitle">导出</div>
+      <div class="rbox-bd">
+        <div class="tog-row">
+          <span id="keepTransparentLabel">保持透明 (PNG)</span>
+          <label class="toggle">
+            <input type="checkbox" id="fmtPng" onchange="generate()">
+            <div class="t-tr"></div>
+          </label>
+        </div>
+        <div class="fs-row"><span id="sizeLimitLabel">文件大小上限</span>
+          <input class="fs-inp" type="number" id="maxKB" value="0" min="0" max="5000" placeholder="不限">
+          <span id="sizeLimitHint">KB（0=不限）</span>
+        </div>
+        <div id="sizePrev" style="font-size:11px;font-family:'DM Mono',monospace;color:var(--gold);margin-top:4px;font-weight:600">预计大小: -- KB</div>
+        <div id="sizeGuide" style="font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace;line-height:1.6;align-self:stretch;margin-top:8px">
+          常见上限参考：<br>
+          领事网上传 ≤ 120 KB<br>
+          美签 DS-160 ≤ 240 KB<br>
+          加拿大 IRCC ≤ 4000 KB
+        </div>
+        <button class="btn btn-dark" id="btnDlSingle" style="width:100%" onclick="dlSingle()">⬇ 下载单张 JPG</button>
+        <button class="btn btn-ghost" id="btnDlPrint" style="width:100%" onclick="dlPrint()">⬇ 下载排版图</button>
+        <button class="btn btn-ghost" id="btnCopyImg" style="width:100%" onclick="copyToClipboard()">📋 复制图片</button>
+      </div>
+    </div>
+
+    <div class="rbox" id="afterExportBox">
+      <div class="rbox-hd" id="afterExportTitle">导出后操作</div>
+      <div class="rbox-bd">
+        <div id="afterExportFile" style="font-size:11px;font-family:'DM Mono',monospace;color:var(--ink2);align-self:stretch;word-break:break-all"></div>
+        <button class="btn btn-dark" id="btnShareExported" style="width:100%" onclick="shareLastExport()">↗ 分享生成文件</button>
+        <button class="btn btn-ghost" id="btnLocateExported" style="width:100%" onclick="showSavedLocation()">📁 查看保存位置</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast" aria-live="polite" aria-atomic="true"></div>
+
+<div class="modal-overlay hidden" id="langModal">
+  <div class="modal-box">
+    <h2 id="langMenuTitle">选择语言</h2>
+    <div class="lang-list" id="langList"></div>
+    <div class="modal-btns">
+      <button class="modal-decline" id="langMenuClose" type="button">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="releaseModal">
+  <div class="modal-box">
+    <h2 id="releaseTitle">版本信息</h2>
+    <div class="release-meta" id="releaseMeta">Version 1.0.0</div>
+    <div class="release-list" id="releaseList"></div>
+    <div class="release-empty hidden" id="releaseEmpty">暂无更新记录</div>
+    <div class="modal-btns">
+      <button class="modal-decline" id="releaseClose" type="button">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="donationModal">
+  <div class="modal-box donation-modal">
+    <h2 id="donationTitle">如果这个工具帮到了你</h2>
+    <p id="donationBody">愿意打赏支持一下吗？比如可以考虑打赏到下面设置的 PayPal 账户。</p>
+    <div class="report-note donation-account" id="donationAccount"></div>
+    <div class="modal-btns">
+      <button class="modal-decline" id="donationLater" type="button">暂时不用</button>
+      <button class="modal-accept" id="donationConfirm" type="button">去打赏</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="cutoutSaveModal">
+  <div class="modal-box">
+    <h2 id="cutoutSaveTitle">抠图已完成</h2>
+    <p id="cutoutSaveBody">已替换为白底背景，符合中国签证申请要求。是否保存这张白底图？</p>
+    <div class="modal-btns">
+      <button class="modal-decline" id="cutoutSaveCancel" type="button">取消</button>
+      <button class="modal-accept" id="cutoutSaveConfirm" type="button">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="exportReportModal">
+  <div class="modal-box">
+    <h2 id="exportReportTitle">导出确认</h2>
+    <div class="report-preview"><img id="exportReportPreview" alt="Export preview"></div>
+    <div class="report-list" id="exportReportList"></div>
+    <div class="report-note" id="exportReportNote"></div>
+    <div class="modal-btns">
+      <button class="modal-decline" id="exportReportCancel" type="button">取消</button>
+      <button class="modal-accept" id="exportReportConfirm" type="button">确认保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 隐私声明弹窗 -->
+<div class="modal-overlay hidden" id="privacyModal">
+  <div class="modal-box">
+    <h2 id="privacyTitle">🔒 关于隐私与免责</h2>
+    <p id="privacyBody1">您选择的照片将在<strong>浏览器本地</strong>处理，不上传到任何服务器。</p>
+    <p id="privacyBody2">作为用户，您有责任自行核对生成的证件照是否符合相关官方最新要求，本程序作者不对使用结果承担任何责任。</p>
+    <p style="color:var(--ink3);font-size:11px" id="privacyBody3">网站仅收集匹名访问数据（Google Analytics），您的照片不会被收集。</p>
+    <div class="modal-btns">
+      <button class="modal-decline" id="privacyDecline" onclick="location.href='https://www.google.com'">[不同意，离开]</button>
+      <button class="modal-accept" id="privacyAccept" onclick="acceptPrivacy()">同意并继续</button>
+    </div>
+  </div>
+</div>
+<script type="module" src="../src/main.js"></script>
+</body>
+</html>
