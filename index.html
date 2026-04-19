@@ -1,9 +1,18 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>证件照制作</title>
+<title>VisaPics | Create Passport and Visa Photos Privately in Your Browser</title>
+<meta name="description" content="Create passport, visa, and ID photos directly in your browser. Remove backgrounds, choose standard sizes, and export ready-to-use images quickly and privately.">
+<meta property="og:title" content="VisaPics | Create Passport and Visa Photos Privately in Your Browser">
+<meta property="og:description" content="Upload a portrait, remove the background, choose a photo format, and export a ready-to-use image in minutes.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="icon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="VisaPics | Create Passport and Visa Photos Privately in Your Browser">
+<meta name="twitter:description" content="Upload a portrait, remove the background, choose a photo format, and export a ready-to-use image in minutes.">
+<meta name="twitter:image" content="icon-512.png">
 <script src="vendor/mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b1020">
@@ -52,7 +61,7 @@
   <div class="header-side header-side-left">
     <div class="header-icon">📷</div>
   </div>
-  <h1 id="appTitle">证件照制作</h1>
+  <h1 id="appTitle">VisaPics</h1>
   <div class="header-side header-side-right">
     <button class="header-release" id="releaseTog" title="版本信息" aria-label="版本信息">v1.0</button>
     <button class="theme-tog" id="themeTog" title="切换主题" aria-label="切换深浅主题">🌓</button>
@@ -66,61 +75,72 @@
   <!-- ══ LEFT ══ -->
   <div class="panel-l desktop-only">
 
-    <div class="sect">
+    <div class="sect" id="startPanel">
+      <div class="mini-lbl" id="documentTypeLabel">Document type</div>
       <select id="presetSelect" class="preset-select"></select>
-      <div style="margin-top:4px">
-        <div class="mini-lbl" id="customSizeLabel">自定义尺寸 (mm)</div>
-        <div class="cs-row">
-          <input class="cs-inp" type="number" id="csW" value="35" min="10" max="200">
-          <div class="cs-x">×</div>
-          <input class="cs-inp" type="number" id="csH" value="45" min="10" max="200">
+      <p class="start-panel-hint" id="documentTypeHint">Choose a passport, visa, or ID photo format before you upload.</p>
+    </div>
+
+    <details class="advanced-panel desktop-only">
+      <summary class="advanced-summary">
+        <span id="advancedOptionsLabel">Advanced options</span>
+        <small id="advancedOptionsHint">Guides, custom size, background, and adjustments</small>
+      </summary>
+      <div class="advanced-content">
+        <div class="sect">
+          <div class="mini-lbl" id="customSizeLabel">自定义尺寸 (mm)</div>
+          <div class="cs-row">
+            <input class="cs-inp" type="number" id="csW" value="35" min="10" max="200" aria-label="Custom width in millimetres">
+            <div class="cs-x">×</div>
+            <input class="cs-inp" type="number" id="csH" value="45" min="10" max="200" aria-label="Custom height in millimetres">
+          </div>
+          <button class="btn btn-ghost" id="applyCustomBtn" style="width:100%;margin-top:6px;font-size:12px" onclick="applyCustom()">应用自定义</button>
         </div>
-        <button class="btn btn-ghost" id="applyCustomBtn" style="width:100%;margin-top:6px;font-size:12px" onclick="applyCustom()">应用自定义</button>
-      </div>
-    </div>
 
-    <div class="sect">
-      <div class="mini-lbl" id="sectGuides">参考线</div>
-      <div class="tog-row">
-        <span id="guideToggleLabel">显示参考线</span>
-        <label class="toggle"><input type="checkbox" id="guideChk" checked onchange="S.showGuides=this.checked;drawEdit()"><div class="t-tr"></div></label>
-      </div>
-      <div class="tog-row">
-        <span id="silToggleLabel">显示对齐剪影 (Beta)</span>
-        <label class="toggle"><input type="checkbox" id="silChk" checked onchange="S.showSil=this.checked;drawEdit()"><div class="t-tr"></div></label>
-      </div>
-      <div class="guide-legend" id="guideLegend">
-        <div class="gl-item"><div class="gl-dot" style="background:rgba(200,50,40,0.35)"></div><span id="guideLegend1">禁区（头顶/下巴不得进入红色区）</span></div>
-        <div class="gl-item"><div class="gl-dot" style="background:rgba(200,160,20,0.4)"></div><span id="guideLegend2">头顶目标区（距上边 3–5mm）</span></div>
-        <div class="gl-item"><div class="gl-dot" style="background:rgba(40,160,80,0.3)"></div><span id="guideLegend3">下巴目标区（距底边 7–14mm）</span></div>
-        <div class="gl-item"><div class="gl-dot" style="border:1.5px solid rgba(40,160,80,0.8)"></div><span id="guideLegend4">脸宽外边界（最大 22mm）</span></div>
-        <div class="gl-item"><div class="gl-dot" style="border:1.5px dashed rgba(200,160,20,0.8)"></div><span id="guideLegend5">垂直中心线（HH线，对齐鼻梁）</span></div>
-        <div class="gl-item"><div class="gl-dot" style="border:1.5px solid var(--gold);border-radius:50%"></div><span id="guideLegend6">人像剪影（对齐头顶与眼睛基准）</span></div>
-        <div class="gl-item" style="color:var(--ink3);font-style:italic"><span id="guideLegend7">↑ 规格因所选证件而变化</span></div>
-      </div>
-    </div>
+        <div class="sect">
+          <div class="mini-lbl" id="sectGuides">参考线</div>
+          <div class="tog-row">
+            <span id="guideToggleLabel">显示参考线</span>
+            <label class="toggle"><input type="checkbox" id="guideChk" checked onchange="S.showGuides=this.checked;drawEdit()" aria-label="Show alignment guides"><div class="t-tr"></div></label>
+          </div>
+          <div class="tog-row">
+            <span id="silToggleLabel">显示对齐剪影 (Beta)</span>
+            <label class="toggle"><input type="checkbox" id="silChk" checked onchange="S.showSil=this.checked;drawEdit()" aria-label="Show portrait silhouette"><div class="t-tr"></div></label>
+          </div>
+          <div class="guide-legend" id="guideLegend">
+            <div class="gl-item"><div class="gl-dot" style="background:rgba(200,50,40,0.35)"></div><span id="guideLegend1">禁区（头顶/下巴不得进入红色区）</span></div>
+            <div class="gl-item"><div class="gl-dot" style="background:rgba(200,160,20,0.4)"></div><span id="guideLegend2">头顶目标区（距上边 3–5mm）</span></div>
+            <div class="gl-item"><div class="gl-dot" style="background:rgba(40,160,80,0.3)"></div><span id="guideLegend3">下巴目标区（距底边 7–14mm）</span></div>
+            <div class="gl-item"><div class="gl-dot" style="border:1.5px solid rgba(40,160,80,0.8)"></div><span id="guideLegend4">脸宽外边界（最大 22mm）</span></div>
+            <div class="gl-item"><div class="gl-dot" style="border:1.5px dashed rgba(200,160,20,0.8)"></div><span id="guideLegend5">垂直中心线（HH线，对齐鼻梁）</span></div>
+            <div class="gl-item"><div class="gl-dot" style="border:1.5px solid var(--gold);border-radius:50%"></div><span id="guideLegend6">人像剪影（对齐头顶与眼睛基准）</span></div>
+            <div class="gl-item" style="color:var(--ink3);font-style:italic"><span id="guideLegend7">↑ 规格因所选证件而变化</span></div>
+          </div>
+        </div>
 
-    <div class="sect">
-      <div class="mini-lbl" id="sectBg">背景颜色</div>
-      <div class="bg-strip" id="bgStrip"></div>
-    </div>
+        <div class="sect">
+          <div class="mini-lbl" id="sectBg">背景颜色</div>
+          <div class="bg-strip" id="bgStrip"></div>
+        </div>
 
-    <div class="sect">
-      <div class="mini-lbl" id="sectAdjust">图像调整</div>
-      <div class="rng-row">
-        <label onclick="resetVal('B')"><span id="brightLabel">亮度</span> <span id="vB">100</span>%</label>
-        <input type="range" id="rB" min="50" max="200" value="100" oninput="onAdj()">
+        <div class="sect">
+          <div class="mini-lbl" id="sectAdjust">图像调整</div>
+          <div class="rng-row">
+            <label onclick="resetVal('B')"><span id="brightLabel">亮度</span> <span id="vB">100</span>%</label>
+            <input type="range" id="rB" min="50" max="200" value="100" oninput="onAdj()" aria-label="Brightness">
+          </div>
+          <div class="rng-row">
+            <label onclick="resetVal('C')"><span id="contrastLabel">对比度</span> <span id="vC">100</span>%</label>
+            <input type="range" id="rC" min="50" max="200" value="100" oninput="onAdj()" aria-label="Contrast">
+          </div>
+          <div class="rng-row">
+            <label onclick="resetVal('S')"><span id="saturationLabel">饱和度</span> <span id="vS">100</span>%</label>
+            <input type="range" id="rS" min="0" max="200" value="100" oninput="onAdj()" aria-label="Saturation">
+          </div>
+          <button class="btn btn-ghost" id="resetAdjustBtn" style="width:100%;font-size:12px;margin-top:2px" onclick="resetAdj()">↺ 重置调整</button>
+        </div>
       </div>
-      <div class="rng-row">
-        <label onclick="resetVal('C')"><span id="contrastLabel">对比度</span> <span id="vC">100</span>%</label>
-        <input type="range" id="rC" min="50" max="200" value="100" oninput="onAdj()">
-      </div>
-      <div class="rng-row">
-        <label onclick="resetVal('S')"><span id="saturationLabel">饱和度</span> <span id="vS">100</span>%</label>
-        <input type="range" id="rS" min="0" max="200" value="100" oninput="onAdj()">
-      </div>
-      <button class="btn btn-ghost" id="resetAdjustBtn" style="width:100%;font-size:12px;margin-top:2px" onclick="resetAdj()">↺ 重置调整</button>
-    </div>
+    </details>
 
     <div class="sect hidden" id="supportSect">
       <div class="mini-lbl" id="sectSupport">支持项目</div>
@@ -147,6 +167,37 @@
   <!-- ══ CENTER ══ -->
   <div class="center">
 
+    <section class="product-hero">
+      <div class="hero-copy">
+        <div class="hero-eyebrow" id="heroEyebrow">Private browser-based photo tool</div>
+        <h2 class="hero-title" id="heroTitle">Create passport and visa photos privately in your browser</h2>
+        <p class="hero-subtitle" id="heroSubtitle">Choose a document type, upload a portrait, remove the background, and export a ready-to-use photo in minutes — without sending your image to a remote server.</p>
+        <div class="hero-actions">
+          <button class="btn btn-gold" id="heroUploadCta" type="button">Upload a Photo</button>
+          <button class="btn btn-ghost" id="heroFormatsCta" type="button">See Supported Formats</button>
+        </div>
+        <div class="hero-trust" id="heroTrustLine">Runs locally · Your photo stays on your device</div>
+      </div>
+      <div class="hero-features">
+        <article class="feature-card">
+          <h3 id="feature1Title">Private processing</h3>
+          <p id="feature1Body">Your photo is processed in your browser and stays on your device during editing.</p>
+        </article>
+        <article class="feature-card">
+          <h3 id="feature2Title">Automatic background removal</h3>
+          <p id="feature2Body">Remove the background quickly and fine-tune the result before export.</p>
+        </article>
+        <article class="feature-card">
+          <h3 id="feature3Title">Built-in photo formats</h3>
+          <p id="feature3Body">Choose from common passport, visa, and ID photo sizes for multiple countries.</p>
+        </article>
+        <article class="feature-card">
+          <h3 id="feature4Title">Flexible export</h3>
+          <p id="feature4Body">Download a single photo or a print-ready sheet in JPG or PNG.</p>
+        </article>
+      </div>
+    </section>
+
     <div class="steps-bar">
       <div class="step-item active" id="st1"><span class="step-n">1</span><span id="step1Label">上传照片</span></div>
       <div class="step-item" id="st2"><span class="step-n">2</span><span id="step2Label">AI 抠图</span></div>
@@ -154,11 +205,42 @@
       <div class="step-item" id="st4"><span class="step-n">4</span><span id="step4Label">生成导出</span></div>
     </div>
 
+    <section class="start-card">
+      <div class="section-kicker" id="startHereLabel">Start here</div>
+      <h3 class="section-title" id="startHereTitle">Choose a format and upload your photo</h3>
+      <p class="section-copy" id="startHereBody">Pick a preset size for your document, or enter a custom size if needed. Then upload a clear portrait photo to begin.</p>
+    </section>
+
     <div class="drop-zone" id="dz" onclick="document.getElementById('fi').click()">
       <div class="dz-icon">📤</div>
       <p id="dropTitle">点击或拖拽上传照片</p>
+      <span id="dropSubTitle">Drag and drop an image here, or click to choose a file</span>
       <span id="dropHint">JPG / PNG · 建议正面免冠照</span>
       <input type="file" id="fi" accept="image/*" style="display:none" onchange="onFile(event)">
+    </div>
+
+    <div class="workflow-grid">
+      <section class="info-card">
+        <div class="section-kicker" id="howItWorksLabel">How it works</div>
+        <h3 class="section-title" id="howItWorksTitle">Create a compliant photo in 4 steps</h3>
+        <ol class="flow-list">
+          <li><strong id="flow1Title">Upload a photo</strong><span id="flow1Body">Choose a clear portrait from your phone or computer.</span></li>
+          <li><strong id="flow2Title">Remove the background</strong><span id="flow2Body">Automatically remove the background and refine the framing if needed.</span></li>
+          <li><strong id="flow3Title">Choose size and background</strong><span id="flow3Body">Select the required format and background color for your document.</span></li>
+          <li><strong id="flow4Title">Download your final photo</strong><span id="flow4Body">Export a digital photo or a print-ready sheet.</span></li>
+        </ol>
+      </section>
+      <section class="info-card">
+        <div class="section-kicker" id="bestResultsLabel">Best results</div>
+        <h3 class="section-title" id="bestResultsTitle">Tips for a cleaner photo</h3>
+        <ul class="tips-list">
+          <li id="tip1">Use a front-facing portrait</li>
+          <li id="tip2">Keep lighting even across the face</li>
+          <li id="tip3">Avoid strong backlight</li>
+          <li id="tip4">Use a plain background if possible</li>
+          <li id="tip5">Leave enough space around the head and shoulders</li>
+        </ul>
+      </section>
     </div>
 
     <div class="stage" id="stage">

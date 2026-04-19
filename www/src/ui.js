@@ -559,6 +559,10 @@ export function bootstrap() {
     refreshDonationSettingsUI();
     void refreshPremiumStatus();
     initExportControls();
+    document.getElementById('heroUploadCta')?.addEventListener('click', triggerUp);
+    document.getElementById('heroFormatsCta')?.addEventListener('click', () => {
+      document.getElementById('startPanel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
     document.getElementById('btnReupload')?.addEventListener('click', triggerUp);
     document.getElementById('releaseTog')?.addEventListener('click', openReleaseModal);
     document.getElementById('mReleaseTog')?.addEventListener('click', openReleaseModal);
