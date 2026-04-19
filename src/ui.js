@@ -25,7 +25,6 @@ import {
   initExportControls,
   syncExportFormatForPreset,
   syncPresetRestrictions,
-  refreshPremiumStatus,
   buildExportFilename,
   exportWithShareOrFallback,
   setExportHooks
@@ -73,10 +72,6 @@ function getDonationPaypalValue() {
   return String(PUBLIC_DONATION_PAYPAL || localStorage.getItem(KEY_DONATION_PAYPAL) || '').trim();
 }
 
-function isAndroidNativeDonationDisabled() {
-  return !!window.Capacitor?.isNativePlatform?.() && String(window.Capacitor?.getPlatform?.() || '').toLowerCase() === 'android';
-}
-
 async function loadDonationConfig() {
   if (PUBLIC_DONATION_PAYPAL) {
     localStorage.setItem(KEY_DONATION_PAYPAL, PUBLIC_DONATION_PAYPAL);
@@ -111,7 +106,6 @@ function closeDonationModal() {
 let donationPromptTimer = null;
 
 function openDonationModal() {
-  if (isAndroidNativeDonationDisabled()) return false;
   const paypal = getDonationPaypalValue();
   if (!paypal) return false;
   const modal = document.getElementById('donationModal');
@@ -129,7 +123,6 @@ function openDonationModal() {
 }
 
 function scheduleDonationModal() {
-  if (isAndroidNativeDonationDisabled()) return false;
   const paypal = getDonationPaypalValue();
   if (!paypal) return false;
   if (donationPromptTimer) window.clearTimeout(donationPromptTimer);
@@ -449,7 +442,6 @@ function init() {
   const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   document.documentElement.setAttribute('data-theme', savedTheme);
   document.getElementById('themeTog').onclick = toggleTheme;
-  refreshDonationSettingsUI();
 
   initEditorInteractions();
 
@@ -506,7 +498,6 @@ export function bootstrap() {
   document.addEventListener('DOMContentLoaded', async () => {
     await loadDonationConfig();
     refreshDonationSettingsUI();
-    void refreshPremiumStatus();
     initExportControls();
     document.getElementById('heroUploadCta')?.addEventListener('click', triggerUp);
     document.getElementById('heroFormatsCta')?.addEventListener('click', () => {

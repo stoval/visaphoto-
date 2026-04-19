@@ -4,12 +4,8 @@ import {
   mm2px,
   KEY_AUTO_UNIQUE,
   KEY_BG,
-  KEY_FREE_EXPORT_USED,
-  KEY_PREMIUM_UNLOCKED,
   KEY_DONATION_PAYPAL,
-  KEY_DONATION_LAST_PROMPT,
-  FREE_EXPORT_LIMIT,
-  PREMIUM_UNLOCK_PRODUCT_ID
+  KEY_DONATION_LAST_PROMPT
 } from './data/presets.js';
 import { S, isChinaConsularPreset, hasChinaConsularMinPixels, hasLoadedPhoto } from './state.js';
 import { t, localizePreset, getCurrentLang } from './i18n.js';
@@ -40,7 +36,6 @@ function shouldPromptDonation() {
 }
 
 function maybePromptDonationAfterSuccess() {
-  if (isNativePurchaseEnvironment() && getNativePlatform() === 'android') return;
   if (!shouldPromptDonation()) return;
   const paypal = String(localStorage.getItem(KEY_DONATION_PAYPAL) || '').trim();
   if (!paypal) return;
@@ -118,122 +113,6 @@ async function confirmChinaConsularExport(blob, ext) {
     previewUrl
   });
 }
-
-
-function isPremiumUnlocked() {
-  return localStorage.getItem(KEY_PREMIUM_UNLOCKED) === '1';
-}
-
-
-function getBillingPlugin() {
-  return window.Capacitor?.Plugins?.Billing || null;
-}
-
-
-function isNativePurchaseEnvironment() {
-  return !!window.Capacitor?.isNativePlatform?.();
-}
-
-function getNativePlatform() {
-  return String(window.Capacitor?.getPlatform?.() || '').toLowerCase();
-}
-
-function isAndroidNativeEnvironment() {
-  return isNativePurchaseEnvironment() && getNativePlatform() === 'android';
-}
-
-
-function setPremiumUnlocked(unlocked) {
-  localStorage.setItem(KEY_PREMIUM_UNLOCKED, unlocked ? '1' : '0');
-  S.premiumUnlocked = !!unlocked;
-}
-
-
-function getFreeExportUsedCount() {
-  const n = Number(localStorage.getItem(KEY_FREE_EXPORT_USED) || '0');
-  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
-}
-
-
-function getFreeExportRemainingCount() {
-  return Math.max(0, FREE_EXPORT_LIMIT - getFreeExportUsedCount());
-}
-
-
-async function refreshPremiumStatus() {
-  const plugin = getBillingPlugin();
-  if (!isNativePurchaseEnvironment() || !plugin?.getStatus) {
-    S.premiumUnlocked = isPremiumUnlocked();
-    return S.premiumUnlocked;
-  }
-  try {
-    const status = await plugin.getStatus({ productId: PREMIUM_UNLOCK_PRODUCT_ID });
-    if (status?.price) S.premiumPrice = status.price;
-    if (status?.owned) {
-      setPremiumUnlocked(true);
-      return true;
-    }
-  } catch (e) {
-    console.warn('refreshPremiumStatus failed:', e);
-  }
-  S.premiumUnlocked = isPremiumUnlocked();
-  return S.premiumUnlocked;
-}
-
-
-async function purchasePremiumUnlock() {
-  const plugin = getBillingPlugin();
-  if (!isNativePurchaseEnvironment() || !plugin?.purchase) {
-    window.alert(t('purchaseUnavailable'));
-    return false;
-  }
-
-  await refreshPremiumStatus();
-  if (isPremiumUnlocked()) {
-    exportHooks.toast(t('premiumUnlocked'));
-    return true;
-  }
-
-  const confirmed = window.confirm(t('purchaseUnlockConfirm', S.premiumPrice || ''));
-  if (!confirmed) return false;
-
-  try {
-    exportHooks.toast(t('purchasePending'));
-    const result = await plugin.purchase({ productId: PREMIUM_UNLOCK_PRODUCT_ID });
-    if (result?.owned) {
-      setPremiumUnlocked(true);
-      await refreshPremiumStatus();
-      exportHooks.toast(t('premiumUnlocked'));
-      return true;
-    }
-  } catch (e) {
-    const msg = e?.message || String(e || '');
-    if (!/cancel/i.test(msg)) {
-      window.alert(t('purchaseFailed', msg));
-    }
-    return false;
-  }
-  return false;
-}
-
-
-async function ensureExportQuotaAccess() {
-  if (!isNativePurchaseEnvironment()) return true;
-  if (isPremiumUnlocked()) return true;
-  if (getFreeExportRemainingCount() > 0) return true;
-  const restored = await refreshPremiumStatus();
-  if (restored) return true;
-  return await purchasePremiumUnlock();
-}
-
-
-function markExportConsumed() {
-  if (!isNativePurchaseEnvironment()) return;
-  if (isPremiumUnlocked()) return;
-  const used = Math.min(FREE_EXPORT_LIMIT, getFreeExportUsedCount() + 1);
-  localStorage.setItem(KEY_FREE_EXPORT_USED, String(used));
-}
-
 
 function getExportKind() {
   return document.getElementById('exportKind')?.value || 'single';
@@ -376,7 +255,6 @@ function isDesktopEnvironment() {
 }
 
 function shouldUseWebShare() {
-  if (isAndroidNativeEnvironment()) return true;
   if (isDesktopEnvironment()) return false;
   return isMobile();
 }
@@ -396,133 +274,8 @@ async function copyToClipboard() {
 }
 
 
-async function saveToGalleryNoAlbum(blob, filename) {
-  const cap = window.Capacitor;
-  if (!isAndroidNativeEnvironment()) return false;
-  const Media = cap?.Plugins?.Media;
-  if (!Media) return false;
-
-  console.log('[Media plugin methods]', Object.keys(Media).join(', '));
-
-  const dataUrl = await new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(String(reader.result || ''));
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-  const baseName = String(filename || 'photo')
-    .replace(/\.[^.]+$/, '')
-    .replace(/[\\/:*?"<>|]/g, '_')
-    .trim() || 'photo';
-  const albumName = 'Visa Photo';
-  let albumIdentifier = null;
-
-  const resolveAlbumIdentifier = async () => {
-    if (typeof Media.getAlbums !== 'function') return albumIdentifier;
-    try {
-      const albums = await Media.getAlbums();
-      const match = albums?.albums?.find(a => a?.name === albumName && a?.identifier);
-      if (match?.identifier) albumIdentifier = match.identifier;
-    } catch (e) {
-      console.warn('getAlbums failed:', e);
-    }
-    return albumIdentifier;
-  };
-
-  if (typeof Media.getAlbumsPath === 'function') {
-    try {
-      const albumsPath = await Media.getAlbumsPath();
-      if (albumsPath?.path) albumIdentifier = `${albumsPath.path}/${albumName}`;
-    } catch (e) {
-      console.warn('getAlbumsPath failed:', e);
-    }
-  }
-
-  await resolveAlbumIdentifier();
-
-  if (typeof Media.createAlbum === 'function') {
-    try {
-      await Media.createAlbum({ name: albumName });
-    } catch (e) {
-      const msg = String(e?.message || e || '');
-      if (!/already exists/i.test(msg)) console.warn('createAlbum failed:', e);
-    }
-  }
-
-  await resolveAlbumIdentifier();
-
-  if (typeof Media.savePhoto === 'function') {
-    try {
-      await Media.savePhoto({
-        path: dataUrl,
-        albumIdentifier,
-        fileName: baseName
-      });
-      S.lastSavedLocation = 'Pictures/Visa Photo';
-      return true;
-    } catch (e) {
-      console.warn('savePhoto(path) failed:', e);
-      await resolveAlbumIdentifier();
-      if (albumIdentifier) {
-        try {
-          await Media.savePhoto({
-            path: dataUrl,
-            albumIdentifier,
-            fileName: baseName
-          });
-          S.lastSavedLocation = 'Pictures/Visa Photo';
-          return true;
-        } catch (retryError) {
-          console.warn('savePhoto(path) retry failed:', retryError);
-        }
-      }
-    }
-  }
-
-  return false;
-}
-
-
-async function saveToGalleryNative(blob, filename) {
-  const cap = window.Capacitor;
-  const nativeShare = cap?.Plugins?.ExportShare;
-  if (!isAndroidNativeEnvironment() || !nativeShare?.saveToGallery) return false;
-
-  try {
-    const dataUrl = await blobToDataUrl(blob);
-    const result = await nativeShare.saveToGallery({
-      filename,
-      mimeType: blob.type || 'image/jpeg',
-      dataUrl,
-      albumName: 'Visa Photo'
-    });
-    S.lastSavedLocation = result?.relativePath || 'Pictures/Visa Photo';
-    return true;
-  } catch (e) {
-    console.warn('native saveToGallery failed:', e);
-    return false;
-  }
-}
-
-
 async function exportWithShareOrFallback(blob, filename, options = {}) {
-  const { countQuota = true, promptDonation = true } = options;
-  try {
-    const ok = await saveToGalleryNative(blob, filename) || await saveToGalleryNoAlbum(blob, filename);
-    if (ok) {
-      S.lastExportBlob = blob;
-      S.lastExportFilename = filename;
-      S.lastExportTarget = 'android-gallery';
-      exportHooks.refreshAfterExportActions();
-      if (countQuota) markExportConsumed();
-      exportHooks.toast(t('savedToGallery'));
-      if (promptDonation) maybePromptDonationAfterSuccess();
-      return;
-    }
-  } catch (e) {
-    console.warn('Media save failed:', e);
-  }
-
+  const { promptDonation = true } = options;
   const file = new File([blob], filename, { type: blob.type || 'image/jpeg' });
   if (shouldUseWebShare() && navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
     try {
@@ -532,7 +285,6 @@ async function exportWithShareOrFallback(blob, filename, options = {}) {
       S.lastExportTarget = 'share-sheet';
       S.lastSavedLocation = '';
       exportHooks.refreshAfterExportActions();
-      if (countQuota) markExportConsumed();
       exportHooks.toast(t('sharePrompt'));
       if (promptDonation) maybePromptDonationAfterSuccess();
       return;
@@ -554,7 +306,6 @@ async function exportWithShareOrFallback(blob, filename, options = {}) {
   S.lastExportTarget = 'browser-download';
   S.lastSavedLocation = '';
   exportHooks.refreshAfterExportActions();
-  if (countQuota) markExportConsumed();
   exportHooks.toast(t('downloadTriggered'));
   if (promptDonation) maybePromptDonationAfterSuccess();
 }
@@ -583,27 +334,6 @@ async function ensureMinJpegBlobSize(blob, minKB) {
   return new Blob([blob, new Uint8Array(padBytes)], { type: blob.type || 'image/jpeg' });
 }
 
-
-async function shareLastExportNative() {
-  const cap = window.Capacitor;
-  const nativeShare = cap?.Plugins?.ExportShare;
-  if (!cap?.isNativePlatform?.() || !nativeShare?.shareFile) return false;
-
-  try {
-    const dataUrl = await blobToDataUrl(S.lastExportBlob);
-    await nativeShare.shareFile({
-      filename: S.lastExportFilename,
-      mimeType: S.lastExportBlob?.type || 'image/png',
-      dataUrl
-    });
-    return true;
-  } catch (e) {
-    console.warn('native share failed:', e);
-    return false;
-  }
-}
-
-
 async function shareLastExport() {
   if (!S.lastExportBlob || !S.lastExportFilename) {
     exportHooks.toast(t('noExportYet'));
@@ -619,17 +349,11 @@ async function shareLastExport() {
       return;
     }
   }
-  if (await shareLastExportNative()) return;
   exportHooks.toast(t('shareUnavailable'));
 }
 
 
 function showSavedLocation() {
-  if (isAndroidNativeEnvironment() && S.lastExportTarget === 'android-gallery') {
-    const path = S.lastSavedLocation || 'Pictures/Visa Photo';
-    window.alert(`${t('savedLocationTitle')}\n\n${t('savedLocationBody', path)}`);
-    return;
-  }
   const filename = S.lastExportFilename || '';
   window.alert(`${t('savedLocationTitle')}\n\n${t('savedLocationBrowserBody', filename)}`);
 }
@@ -739,7 +463,6 @@ async function dlSingle(filenameOverride, extOverride) {
     exportHooks.toast(t('noPhotoYet'));
     return;
   }
-  if (!(await ensureExportQuotaAccess())) return;
   if (!enforceChinaConsularExportRules()) return;
   const kind = 'single';
   const ext = extOverride || getExportFormat();
@@ -757,7 +480,6 @@ async function dlPrint(filenameOverride, extOverride) {
     exportHooks.toast(t('noPhotoYet'));
     return;
   }
-  if (!(await ensureExportQuotaAccess())) return;
   if (!enforceChinaConsularExportRules()) return;
   const kind = 'sheet';
   const ext = extOverride || getExportFormat();
@@ -806,9 +528,6 @@ export {
   buildExportFilename,
   doExportMain,
   onExportMainClick,
-  refreshPremiumStatus,
-  ensureExportQuotaAccess,
-  markExportConsumed,
   copyToClipboard,
   exportWithShareOrFallback,
   dlSingle,

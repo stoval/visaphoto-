@@ -1,6 +1,5 @@
 {
     "currentVersion":  "1.4",
-    "currentBuild":  "6",
     "updatedAt":  "2026-04-12",
     "releases":  [
                      {
@@ -91,32 +90,32 @@
                          "date":  "2026-04-01",
                          "notes":  {
                                        "zh":  [
-                                                  "新增 Google Play 应用内购买，3 次免费导出后可解锁无限导出。",
-                                                  "精简 Android 存储权限与 Media 配置，减少不必要的读取权限。",
+                                                  "新增 3 次免费导出额度，用完后可继续通过购买解锁无限导出。",
+                                                  "精简导出与保存流程，减少不必要的权限依赖与平台分支。",
                                                   "优化中国护照/签证流程，抠图后会明确提示保存白底申请图。",
                                                   "修复抠图阶段中英文混杂、导出文件名语言错位，以及手机端 toast 残留小方块问题。"
                                               ],
                                        "en":  [
-                                                  "Added Google Play in-app purchase support with 3 free exports before unlocking unlimited exports.",
-                                                  "Tightened Android storage permissions and Media configuration to reduce unnecessary read access.",
+                                                  "Added 3 free exports before offering an unlock for unlimited exports.",
+                                                  "Simplified the export and save flow to reduce unnecessary permission and platform-specific branches.",
                                                   "Improved the China passport/visa workflow with a clear prompt to save a white-background application photo after cutout.",
                                                   "Fixed mixed-language cutout messages, localized export filenames, and the lingering mobile toast artifact."
                                               ],
                                        "zh-TW":  [
-                                                     "新增 Google Play 應用內購買，3 次免費匯出後可解鎖無限匯出。",
-                                                     "精簡 Android 儲存權限與 Media 設定，減少不必要的讀取權限。",
+                                                     "新增 3 次免費匯出額度，用完後可繼續透過購買解鎖無限匯出。",
+                                                     "精簡匯出與保存流程，減少不必要的權限依賴與平台分支。",
                                                      "優化中國護照/簽證流程，去背後會明確提示保存白底申請圖。",
                                                      "修正去背階段中英混雜、匯出檔名語言錯位，以及手機端 toast 殘留小方塊問題。"
                                                  ],
                                        "ja":  [
-                                                  "Google Play アプリ内課金を追加し、無料書き出し 3 回後に無制限書き出しを解放できるようにしました。",
-                                                  "Android のストレージ権限と Media 設定を整理し、不要な読み取り権限を削減しました。",
+                                                  "無料書き出し 3 回の枠を追加し、その後は購入で無制限書き出しを解放できるようにしました。",
+                                                  "書き出しと保存フローを整理し、不要な権限依存やプラットフォーム分岐を減らしました。",
                                                   "中国パスポート/ビザ向けに、切り抜き後に白背景の申請用写真を保存する案内を追加しました。",
                                                   "切り抜き時の言語混在、書き出しファイル名の言語ずれ、モバイル toast の残像を修正しました。"
                                               ],
                                        "ko":  [
-                                                  "Google Play 인앱 구매를 추가하여 무료 내보내기 3회 후 무제한 내보내기를 해제할 수 있게 했습니다.",
-                                                  "Android 저장소 권한과 Media 설정을 정리해 불필요한 읽기 권한을 줄였습니다.",
+                                                  "무료 내보내기 3회를 추가하고, 이후에는 구매로 무제한 내보내기를 해제할 수 있게 했습니다.",
+                                                  "내보내기와 저장 흐름을 정리해 불필요한 권한 의존과 플랫폼 분기를 줄였습니다.",
                                                   "중국 여권/비자 흐름을 개선해 누끼 후 흰 배경 신청용 사진 저장 안내를 추가했습니다.",
                                                   "누끼 단계의 혼합 언어 문구, 내보내기 파일명 언어 불일치, 모바일 toast 잔상 문제를 수정했습니다."
                                               ]
@@ -154,5 +153,5 @@
                                    }
                      }
                  ],
-    "currentBuild":  "5"
+    "currentBuild":  "6"
 }
