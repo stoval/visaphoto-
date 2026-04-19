@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VisaPics | Passport, Visa, and ID Photos in Your Browser</title>
+<meta name="description" content="Create passport, visa, and ID photos in your browser with local processing, automatic background cleanup, and country-specific size presets.">
+<meta property="og:title" content="VisaPics | Passport, Visa, and ID Photos in Your Browser">
+<meta property="og:description" content="Create passport, visa, and ID photos in your browser with local processing, automatic background cleanup, and country-specific size presets.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://visapics.app/test.html">
+<meta property="og:image" content="https://visapics.app/assets/feature-graphic.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="VisaPics | Passport, Visa, and ID Photos in Your Browser">
+<meta name="twitter:description" content="Create passport, visa, and ID photos in your browser with local processing, automatic background cleanup, and country-specific size presets.">
+<meta name="twitter:image" content="https://visapics.app/assets/feature-graphic.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e10;
+    --bg2: #161618;
+    --bg3: #1e1e21;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0f0f0;
+    --muted: #888;
+    --accent: #2ecc8f;
+    --accent2: #1aa870;
+    --accent-dim: rgba(46,204,143,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,h2,h3 { font-family: 'Space Grotesk', sans-serif; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 60px;
+    background: rgba(14,14,16,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 0.5px solid var(--border);
+  }
+  .logo { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.1rem; letter-spacing: -0.02em; }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+  .btn-nav {
+    background: var(--accent); color: #051a10;
+    padding: 0.45rem 1.1rem; border-radius: 8px;
+    font-weight: 600; font-size: 0.875rem; text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-nav:hover { background: #3de8a0; color: #051a10 !important; transform: translateY(-1px); }
+
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 7rem 2rem 4.5rem;
+    position: relative; overflow: hidden;
+  }
+  .hero-glow {
+    position: absolute; width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(46,204,143,0.08) 0%, transparent 70%);
+    top: 50%; left: 50%; transform: translate(-50%,-50%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    width: min(1180px, 100%);
+    display: grid;
+    grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.98fr);
+    gap: 3rem;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-copy { text-align: left; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--accent-dim); border: 0.5px solid rgba(46,204,143,0.3);
+    color: var(--accent); font-size: 0.8rem; font-weight: 500;
+    padding: 0.35rem 0.85rem; border-radius: 99px; margin-bottom: 1.5rem;
+  }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .hero h1 {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-weight: 700; letter-spacing: -0.03em;
+    line-height: 1.1; margin-bottom: 1.25rem;
+    max-width: 720px;
+  }
+  .hero h1 em { color: var(--accent); font-style: normal; }
+  .hero p {
+    font-size: 1.12rem; color: #b8bcc2; max-width: 560px; margin: 0 0 2.15rem;
+    line-height: 1.72;
+  }
+  .hero-actions { display: flex; gap: 1rem; justify-content: flex-start; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--accent); color: #051a10;
+    padding: 0.85rem 2rem; border-radius: 10px;
+    font-weight: 600; font-size: 1rem; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: #3de8a0; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(46,204,143,0.25); }
+  .btn-secondary {
+    background: transparent; color: var(--text);
+    padding: 0.85rem 2rem; border-radius: 10px;
+    font-weight: 500; font-size: 1rem; text-decoration: none;
+    border: 0.5px solid var(--border2);
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: var(--bg3); border-color: rgba(255,255,255,0.25); }
+  .btn-coming {
+    background: transparent; color: var(--muted);
+    padding: 0.85rem 2rem; border-radius: 10px;
+    font-weight: 500; font-size: 1rem;
+    border: 0.5px dashed rgba(255,255,255,0.2);
+    display: inline-flex; align-items: center; gap: 8px;
+    cursor: default;
+  }
+  .trust {
+    font-size: 0.84rem;
+    color: #c2c7cd;
+    margin-top: 1.1rem;
+    letter-spacing: 0.01em;
+  }
+  .hero-points {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 0.95rem;
+  }
+  .hero-point {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.82rem;
+    color: #d5d5d5;
+    background: rgba(255,255,255,0.025);
+    border: 0.5px solid rgba(255,255,255,0.06);
+    border-radius: 999px;
+    padding: 0.48rem 0.74rem;
+  }
+  .hero-point::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px rgba(46,204,143,0.12);
+  }
+  .hero-compliance {
+    margin-top: 0.85rem;
+    font-size: 0.82rem;
+    color: #aeb4bb;
+    max-width: 540px;
+    line-height: 1.6;
+  }
+  .hero-proof {
+    background: linear-gradient(180deg, rgba(255,255,255,0.028), rgba(255,255,255,0.012));
+    border: 0.5px solid rgba(255,255,255,0.11);
+    border-radius: 24px;
+    padding: 0.9rem;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.22);
+  }
+  .proof-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.84fr) minmax(0, 1.16fr);
+    gap: 0.9rem;
+    align-items: stretch;
+  }
+  .proof-stack {
+    display: grid;
+    gap: 0.8rem;
+  }
+  .proof-card {
+    background: rgba(255,255,255,0.025);
+    border: 0.5px solid rgba(255,255,255,0.07);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .proof-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin: 0.82rem 0.9rem 0.38rem;
+  }
+  .proof-media {
+    margin: 0;
+    padding: 0 0.9rem 0.68rem;
+  }
+  .proof-media img {
+    width: 100%;
+    display: block;
+    border-radius: 14px;
+    object-fit: cover;
+    background: #0b0b0d;
+  }
+  .proof-before img,
+  .proof-process img { aspect-ratio: 4 / 3; }
+  .proof-after img { aspect-ratio: 3 / 4; }
+  .proof-caption {
+    padding: 0 0.9rem 0.85rem;
+  }
+  .proof-caption h3 {
+    font-size: 0.94rem;
+    margin-bottom: 0.2rem;
+  }
+  .proof-caption p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #a7adb5;
+    line-height: 1.52;
+  }
+  .proof-note {
+    margin-top: 0.7rem;
+    padding: 0 0.9rem 0.85rem;
+    font-size: 0.76rem;
+    color: #a3abb3;
+    line-height: 1.55;
+  }
+
+  .features { padding: 5rem 2rem; max-width: 1000px; margin: 0 auto; }
+  .section-label {
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem;
+  }
+  .features h2 { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 3rem; }
+  .features-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--border); border-radius: 16px; overflow: hidden; }
+  .feature-card {
+    background: var(--bg2); padding: 2rem;
+    transition: background 0.2s;
+  }
+  .feature-card:hover { background: var(--bg3); }
+  .feature-wide { grid-column: 1 / -1; }
+  .feature-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: var(--accent-dim); border: 0.5px solid rgba(46,204,143,0.25);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1.25rem;
+  }
+  .feature-icon svg { width: 22px; height: 22px; stroke: var(--accent); fill: none; stroke-width: 1.8; }
+  .feature-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .feature-card p { font-size: 0.94rem; color: #aeb4bb; line-height: 1.68; }
+
+  .steps { padding: 4.25rem 2rem; max-width: 800px; margin: 0 auto; }
+  .steps h2 { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 3rem; }
+  .steps-list { display: flex; flex-direction: column; gap: 0; }
+  .step {
+    display: flex; gap: 1.5rem; padding: 1.75rem 0;
+    border-bottom: 0.5px solid var(--border);
+    position: relative;
+  }
+  .step:last-child { border-bottom: none; }
+  .step-num {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem; font-weight: 700; color: var(--accent);
+    background: var(--accent-dim); border: 0.5px solid rgba(46,204,143,0.25);
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .step h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.35rem; }
+  .step p { font-size: 0.95rem; color: #aeb4bb; line-height: 1.68; }
+
+  .privacy { padding: 3.25rem 2rem; max-width: 800px; margin: 0 auto; }
+  .privacy-box {
+    background: var(--bg2); border: 0.5px solid var(--border2);
+    border-radius: 16px; padding: 2.5rem;
+    display: flex; gap: 1.5rem; align-items: flex-start;
+  }
+  .privacy-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: var(--accent-dim); border: 0.5px solid rgba(46,204,143,0.25);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .privacy-icon svg { width: 24px; height: 24px; stroke: var(--accent); fill: none; stroke-width: 1.8; }
+  .privacy-box h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .privacy-box p { font-size: 0.95rem; color: #b2b8bf; line-height: 1.72; }
+
+  .final-cta {
+    padding: 0.5rem 2rem 3.5rem;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  .final-cta-box {
+    background: linear-gradient(180deg, rgba(46,204,143,0.12), rgba(46,204,143,0.04));
+    border: 0.5px solid rgba(46,204,143,0.22);
+    border-radius: 18px;
+    padding: 2rem;
+    text-align: center;
+  }
+  .final-cta-box h2 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.6rem;
+  }
+  .final-cta-box p {
+    max-width: 560px;
+    margin: 0 auto 1.5rem;
+    color: #d2d2d2;
+  }
+  .final-cta-note {
+    margin-top: 0.9rem;
+    font-size: 0.82rem;
+    color: #b7d8c7;
+  }
+
+  .donate { padding: 3.1rem 2rem 4rem; text-align: center; }
+  .donate h2 { font-size: clamp(1.35rem, 3vw, 1.8rem); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.55rem; }
+  .donate p { color: #949aa2; margin-bottom: 1.35rem; max-width: 400px; margin-left: auto; margin-right: auto; }
+  .btn-donate {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.035); color: #d7dde4;
+    padding: 0.72rem 1.35rem; border-radius: 10px;
+    font-weight: 600; font-size: 0.94rem; text-decoration: none;
+    border: 0.5px solid rgba(255,255,255,0.08);
+    transition: all 0.2s;
+  }
+  .btn-donate:hover { background: rgba(255,255,255,0.06); color: #f0f4f8; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+  .btn-donate svg { width: 18px; height: 18px; fill: currentColor; }
+
+  footer {
+    border-top: 0.5px solid var(--border);
+    padding: 2rem; text-align: center;
+    font-size: 0.85rem; color: var(--muted);
+  }
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { color: var(--text); }
+
+  @media (max-width: 600px) {
+    nav { padding: 0 1rem; }
+    .nav-links .hide-mobile { display: none; }
+    .hero { padding: 5rem 1.25rem 3rem; }
+    .features, .steps, .privacy, .donate { padding: 3.5rem 1.25rem; }
+    .final-cta { padding: 0 1.25rem 3.5rem; }
+    .privacy-box { flex-direction: column; }
+    .hero-copy { text-align: center; }
+    .hero p { margin-left: auto; margin-right: auto; }
+    .hero-actions, .hero-points { justify-content: center; }
+    .hero-compliance { margin-left: auto; margin-right: auto; }
+    .features-grid, .proof-grid, .proof-stack, .hero-inner { grid-template-columns: 1fr; }
+  }
+
+  .fade-in { opacity: 0; transform: translateY(16px); animation: fadeUp 0.6s ease forwards; }
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.2s; }
+  .delay-3 { animation-delay: 0.3s; }
+  .delay-4 { animation-delay: 0.4s; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Visa<span>Pics</span></div>
+  <div class="nav-links">
+    <a href="#features" class="hide-mobile" data-i18n="nav_features">Features</a>
+    <a href="#how" class="hide-mobile" data-i18n="nav_how">How it works</a>
+    <a href="https://visapics.app" class="btn-nav" data-i18n="nav_try">Start in browser</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <div class="badge fade-in"><span class="badge-dot"></span><span data-i18n="badge">100% local · No upload · Free</span></div>
+      <h1 class="fade-in delay-1"><span data-i18n="hero_h1a">Visa photos,</span><br><em data-i18n="hero_h1b">done in seconds.</em></h1>
+      <p class="fade-in delay-2" data-i18n="hero_p">Make passport, visa and ID photos that meet official requirements — entirely in your browser. Your photo never leaves your device.</p>
+      <div class="hero-actions fade-in delay-3">
+        <a href="https://visapics.app" class="btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16"/></svg>
+          <span data-i18n="cta_browser">Start in browser</span>
+        </a>
+      </div>
+      <p class="trust fade-in delay-4" data-i18n="trust">No sign-up · No server upload · JPG and PNG export</p>
+      <div class="hero-points fade-in delay-4">
+        <span class="hero-point" data-i18n="hero_point_1">50+ country presets</span>
+        <span class="hero-point" data-i18n="hero_point_2">Automatic background cleanup</span>
+      </div>
+      <p class="hero-compliance fade-in delay-4" data-i18n="hero_compliance">Built to match published size and background requirements for supported documents. Final acceptance is always determined by the issuing authority.</p>
+    </div>
+
+    <div class="hero-proof fade-in delay-2" aria-label="Visa photo before and after proof">
+      <div class="proof-grid">
+        <div class="proof-stack">
+          <div class="proof-card proof-before">
+            <div class="proof-badge" data-i18n="proof_before_badge">Before</div>
+            <figure class="proof-media">
+              <img src="./assets/before.png" alt="Original portrait photo before background cleanup and formatting">
+            </figure>
+            <div class="proof-caption">
+              <h3 data-i18n="proof_before_title">A normal phone portrait</h3>
+              <p data-i18n="proof_before_desc">Taken at home with uneven light and a casual background.</p>
+            </div>
+          </div>
+          <div class="proof-card proof-process">
+            <div class="proof-badge" data-i18n="proof_process_badge">In VisaPics</div>
+            <figure class="proof-media">
+              <img src="./assets/feature-graphic.png" alt="VisaPics editor showing country preset and framing guide">
+            </figure>
+          </div>
+        </div>
+        <div class="proof-card proof-after">
+          <div class="proof-badge" data-i18n="proof_after_badge">After</div>
+          <figure class="proof-media">
+            <img src="./assets/after.png" alt="Processed visa photo example with a clean white background">
+          </figure>
+          <div class="proof-caption">
+            <h3 data-i18n="proof_after_title">Country-ready result, ready to export</h3>
+            <p data-i18n="proof_after_desc">Choose the right passport, visa, or ID format, then export a clean photo or print sheet with the correct size requirements.</p>
+          </div>
+          <p class="proof-note" data-i18n="proof_note">Local processing keeps your photo on your device while you format it for supported document types.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <p class="section-label" data-i18n="features_label">Features</p>
+  <h2 data-i18n="features_h2">Everything you need,<br>nothing you don't.</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <h3 data-i18n="f1_title">Privacy first</h3>
+      <p data-i18n="f1_desc">All processing happens in your browser. Your photos are never uploaded to any server.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M20.2 20.2c-1.5-1.5-3.8-2.2-8.2-2.2s-6.7.7-8.2 2.2M12 3C8.1 3 5 6.1 5 10c0 5.2 7 11 7 11s7-5.8 7-11c0-3.9-3.1-7-7-7z"/></svg>
+      </div>
+      <h3 data-i18n="f2_title">Auto background removal</h3>
+      <p data-i18n="f2_desc">Remove and replace backgrounds instantly. Get the clean white or light blue background required by most countries.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      </div>
+      <h3 data-i18n="f3_title">50+ country specs</h3>
+      <p data-i18n="f3_desc">Built-in presets for passports, visas, and ID cards from China, US, UK, Australia and more.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </div>
+      <h3 data-i18n="f4_title">Print-ready export</h3>
+      <p data-i18n="f4_desc">Download single photos or a print sheet with multiple copies. JPG and PNG supported.</p>
+    </div>
+    <div class="feature-card feature-wide">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M12 3v18"/><circle cx="12" cy="12" r="9"/></svg>
+      </div>
+      <h3 data-i18n="f5_title">Country-ready guidance</h3>
+      <p data-i18n="f5_desc">Choose a supported country and document type to apply the right dimensions, background guidance, and export layout.</p>
+    </div>
+  </div>
+</section>
+
+<section class="steps" id="how">
+  <p class="section-label" data-i18n="steps_label">How it works</p>
+  <h2 data-i18n="steps_h2">Three steps.<br>That's it.</h2>
+  <div class="steps-list">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div>
+        <h3 data-i18n="s1_title">Choose your document type</h3>
+        <p data-i18n="s1_desc">Select from passport, visa, or ID card. Pick your country to load the exact size requirements automatically.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div>
+        <h3 data-i18n="s2_title">Upload your photo</h3>
+        <p data-i18n="s2_desc">Take or upload a portrait photo. The tool will remove the background, crop to the correct size, and adjust the framing.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div>
+        <h3 data-i18n="s3_title">Download and print</h3>
+        <p data-i18n="s3_desc">Export a single image or a printable sheet. Bring to any photo print shop or print at home.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="privacy">
+  <div class="privacy-box">
+    <div class="privacy-icon">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    </div>
+    <div>
+      <h3 data-i18n="privacy_title">Your photos stay on your device</h3>
+      <p data-i18n="privacy_desc">VisaPics runs entirely in your browser using local processing. We have no server, no account system, and no way to access your photos — because they never leave your device. What you see is what you get.</p>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta">
+  <div class="final-cta-box">
+    <h2 data-i18n="final_h2">Ready to make your photo?</h2>
+    <p data-i18n="final_p">Open the app, choose your country and document type, and create a passport, visa, or ID photo without uploading anything to a server.</p>
+    <a href="https://visapics.app" class="btn-primary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16"/></svg>
+      <span data-i18n="final_cta">Start in browser</span>
+    </a>
+    <p class="final-cta-note" data-i18n="final_note">No sign-up · Local processing · Final acceptance depends on the issuing authority</p>
+  </div>
+</section>
+
+<section class="donate" id="donate">
+  <p class="section-label" data-i18n="donate_label">Support</p>
+  <h2 data-i18n="donate_h2">VisaPics is free, forever.</h2>
+  <p data-i18n="donate_p">If it saved you time or money, consider buying me a coffee. It keeps the project alive.</p>
+  <a href="https://paypal.me/LiMaAu" target="_blank" rel="noopener" class="btn-donate">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.59 3.025-2.566 6.082-8.558 6.082H9.825l-1.13 7.164h3.138c.458 0 .85-.334.922-.787l.381-2.421.586-3.717c.073-.453.465-.787.922-.787h.581c3.758 0 6.701-1.528 7.558-5.95.36-1.886.088-3.115-.561-4.297z"/></svg>
+    <span data-i18n="donate_btn">Buy me a coffee</span>
+  </a>
+</section>
+
+<footer>
+  <p>© <span id="year"></span> VisaPics &nbsp;·&nbsp; <a href="https://visapics.app" data-i18n="footer_app">Open app</a></p>
+</footer>
+
+<script>
+const i18n = {
+  en: {
+    nav_features: "Features", nav_how: "How it works", nav_try: "Start in browser",
+    badge: "100% local · No upload · Free",
+    hero_h1a: "Passport, visa, and ID photos", hero_h1b: "in seconds.",
+    hero_p: "Create photos that match official size and background requirements — entirely in your browser. Your photo stays on your device from start to finish.",
+    cta_browser: "Start in browser", cta_android: "Android — coming soon",
+    cta_formats: "See supported countries",
+    trust: "No sign-up · No server upload · JPG and PNG export",
+    hero_point_1: "50+ country presets",
+    hero_point_2: "Automatic background cleanup",
+    hero_point_3: "Print-ready export",
+    hero_compliance: "Built to match published size and background requirements for supported documents. Final acceptance is always determined by the issuing authority.",
+    proof_before_badge: "Before",
+    proof_before_title: "A normal phone portrait",
+    proof_before_desc: "Taken at home with uneven light and a casual background.",
+    proof_process_badge: "In VisaPics",
+    proof_process_title: "Pick a format and adjust framing",
+    proof_process_desc: "Use country presets, automatic cleanup, and a framing guide before export.",
+    proof_after_badge: "After",
+    proof_after_title: "Country-ready result, ready to export",
+    proof_after_desc: "Choose the right passport, visa, or ID format, then export a clean photo or print sheet with the correct size requirements.",
+    proof_note: "Local processing keeps your photo on your device while you format it for supported document types.",
+    features_label: "Features", features_h2: "Everything you need,\nnothing you don't.",
+    f1_title: "Privacy first", f1_desc: "Your photo is processed locally in your browser and never uploaded to a server.",
+    f2_title: "Automatic background cleanup", f2_desc: "Generate a clean white or light-blue background in seconds.",
+    f3_title: "Official format presets", f3_desc: "Pick from 50+ country-specific passport, visa, and ID photo formats.",
+    f4_title: "Ready to download or print", f4_desc: "Export a single image or a print-ready photo sheet in JPG or PNG.",
+    f5_title: "Country-ready guidance", f5_desc: "Choose a supported country and document type to apply the right dimensions, background guidance, and export layout.",
+    steps_label: "How it works", steps_h2: "Three steps.\nThat's it.",
+    s1_title: "Choose your document type", s1_desc: "Select from passport, visa, or ID card. Pick your country to load the exact size requirements automatically.",
+    s2_title: "Upload your photo", s2_desc: "Take or upload a portrait photo. The tool will remove the background, crop to the correct size, and adjust the framing.",
+    s3_title: "Download and print", s3_desc: "Export a single image or a printable sheet. Bring to any photo print shop or print at home.",
+    privacy_title: "Your photos stay on your device",
+    privacy_desc: "VisaPics runs entirely in your browser using local processing. We have no server, no account system, and no way to access your photos — because they never leave your device.",
+    final_h2: "Ready to make your photo?",
+    final_p: "Open the app, choose your country and document type, and create a passport, visa, or ID photo without uploading anything to a server.",
+    final_cta: "Start in browser",
+    final_note: "No sign-up · Local processing · Final acceptance depends on the issuing authority",
+    donate_label: "Support", donate_h2: "Support VisaPics", donate_p: "If VisaPics saved you time, you can support the project with a small coffee.",
+    donate_btn: "Buy me a coffee",
+    footer_app: "Open app"
+  },
+  zh: {
+    nav_features: "功能", nav_how: "使用方法", nav_try: "立即使用",
+    badge: "本地处理 · 无需上传 · 完全免费",
+    hero_h1a: "护照、签证、证件照，", hero_h1b: "几秒搞定。",
+    hero_p: "在浏览器中制作符合官方尺寸和背景要求的证件照，全程本地处理，照片不离开你的设备。",
+    cta_browser: "在浏览器中开始", cta_android: "Android 版 — 即将推出",
+    cta_formats: "查看支持的国家",
+    trust: "无需注册 · 不上传服务器 · 支持 JPG 和 PNG",
+    hero_point_1: "50+ 国家预设",
+    hero_point_2: "自动背景处理",
+    hero_point_3: "可直接下载打印",
+    hero_compliance: "按支持证件的公开尺寸与背景要求设计。最终是否通过仍由签发机构决定。",
+    proof_before_badge: "处理前",
+    proof_before_title: "一张普通手机人像",
+    proof_before_desc: "在家拍摄，光线不均，背景也比较随意。",
+    proof_process_badge: "VisaPics 中",
+    proof_process_title: "选择规格并调整构图",
+    proof_process_desc: "使用国家预设、自动背景处理和构图辅助线后再导出。",
+    proof_after_badge: "处理后",
+    proof_after_title: "按国家规格整理，可直接导出",
+    proof_after_desc: "选择正确的护照、签证或证件照格式后，可导出符合尺寸要求的单张照片或打印排版图。",
+    proof_note: "本地处理让你的照片始终留在设备上，同时完成支持证件类型的格式整理。",
+    features_label: "功能特点", features_h2: "你需要的全都有，\n不需要的一概没有。",
+    f1_title: "隐私优先", f1_desc: "照片在浏览器本地处理，从不上传到任何服务器。",
+    f2_title: "自动背景处理", f2_desc: "几秒内生成干净的白色或浅蓝色背景。",
+    f3_title: "官方格式预设", f3_desc: "内置 50+ 个国家的护照、签证和证件照官方尺寸规格。",
+    f4_title: "随时下载或打印", f4_desc: "导出单张图片或打印排版图，支持 JPG 和 PNG 格式。",
+    f5_title: "按国家规格引导", f5_desc: "选择支持的国家和证件类型后，自动应用对应尺寸、背景提示和导出布局。",
+    steps_label: "使用方法", steps_h2: "三步完成，\n就这么简单。",
+    s1_title: "选择证件类型", s1_desc: "选择护照、签证或身份证，选择国家后自动加载精确的尺寸要求。",
+    s2_title: "上传照片", s2_desc: "拍摄或上传一张人像照片，工具会自动去背景、裁剪并调整构图。",
+    s3_title: "下载并打印", s3_desc: "导出单张图片或打印排版图，可带到照片打印店冲印或自行打印。",
+    privacy_title: "你的照片始终在你设备上",
+    privacy_desc: "VisaPics 完全在浏览器本地运行，没有服务器、没有账号系统，我们无法访问你的照片——因为它们从未离开过你的设备。",
+    final_h2: "准备开始制作了吗？",
+    final_p: "打开应用，选择国家和证件类型，无需上传到服务器即可制作护照、签证或证件照。",
+    final_cta: "在浏览器中开始",
+    final_note: "无需注册 · 本地处理 · 最终是否通过以签发机构为准",
+    donate_label: "支持项目", donate_h2: "支持 VisaPics", donate_p: "如果 VisaPics 帮你节省了时间，欢迎用一杯咖啡支持这个项目。",
+    donate_btn: "请我喝杯咖啡",
+    footer_app: "打开应用"
+  }
+};
+
+function getLang() {
+  const nav = navigator.language || navigator.userLanguage || 'en';
+  return nav.toLowerCase().startsWith('zh') ? 'zh' : 'en';
+}
+
+function applyI18n() {
+  const lang = getLang();
+  const t = i18n[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key]) el.textContent = t[key];
+  });
+  document.documentElement.lang = lang;
+  document.title = lang === 'zh'
+    ? 'VisaPics — 浏览器中制作护照与签证证件照'
+    : 'VisaPics | Passport, Visa, and ID Photos in Your Browser';
+  const metaDescription = document.querySelector('meta[name="description"]');
+  const ogTitle = document.querySelector('meta[property="og:title"]');
+  const ogDescription = document.querySelector('meta[property="og:description"]');
+  const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+  const twitterDescription = document.querySelector('meta[name="twitter:description"]');
+  if (lang === 'zh') {
+    const zhDescription = '在浏览器中制作护照、签证和证件照，支持本地处理、自动背景处理和多国家尺寸预设。';
+    if (metaDescription) metaDescription.setAttribute('content', zhDescription);
+    if (ogTitle) ogTitle.setAttribute('content', 'VisaPics — 浏览器中制作护照与签证证件照');
+    if (ogDescription) ogDescription.setAttribute('content', zhDescription);
+    if (twitterTitle) twitterTitle.setAttribute('content', 'VisaPics — 浏览器中制作护照与签证证件照');
+    if (twitterDescription) twitterDescription.setAttribute('content', zhDescription);
+  }
+}
+
+document.getElementById('year').textContent = '2025';
+applyI18n();
+</script>
+</body>
+</html>
