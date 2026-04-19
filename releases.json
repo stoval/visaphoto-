@@ -1,5 +1,6 @@
 {
     "currentVersion":  "1.4",
+    "currentBuild":  "6",
     "updatedAt":  "2026-04-12",
     "releases":  [
                      {
@@ -7,29 +8,29 @@
                          "date":  "2026-04-12",
                          "notes":  {
                                        "zh":  [
-                                                  "统一浅色主题与头部层级，优化上传区、信息表格和导出确认弹窗的视觉细节。",
-                                                  "打赏流程改为更轻量的 PayPal 提示，并避免在抠图后的白底中间保存步骤打扰用户。",
-                                                  "补齐上传提示、多语言文案和中国签证白底保存提示，使桌面与移动端体验更一致。"
+                                                  "统一模块化网页入口，发布链路改为以 index.html + src + styles 为主。",
+                                                  "优化浅色主题、头部层级、上传提示、多语言文案与导出确认体验。",
+                                                  "补上本地预览、桌面下载修复，以及中国护照/签证合并规格等近期调整。"
                                               ],
                                        "en":  [
-                                                  "Unified the light theme and header hierarchy, refining the upload area, info table, and export confirmation visuals.",
-                                                  "Made the PayPal support flow lighter and stopped prompting for support during the intermediate white-background save after cutout.",
-                                                  "Completed the upload guidance, multilingual copy, and China visa white-background save prompt so desktop and mobile feel more consistent."
+                                                  "Unified the modular web entry so publishing now centers on index.html + src + styles.",
+                                                  "Refined the light theme, header hierarchy, upload hints, multilingual copy, and export confirmation flow.",
+                                                  "Included the local preview script, desktop download fixes, and the merged China passport/visa preset updates."
                                               ],
                                        "zh-TW":  [
-                                                     "統一淺色主題與頂部層級，優化上傳區、資訊表格與匯出確認彈窗的視覺細節。",
-                                                     "打賞流程改為更輕量的 PayPal 提示，並避免在去背後的白底中間保存步驟打擾使用者。",
-                                                     "補齊上傳提示、多語文案與中國簽證白底保存提示，讓桌面與行動端體驗更一致。"
+                                                     "統一模組化網頁入口，發佈鏈路改為以 index.html + src + styles 為主。",
+                                                     "優化淺色主題、頁首層級、上傳提示、多語文案與匯出確認體驗。",
+                                                     "補上本機預覽、桌面下載修正，以及中國護照／簽證合併規格等近期調整。"
                                                  ],
                                        "ja":  [
-                                                  "ライトテーマとヘッダー階層を統一し、アップロード領域、情報テーブル、書き出し確認ダイアログの見た目を整えました。",
-                                                  "PayPal サポート導線をより軽くし、背景除去後の白背景保存という中間ステップでは案内を出さないようにしました。",
-                                                  "アップロード案内、多言語文言、中国ビザ向け白背景保存案内を補完し、デスクトップとモバイルの体験をそろえました。"
+                                                  "モジュール化された Web エントリを統一し、公開導線を index.html + src + styles 中心に整理しました。",
+                                                  "ライトテーマ、ヘッダー階層、アップロード案内、多言語文言、書き出し確認体験を改善しました。",
+                                                  "ローカルプレビュー、デスクトップでのダウンロード修正、中国パスポート/ビザ統合プリセットも反映しています。"
                                               ],
                                        "ko":  [
-                                                  "라이트 테마와 헤더 위계를 통일하고 업로드 영역, 정보 표, 내보내기 확인 팝업의 시각 디테일을 다듬었습니다.",
-                                                  "PayPal 후원 흐름을 더 가볍게 바꾸고 누끼 후 흰 배경 중간 저장 단계에서는 후원 안내가 뜨지 않게 했습니다.",
-                                                  "업로드 안내, 다국어 문구, 중국 비자용 흰 배경 저장 안내를 보완해 데스크톱과 모바일 경험을 더 일관되게 맞췄습니다."
+                                                  "모듈형 웹 진입점을 통합해 배포 흐름을 index.html + src + styles 중심으로 정리했습니다.",
+                                                  "라이트 테마, 헤더 위계, 업로드 안내, 다국어 문구, 내보내기 확인 경험을 개선했습니다.",
+                                                  "로컬 미리보기, 데스크톱 다운로드 수정, 중국 여권/비자 통합 프리셋도 함께 반영했습니다."
                                               ]
                                    }
                      },
@@ -153,5 +154,5 @@
                                    }
                      }
                  ],
-    "currentBuild":  "6"
+    "currentBuild":  "5"
 }
