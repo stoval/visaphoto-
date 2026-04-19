@@ -4,6 +4,7 @@ node_modules/
 .DS_Store
 
 # Android Build Artifacts
+android/
 android/app/build/
 android/.gradle/
 /.gradle-user-home/
@@ -46,3 +47,4 @@ wp-widgets.json
 # Local reference images used during page redesign
 needling*.jpg
 cupping*.jpg
+.tmp-VisaPics-Android/

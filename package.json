@@ -25,14 +25,5 @@
   "bugs": {
     "url": "https://github.com/stoval/visaphoto-/issues"
   },
-  "homepage": "https://visapics.app",
-  "devDependencies": {
-    "@capacitor/android": "^8.3.0",
-    "@capacitor/cli": "^8.3.0",
-    "@capacitor/core": "^8.3.0"
-  },
-  "dependencies": {
-    "@capacitor-community/media": "^9.1.0"
-  }
+  "homepage": "https://visapics.app"
 }
-

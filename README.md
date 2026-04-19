@@ -1,6 +1,6 @@
 # visapics.app
 
-Static site source for [visapics.app](https://visapics.app).
+Public web and PWA source for [visapics.app](https://visapics.app).
 
 ## What this repo contains
 
@@ -8,6 +8,14 @@ Static site source for [visapics.app](https://visapics.app).
 - App code in [src](D:/dev/visaphoto/src)
 - Styles in [styles](D:/dev/visaphoto/styles)
 - Offline/PWA assets such as [sw.js](D:/dev/visaphoto/sw.js) and [manifest.json](D:/dev/visaphoto/manifest.json)
+
+This repository is intended to stay focused on the browser-based product and GitHub Pages deployment for `visapics.app`.
+
+## Android app repository
+
+The native Android project now lives separately at:
+
+- [VisaPics-Android](https://github.com/stoval/VisaPics-Android)
 
 ## Custom domain
 
