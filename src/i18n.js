@@ -179,7 +179,7 @@ const I18N = {
     customPresetName: '自定义',
     confirmRemoveBg: '当前还未执行“AI 抠图”。直接导出可能因背景不纯导致审核失败。\n\n是否先执行抠图？',
     confirmSaveCutout: '抠图已完成。\n\n是否现在保存一张白底 JPG，方便后续分享、上传或备用？',
-    confirmSaveChinaCutout: '已替换为白底背景，符合中国护照/签证申请要求。是否保存这张白底图？',
+    confirmSaveChinaCutout: '已替换为白底背景。建议先保存这张白底图，方便后续网上申请护照/签证时上传或备用。',
     cutoutSaveTitle: '抠图已完成',
     cutoutSaveCancel: '取消',
     cutoutSaveConfirm: '保存',
