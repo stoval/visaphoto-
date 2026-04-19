@@ -37,7 +37,7 @@ window.VISAPICS_SW_PATH = './sw.js';
       <svg class="lang-ico" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M11.99,2C6.47,2 2,6.48 2,12s4.47,10 9.99,10C17.52,22 22,17.52 22,12S17.52,2 11.99,2zM18.91,8h-3.08c-0.33,-1.42 -0.87,-2.75 -1.58,-3.97 1.85,0.73 3.42,2.1 4.66,3.97zM12,4.04c0.83,1.2 1.48,2.53 1.91,3.96h-3.82c0.43,-1.43 1.08,-2.76 1.91,-3.96zM4.26,14C4.1,13.35 4,12.68 4,12s0.1,-1.35 0.26,-2h3.38c-0.09,0.66 -0.14,1.32 -0.14,2s0.05,1.34 0.14,2L4.26,14zM4.26,10h3.38c0.16,-2.16 0.87,-4.12 1.98,-5.76C7.38,4.98 5.48,6.23 4.26,10zM10.22,4.24C9.51,5.46 8.97,6.79 8.64,8h3.08C11.01,6.79 10.59,5.46 10.22,4.24zM12,19.96c-0.83,-1.2 -1.48,-2.53 -1.91,-3.96h3.82c-0.43,1.43 -1.08,2.76 -1.91,3.96zM14.34,14H9.66c-0.09,-0.66 -0.16,-1.32 -0.16,-2s0.07,-1.35 0.16,-2h4.68c0.09,0.65 0.16,1.32 0.16,2s-0.07,1.34 -0.16,2zM15.82,19.97c0.71,-1.22 1.25,-2.55 1.58,-3.97h-3.08c0.33,1.42 0.75,2.75 1.5,3.97zM16.75,14c0.09,-0.66 0.15,-1.32 0.15,-2s-0.06,-1.34 -0.15,-2h3.38c0.16,0.65 0.26,1.32 0.26,2s-0.1,1.35 -0.26,2h-3.38zM18.91,16h-3.08c-0.33,1.42 -0.87,2.75 -1.58,3.97 1.85,-0.73 3.42,-2.1 4.66,-3.97z"/>
       </svg>
-      <span class="m-lang-text" id="mLangTogText">中</span>
+      <span class="m-lang-text" id="mLangTogText">EN</span>
     </button>
   </div>
   
@@ -124,25 +124,25 @@ window.VISAPICS_SW_PATH = './sw.js';
         </div>
 
         <div class="sect">
-          <div class="mini-lbl" id="sectBg">背景颜色</div>
+          <div class="mini-lbl" id="sectBg">Background color</div>
           <div class="bg-strip" id="bgStrip"></div>
         </div>
 
         <div class="sect">
-          <div class="mini-lbl" id="sectAdjust">图像调整</div>
+          <div class="mini-lbl" id="sectAdjust">Manual adjustments</div>
           <div class="rng-row">
-            <label onclick="resetVal('B')"><span id="brightLabel">亮度</span> <span id="vB">100</span>%</label>
+            <label onclick="resetVal('B')"><span id="brightLabel">Brightness</span> <span id="vB">100</span>%</label>
             <input type="range" id="rB" min="50" max="200" value="100" oninput="onAdj()" aria-label="Brightness">
           </div>
           <div class="rng-row">
-            <label onclick="resetVal('C')"><span id="contrastLabel">对比度</span> <span id="vC">100</span>%</label>
+            <label onclick="resetVal('C')"><span id="contrastLabel">Contrast</span> <span id="vC">100</span>%</label>
             <input type="range" id="rC" min="50" max="200" value="100" oninput="onAdj()" aria-label="Contrast">
           </div>
           <div class="rng-row">
-            <label onclick="resetVal('S')"><span id="saturationLabel">饱和度</span> <span id="vS">100</span>%</label>
+            <label onclick="resetVal('S')"><span id="saturationLabel">Saturation</span> <span id="vS">100</span>%</label>
             <input type="range" id="rS" min="0" max="200" value="100" oninput="onAdj()" aria-label="Saturation">
           </div>
-          <button class="btn btn-ghost" id="resetAdjustBtn" style="width:100%;font-size:12px;margin-top:2px" onclick="resetAdj()">↺ 重置调整</button>
+          <button class="btn btn-ghost" id="resetAdjustBtn" style="width:100%;margin-top:6px;font-size:12px" onclick="resetAdj()">Reset adjustments</button>
         </div>
       </div>
     </details>
@@ -232,7 +232,7 @@ window.VISAPICS_SW_PATH = './sw.js';
       <div class="canvas-wrap" id="cf">
         <canvas id="editCanvas" width="420" height="420"></canvas>
       </div>
-      <div class="canvas-hint" id="canvasHint">拖动调整 · 滚轮/双指缩放 · 方向键微移 · Shift+方向键粗移</div>
+      <div class="canvas-hint" id="canvasHint">Drag to position · Scroll/pinch to zoom · Arrow keys to nudge · Shift + arrows for larger moves</div>
       <div class="adj-row">
         <button class="adj-btn" title="缩小" onclick="adjScale(-0.05)">－</button>
         <button class="adj-btn" title="放大" onclick="adjScale(0.05)">＋</button>
@@ -246,21 +246,21 @@ window.VISAPICS_SW_PATH = './sw.js';
         <button class="adj-btn" title="向下" onclick="adjMove(0,2)">↓</button>
         <button class="adj-btn" title="向右" onclick="adjMove(2,0)">→</button>
       </div>
-      <div class="loader" id="ldr"><div class="spin"></div><span id="ldrTxt">处理中...</span></div>
+      <div class="loader" id="ldr"><div class="spin"></div><span id="ldrTxt">Processing...</span></div>
       <div class="btn-row">
-        <button class="btn btn-ghost" id="btnReuploadFull" onclick="triggerUp()">↑ 重新上传</button>
-        <button class="btn btn-ghost" id="btnRst" onclick="resetPos()" disabled>重置</button>
-        <button class="btn btn-ghost" id="btnToggle" onclick="toggleNoBg()" disabled style="display:none">切换原图</button>
-        <button class="btn btn-dark" id="btnRmBg" onclick="doRemoveBg()" disabled>✦ AI 抠图</button>
-        <button class="btn btn-gold" id="btnGen" onclick="generate()" disabled>✓ 生成</button>
+        <button class="btn btn-ghost" id="btnReuploadFull" onclick="triggerUp()">Choose another photo</button>
+        <button class="btn btn-ghost" id="btnRst" onclick="resetPos()" disabled>Reset</button>
+        <button class="btn btn-ghost" id="btnToggle" onclick="toggleNoBg()" disabled style="display:none">Toggle original</button>
+        <button class="btn btn-dark" id="btnRmBg" onclick="doRemoveBg()" disabled>Remove background</button>
+        <button class="btn btn-gold" id="btnGen" onclick="generate()" disabled>Prepare download</button>
       </div>
 
       <div class="rbox mobile-only" id="afterExportBoxMobile" style="width:100%;max-width:470px">
-        <div class="rbox-hd" id="afterExportTitleMobile">导出后操作</div>
+        <div class="rbox-hd" id="afterExportTitleMobile">After download</div>
         <div class="rbox-bd">
           <div id="afterExportFileMobile" style="font-size:11px;font-family:'DM Mono',monospace;color:var(--ink2);align-self:stretch;word-break:break-all"></div>
-          <button class="btn btn-dark" id="btnShareExportedMobile" style="width:100%" onclick="shareLastExport()">↗ 分享生成文件</button>
-          <button class="btn btn-ghost" id="btnLocateExportedMobile" style="width:100%" onclick="showSavedLocation()">📁 查看保存位置</button>
+          <button class="btn btn-dark" id="btnShareExportedMobile" style="width:100%" onclick="shareLastExport()">Share downloaded file</button>
+          <button class="btn btn-ghost" id="btnLocateExportedMobile" style="width:100%" onclick="showSavedLocation()">Show saved location</button>
         </div>
       </div>
     </div>
@@ -272,30 +272,30 @@ window.VISAPICS_SW_PATH = './sw.js';
 
     <div id="emptyMsg" class="empty">
       <div class="ei">🪪</div>
-      <span id="emptyMsgText">上传并处理照片后<br>预览结果显示在这里</span>
+      <span id="emptyMsgText">Upload and process a portrait photo,<br>then review the result here</span>
     </div>
 
     <div class="rbox" id="prevBox">
-      <div class="rbox-hd" id="singlePreviewTitle">单张预览</div>
+      <div class="rbox-hd" id="singlePreviewTitle">Photo Preview</div>
       <div class="rbox-bd">
-        <img id="resultPrev" src="" alt="证件照生成预览">
+        <img id="resultPrev" src="" alt="Processed passport or visa photo preview">
         <table class="info-tbl" id="infoTbl"></table>
       </div>
     </div>
 
     <div class="rbox" id="printBox">
-      <div class="rbox-hd" id="printBoxTitle">打印排版 (6寸纸)</div>
+      <div class="rbox-hd" id="printBoxTitle">Print Sheet Preview</div>
       <div class="rbox-bd">
         <div class="rng-row" style="width:100%">
-          <label><span id="perRowLabel">每行张数</span> <span id="vCol">4</span></label>
+          <label><span id="perRowLabel">Photos per row</span> <span id="vCol">4</span></label>
           <input type="range" id="rCol" min="2" max="6" value="4" step="1" oninput="updatePrint()">
         </div>
         <div class="rng-row" style="width:100%">
-          <label><span id="rowCountLabel">行数</span> <span id="vRow">2</span></label>
+          <label><span id="rowCountLabel">Rows</span> <span id="vRow">2</span></label>
           <input type="range" id="rRow" min="1" max="5" value="2" step="1" oninput="updatePrint()">
         </div>
         <div class="tog-row">
-          <span id="cutLineLabel">显示裁切线</span>
+          <span id="cutLineLabel">Show cut lines</span>
           <label class="toggle">
             <input type="checkbox" id="cutChk" checked onchange="updatePrint()">
             <div class="t-tr"></div>
@@ -306,38 +306,38 @@ window.VISAPICS_SW_PATH = './sw.js';
     </div>
 
     <div class="rbox" id="dlBox">
-      <div class="rbox-hd" id="exportBoxTitle">导出</div>
+      <div class="rbox-hd" id="exportBoxTitle">Download options</div>
       <div class="rbox-bd">
         <div class="tog-row">
-          <span id="keepTransparentLabel">保持透明 (PNG)</span>
+          <span id="keepTransparentLabel">Keep transparency (PNG)</span>
           <label class="toggle">
             <input type="checkbox" id="fmtPng" onchange="generate()">
             <div class="t-tr"></div>
           </label>
         </div>
-        <div class="fs-row"><span id="sizeLimitLabel">文件大小上限</span>
-          <input class="fs-inp" type="number" id="maxKB" value="0" min="0" max="5000" placeholder="不限">
-          <span id="sizeLimitHint">KB（0=不限）</span>
+        <div class="fs-row"><span id="sizeLimitLabel">File size limit</span>
+          <input class="fs-inp" type="number" id="maxKB" value="0" min="0" max="5000" placeholder="No limit">
+          <span id="sizeLimitHint">KB (0 = no limit)</span>
         </div>
-        <div id="sizePrev" style="font-size:11px;font-family:'DM Mono',monospace;color:var(--gold);margin-top:4px;font-weight:600">预计大小: -- KB</div>
+        <div id="sizePrev" style="font-size:11px;font-family:'DM Mono',monospace;color:var(--gold);margin-top:4px;font-weight:600">Estimated size: -- KB</div>
         <div id="sizeGuide" style="font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace;line-height:1.6;align-self:stretch;margin-top:8px">
-          常见上限参考：<br>
-          领事网上传 ≤ 120 KB<br>
-          美签 DS-160 ≤ 240 KB<br>
-          加拿大 IRCC ≤ 4000 KB
+          Common upload limits:<br>
+          Consular upload ≤ 120 KB<br>
+          US visa DS-160 ≤ 240 KB<br>
+          Canada IRCC ≤ 4000 KB
         </div>
-        <button class="btn btn-dark" id="btnDlSingle" style="width:100%" onclick="dlSingle()">⬇ 下载单张 JPG</button>
-        <button class="btn btn-ghost" id="btnDlPrint" style="width:100%" onclick="dlPrint()">⬇ 下载排版图</button>
-        <button class="btn btn-ghost" id="btnCopyImg" style="width:100%" onclick="copyToClipboard()">📋 复制图片</button>
+        <button class="btn btn-dark" id="btnDlSingle" style="width:100%" onclick="dlSingle()">Download JPG photo</button>
+        <button class="btn btn-ghost" id="btnDlPrint" style="width:100%" onclick="dlPrint()">Download print sheet</button>
+        <button class="btn btn-ghost" id="btnCopyImg" style="width:100%" onclick="copyToClipboard()">Copy image</button>
       </div>
     </div>
 
     <div class="rbox" id="afterExportBox">
-      <div class="rbox-hd" id="afterExportTitle">导出后操作</div>
+      <div class="rbox-hd" id="afterExportTitle">After download</div>
       <div class="rbox-bd">
         <div id="afterExportFile" style="font-size:11px;font-family:'DM Mono',monospace;color:var(--ink2);align-self:stretch;word-break:break-all"></div>
-        <button class="btn btn-dark" id="btnShareExported" style="width:100%" onclick="shareLastExport()">↗ 分享生成文件</button>
-        <button class="btn btn-ghost" id="btnLocateExported" style="width:100%" onclick="showSavedLocation()">📁 查看保存位置</button>
+        <button class="btn btn-dark" id="btnShareExported" style="width:100%" onclick="shareLastExport()">Share downloaded file</button>
+        <button class="btn btn-ghost" id="btnLocateExported" style="width:100%" onclick="showSavedLocation()">Show saved location</button>
       </div>
     </div>
 
@@ -348,72 +348,72 @@ window.VISAPICS_SW_PATH = './sw.js';
 
 <div class="modal-overlay hidden" id="langModal">
   <div class="modal-box">
-    <h2 id="langMenuTitle">选择语言</h2>
+    <h2 id="langMenuTitle">Choose language</h2>
     <div class="lang-list" id="langList"></div>
     <div class="modal-btns">
-      <button class="modal-decline" id="langMenuClose" type="button">关闭</button>
+      <button class="modal-decline" id="langMenuClose" type="button">Close</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay hidden" id="releaseModal">
   <div class="modal-box">
-    <h2 id="releaseTitle">版本信息</h2>
+    <h2 id="releaseTitle">Release notes</h2>
     <div class="release-meta" id="releaseMeta">Version 1.0.0</div>
     <div class="release-list" id="releaseList"></div>
-    <div class="release-empty hidden" id="releaseEmpty">暂无更新记录</div>
+    <div class="release-empty hidden" id="releaseEmpty">No release notes yet</div>
     <div class="modal-btns">
-      <button class="modal-decline" id="releaseClose" type="button">关闭</button>
+      <button class="modal-decline" id="releaseClose" type="button">Close</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay hidden" id="donationModal">
   <div class="modal-box donation-modal">
-    <h2 id="donationTitle">如果这个工具帮到了你</h2>
-    <p id="donationBody">愿意打赏支持一下吗？比如可以考虑打赏到下面设置的 PayPal 账户。</p>
+    <h2 id="donationTitle">If this tool helped you</h2>
+    <p id="donationBody">If VisaPics saved you time, you can support the project with a small coffee ☕</p>
     <div class="report-note donation-account" id="donationAccount"></div>
     <div class="modal-btns">
-      <button class="modal-decline" id="donationLater" type="button">暂时不用</button>
-      <button class="modal-accept" id="donationConfirm" type="button">去打赏</button>
+      <button class="modal-decline" id="donationLater" type="button">Maybe later</button>
+      <button class="modal-accept" id="donationConfirm" type="button">Open PayPal</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay hidden" id="cutoutSaveModal">
   <div class="modal-box">
-    <h2 id="cutoutSaveTitle">抠图已完成</h2>
-    <p id="cutoutSaveBody">已替换为白底背景，符合中国签证申请要求。是否保存这张白底图？</p>
+    <h2 id="cutoutSaveTitle">Background removed</h2>
+    <p id="cutoutSaveBody">A white-background version is ready. Do you want to save this copy now?</p>
     <div class="modal-btns">
-      <button class="modal-decline" id="cutoutSaveCancel" type="button">取消</button>
-      <button class="modal-accept" id="cutoutSaveConfirm" type="button">保存</button>
+      <button class="modal-decline" id="cutoutSaveCancel" type="button">Cancel</button>
+      <button class="modal-accept" id="cutoutSaveConfirm" type="button">Save</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay hidden" id="exportReportModal">
   <div class="modal-box">
-    <h2 id="exportReportTitle">导出确认</h2>
+    <h2 id="exportReportTitle">Download confirmation</h2>
     <div class="report-preview"><img id="exportReportPreview" alt="Export preview"></div>
     <div class="report-list" id="exportReportList"></div>
     <div class="report-note" id="exportReportNote"></div>
     <div class="modal-btns">
-      <button class="modal-decline" id="exportReportCancel" type="button">取消</button>
-      <button class="modal-accept" id="exportReportConfirm" type="button">确认保存</button>
+      <button class="modal-decline" id="exportReportCancel" type="button">Cancel</button>
+      <button class="modal-accept" id="exportReportConfirm" type="button">Download</button>
     </div>
   </div>
 </div>
 
-<!-- 隐私声明弹窗 -->
+<!-- Privacy notice -->
 <div class="modal-overlay hidden" id="privacyModal">
   <div class="modal-box">
-    <h2 id="privacyTitle">🔒 关于隐私与免责</h2>
-    <p id="privacyBody1">您选择的照片将在<strong>浏览器本地</strong>处理，不上传到任何服务器。</p>
-    <p id="privacyBody2">作为用户，您有责任自行核对生成的证件照是否符合相关官方最新要求，本程序作者不对使用结果承担任何责任。</p>
-    <p style="color:var(--ink3);font-size:11px" id="privacyBody3">网站仅收集匹名访问数据（Google Analytics），您的照片不会被收集。</p>
+    <h2 id="privacyTitle">🔒 Privacy and responsibility</h2>
+    <p id="privacyBody1">Your photo is processed <strong>locally in the browser</strong> and is not uploaded to any server.</p>
+    <p id="privacyBody2">You are responsible for confirming that the generated photo matches the latest official requirements for your document. Final acceptance is determined by the issuing authority.</p>
+    <p style="color:var(--ink3);font-size:11px" id="privacyBody3">No analytics or tracking data is collected, and your photo is not stored by this site.</p>
     <div class="modal-btns">
-      <button class="modal-decline" id="privacyDecline" onclick="location.href='https://www.google.com'">[不同意，离开]</button>
-      <button class="modal-accept" id="privacyAccept" onclick="acceptPrivacy()">同意并继续</button>
+      <button class="modal-decline" id="privacyDecline" onclick="location.href='https://www.google.com'">Leave</button>
+      <button class="modal-accept" id="privacyAccept" onclick="acceptPrivacy()">Agree and continue</button>
     </div>
   </div>
 </div>
