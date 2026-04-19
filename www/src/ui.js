@@ -31,6 +31,8 @@ import {
   setExportHooks
 } from './export.js';
 
+const PUBLIC_DONATION_PAYPAL = 'paypal.me/LiMaAu';
+
 function renderLanguageMenu() {
   const list = document.getElementById('langList');
   if (!list) return;
@@ -68,7 +70,7 @@ function closeReleaseModal() {
 }
 
 function getDonationPaypalValue() {
-  return String(localStorage.getItem(KEY_DONATION_PAYPAL) || '').trim();
+  return String(PUBLIC_DONATION_PAYPAL || localStorage.getItem(KEY_DONATION_PAYPAL) || '').trim();
 }
 
 function isAndroidNativeDonationDisabled() {
@@ -76,22 +78,11 @@ function isAndroidNativeDonationDisabled() {
 }
 
 async function loadDonationConfig() {
-  const candidates = ['donation-config.json', './donation-config.json', '/donation-config.json'];
-  for (const url of candidates) {
-    try {
-      const res = await fetch(url, { cache: 'no-store' });
-      if (!res.ok) continue;
-      const data = await res.json();
-      const paypal = String(data?.paypal || data?.paypalMe || '').trim();
-      if (paypal) {
-        localStorage.setItem(KEY_DONATION_PAYPAL, paypal);
-      }
-      return paypal;
-    } catch (e) {
-      console.warn('loadDonationConfig failed:', url, e);
-    }
+  if (PUBLIC_DONATION_PAYPAL) {
+    localStorage.setItem(KEY_DONATION_PAYPAL, PUBLIC_DONATION_PAYPAL);
+    return PUBLIC_DONATION_PAYPAL;
   }
-  return '';
+  return String(localStorage.getItem(KEY_DONATION_PAYPAL) || '').trim();
 }
 
 function normalizeDonationLink(value) {
@@ -113,10 +104,11 @@ function refreshDonationSettingsUI() {
   const view = document.getElementById('donationSettingsView');
   const valueEl = document.getElementById('donationPaypalValue');
   const donationDisabled = isAndroidNativeDonationDisabled();
+  const useFixedDonationLink = !!PUBLIC_DONATION_PAYPAL;
   if (sect) {
-    sect.classList.toggle('hidden', donationDisabled || !!paypal);
+    sect.classList.toggle('hidden', donationDisabled || useFixedDonationLink || !!paypal);
   }
-  if (donationDisabled) return;
+  if (donationDisabled || useFixedDonationLink) return;
   if (input) input.value = paypal;
   if (form) form.classList.toggle('hidden', !!paypal);
   if (view) view.classList.toggle('hidden', !paypal);
@@ -124,6 +116,7 @@ function refreshDonationSettingsUI() {
 }
 
 function saveDonationSettings() {
+  if (PUBLIC_DONATION_PAYPAL) return;
   const input = document.getElementById('donationPaypalInput');
   const status = document.getElementById('donationPaypalStatus');
   if (!input) return;
@@ -141,6 +134,7 @@ function saveDonationSettings() {
 }
 
 function editDonationSettings() {
+  if (PUBLIC_DONATION_PAYPAL) return;
   const form = document.getElementById('donationSettingsForm');
   const view = document.getElementById('donationSettingsView');
   const input = document.getElementById('donationPaypalInput');
@@ -153,6 +147,7 @@ function editDonationSettings() {
 }
 
 function clearDonationSettings() {
+  if (PUBLIC_DONATION_PAYPAL) return;
   localStorage.removeItem(KEY_DONATION_PAYPAL);
   localStorage.removeItem(KEY_DONATION_LAST_PROMPT);
   const status = document.getElementById('donationPaypalStatus');
