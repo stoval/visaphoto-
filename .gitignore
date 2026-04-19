@@ -20,6 +20,11 @@ android/*.iml
 *.patch
 *.bak
 *.txt
+donation-config.json
+www/donation-config.json
+docs/bayside-wordpress-rest-api-cheatsheet.md
+docs/bayside-og-twitter-functions-snippet.php
+docs/bayside-og-twitter-implementation.md
 
 # Local WordPress maintenance / migration artifacts
 site-backup/
