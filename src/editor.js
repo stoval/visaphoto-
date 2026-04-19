@@ -64,6 +64,9 @@ function loadFile(file) {
       resetPos(processedImg);
       document.getElementById('dz').style.display='none';
       document.getElementById('stage').classList.add('show');
+      requestAnimationFrame(() => {
+        document.getElementById('stage')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
       document.getElementById('btnRst').disabled=false;
       document.getElementById('btnRmBg').disabled=false;
       document.getElementById('btnGen').disabled=false;

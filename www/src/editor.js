@@ -64,6 +64,9 @@ function loadFile(file) {
       resetPos(processedImg);
       document.getElementById('dz').style.display='none';
       document.getElementById('stage').classList.add('show');
+      requestAnimationFrame(() => {
+        document.getElementById('stage')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
       document.getElementById('btnRst').disabled=false;
       document.getElementById('btnRmBg').disabled=false;
       document.getElementById('btnGen').disabled=false;
@@ -703,10 +706,10 @@ async function doLocalRemoveBg(keepOverride) {
   editorHooks.setStep(2);
 
   try {
-    const MP_BASE = '/vendor/mediapipe/selfie_segmentation/'; 
+    const MP_BASE = new URL('./vendor/mediapipe/selfie_segmentation/', window.location.href).toString();
     const selfie = new SelfieSegmentation({
       locateFile: file => {
-        const u = MP_BASE + file;
+        const u = new URL(file, MP_BASE).toString();
         console.log('[MediaPipe locateFile]', file, '=>', u);
         return u;
       }

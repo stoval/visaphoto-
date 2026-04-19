@@ -199,30 +199,6 @@
       <input type="file" id="fi" accept="image/*" style="display:none" onchange="onFile(event)">
     </div>
 
-    <div class="workflow-grid">
-      <section class="info-card">
-        <div class="section-kicker" id="howItWorksLabel">How it works</div>
-        <h3 class="section-title" id="howItWorksTitle">Create a compliant photo in 4 steps</h3>
-        <ol class="flow-list">
-          <li><strong id="flow1Title">Upload a photo</strong><span id="flow1Body">Choose a clear portrait from your phone or computer.</span></li>
-          <li><strong id="flow2Title">Remove the background</strong><span id="flow2Body">Automatically remove the background and refine the framing if needed.</span></li>
-          <li><strong id="flow3Title">Choose size and background</strong><span id="flow3Body">Select the required format and background color for your document.</span></li>
-          <li><strong id="flow4Title">Download your final photo</strong><span id="flow4Body">Export a digital photo or a print-ready sheet.</span></li>
-        </ol>
-      </section>
-      <section class="info-card">
-        <div class="section-kicker" id="bestResultsLabel">Best results</div>
-        <h3 class="section-title" id="bestResultsTitle">Tips for a cleaner photo</h3>
-        <ul class="tips-list">
-          <li id="tip1">Use a front-facing portrait</li>
-          <li id="tip2">Keep lighting even across the face</li>
-          <li id="tip3">Avoid strong backlight</li>
-          <li id="tip4">Use a plain background if possible</li>
-          <li id="tip5">Leave enough space around the head and shoulders</li>
-        </ul>
-      </section>
-    </div>
-
     <div class="stage" id="stage">
       <div class="canvas-wrap" id="cf">
         <canvas id="editCanvas" width="420" height="420"></canvas>
@@ -258,6 +234,30 @@
           <button class="btn btn-ghost" id="btnLocateExportedMobile" style="width:100%" onclick="showSavedLocation()">📁 查看保存位置</button>
         </div>
       </div>
+    </div>
+
+    <div class="workflow-grid" id="workflowGrid">
+      <section class="info-card">
+        <div class="section-kicker" id="howItWorksLabel">How it works</div>
+        <h3 class="section-title" id="howItWorksTitle">Create a compliant photo in 4 steps</h3>
+        <ol class="flow-list">
+          <li><strong id="flow1Title">Upload a photo</strong><span id="flow1Body">Choose a clear portrait from your phone or computer.</span></li>
+          <li><strong id="flow2Title">Remove the background</strong><span id="flow2Body">Automatically remove the background and refine the framing if needed.</span></li>
+          <li><strong id="flow3Title">Choose size and background</strong><span id="flow3Body">Select the required format and background color for your document.</span></li>
+          <li><strong id="flow4Title">Download your final photo</strong><span id="flow4Body">Export a digital photo or a print-ready sheet.</span></li>
+        </ol>
+      </section>
+      <section class="info-card">
+        <div class="section-kicker" id="bestResultsLabel">Best results</div>
+        <h3 class="section-title" id="bestResultsTitle">Tips for a cleaner photo</h3>
+        <ul class="tips-list">
+          <li id="tip1">Use a front-facing portrait</li>
+          <li id="tip2">Keep lighting even across the face</li>
+          <li id="tip3">Avoid strong backlight</li>
+          <li id="tip4">Use a plain background if possible</li>
+          <li id="tip5">Leave enough space around the head and shoulders</li>
+        </ul>
+      </section>
     </div>
 
   </div>
