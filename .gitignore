@@ -20,3 +20,24 @@ android/*.iml
 *.patch
 *.bak
 *.txt
+
+# Local WordPress maintenance / migration artifacts
+site-backup/
+deploy/
+homepage*.html
+homepage*.json
+page1317*.json
+preview-live-check*.html
+sidebars-live.json
+widgets-live.json
+widget-block-20.json
+tmp-home.json
+wp-json-root*.json
+wp-settings-edit.json
+wp-sidebars.json
+wp-theme-astra-edit.json
+wp-widgets.json
+
+# Local reference images used during page redesign
+needling*.jpg
+cupping*.jpg

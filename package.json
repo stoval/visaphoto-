@@ -1,25 +1,31 @@
 {
   "name": "visaphoto",
   "version": "1.0.0",
-  "description": "",
+  "description": "Static site source for visapics.app",
   "main": "sw.js",
   "scripts": {
-    "preview": "node scripts/serve.js",
     "sync:html": "powershell -ExecutionPolicy Bypass -File scripts/sync-html-copy.ps1",
+    "preview": "node scripts/serve.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stoval/visaphoto-.git"
   },
-  "keywords": [],
+  "keywords": [
+    "visapics",
+    "visa-photo",
+    "passport-photo",
+    "pwa",
+    "github-pages"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/stoval/visaphoto-/issues"
   },
-  "homepage": "https://github.com/stoval/visaphoto-#readme",
+  "homepage": "https://visapics.app",
   "devDependencies": {
     "@capacitor/android": "^8.3.0",
     "@capacitor/cli": "^8.3.0",
