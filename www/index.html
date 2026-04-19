@@ -27,8 +27,8 @@
   <!-- Row 1: Spec & Language -->
   <div class="m-row row-main">
     <select id="mPreset" class="m-ctl"></select>
-    <button id="mReleaseTog" class="m-ctl m-icon-btn m-subtle" type="button" aria-label="版本信息" title="版本信息">v1.0</button>
-    <button id="mLangTog" class="m-ctl m-icon-btn m-subtle m-lang-btn" type="button" aria-label="切换语言" title="切换语言">
+    <button id="mReleaseTog" class="m-ctl m-icon-btn m-subtle" type="button" aria-label="Version info" title="Version info">v1.0</button>
+    <button id="mLangTog" class="m-ctl m-icon-btn m-subtle m-lang-btn" type="button" aria-label="Choose language" title="Choose language">
       <svg class="lang-ico" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M11.99,2C6.47,2 2,6.48 2,12s4.47,10 9.99,10C17.52,22 22,17.52 22,12S17.52,2 11.99,2zM18.91,8h-3.08c-0.33,-1.42 -0.87,-2.75 -1.58,-3.97 1.85,0.73 3.42,2.1 4.66,3.97zM12,4.04c0.83,1.2 1.48,2.53 1.91,3.96h-3.82c0.43,-1.43 1.08,-2.76 1.91,-3.96zM4.26,14C4.1,13.35 4,12.68 4,12s0.1,-1.35 0.26,-2h3.38c-0.09,0.66 -0.14,1.32 -0.14,2s0.05,1.34 0.14,2L4.26,14zM4.26,10h3.38c0.16,-2.16 0.87,-4.12 1.98,-5.76C7.38,4.98 5.48,6.23 4.26,10zM10.22,4.24C9.51,5.46 8.97,6.79 8.64,8h3.08C11.01,6.79 10.59,5.46 10.22,4.24zM12,19.96c-0.83,-1.2 -1.48,-2.53 -1.91,-3.96h3.82c-0.43,1.43 -1.08,2.76 -1.91,3.96zM14.34,14H9.66c-0.09,-0.66 -0.16,-1.32 -0.16,-2s0.07,-1.35 0.16,-2h4.68c0.09,0.65 0.16,1.32 0.16,2s-0.07,1.34 -0.16,2zM15.82,19.97c0.71,-1.22 1.25,-2.55 1.58,-3.97h-3.08c0.33,1.42 0.75,2.75 1.5,3.97zM16.75,14c0.09,-0.66 0.15,-1.32 0.15,-2s-0.06,-1.34 -0.15,-2h3.38c0.16,0.65 0.26,1.32 0.26,2s-0.1,1.35 -0.26,2h-3.38zM18.91,16h-3.08c-0.33,1.42 -0.87,2.75 -1.58,3.97 1.85,-0.73 3.42,-2.1 4.66,-3.97z"/>
       </svg>
@@ -39,21 +39,21 @@
   <!-- Row 2: Export Config -->
   <div class="m-row row-export">
     <select id="exportKind" class="m-ctl">
-      <option value="single" id="exportKindSingle">单张照片</option>
-      <option value="sheet" id="exportKindSheet">排版图（6寸）</option>
+      <option value="single" id="exportKindSingle">Single photo</option>
+      <option value="sheet" id="exportKindSheet">Print sheet (6 in)</option>
     </select>
     <select id="exportFormat" class="m-ctl">
       <option value="jpg">JPG</option>
       <option value="png">PNG</option>
     </select>
-    <button id="btnExportMain" class="btn btn-gold m-ctl m-icon-btn" style="font-weight:600">导出</button>
+    <button id="btnExportMain" class="btn btn-gold m-ctl m-icon-btn" style="font-weight:600">Download</button>
   </div>
 
   <!-- Row 3: BG & Actions -->
   <div class="m-row row-tools">
     <select id="mBg" class="m-ctl"></select>
-    <button class="m-ctl m-icon-btn m-primary-mini" id="mBtnRmBg" type="button" onclick="doRemoveBg()" aria-label="AI抠图" title="AI抠图">抠图</button>
-    <button id="btnReupload" class="m-ctl m-icon-btn m-subtle" type="button" aria-label="重新上传" title="重新上传">换图</button>
+    <button class="m-ctl m-icon-btn m-primary-mini" id="mBtnRmBg" type="button" onclick="doRemoveBg()" aria-label="Remove background" title="Remove background">Remove BG</button>
+    <button id="btnReupload" class="m-ctl m-icon-btn m-subtle" type="button" aria-label="Choose a new photo" title="Choose a new photo">New photo</button>
   </div>
 </div>
 
@@ -61,12 +61,12 @@
   <div class="header-side header-side-left">
     <div class="header-icon">📷</div>
   </div>
-  <h1 id="appTitle">VisaPics</h1>
+  <div id="appTitle">VisaPics</div>
   <div class="header-side header-side-right">
-    <button class="header-release" id="releaseTog" title="版本信息" aria-label="版本信息">v1.0</button>
-    <button class="theme-tog" id="themeTog" title="切换主题" aria-label="切换深浅主题">🌓</button>
-    <button class="theme-tog lang-tog" id="langTog" title="切换语言" aria-label="切换语言">🌐</button>
-    <span class="header-sub" id="headerSub">本地运行 · 不上传隐私数据</span>
+    <button class="header-release" id="releaseTog" title="Version info" aria-label="Version info">v1.0</button>
+    <button class="theme-tog" id="themeTog" title="Toggle theme" aria-label="Toggle theme">🌓</button>
+    <button class="theme-tog lang-tog" id="langTog" title="Choose language" aria-label="Choose language">🌐</button>
+    <span class="header-sub" id="headerSub">Private browser-based photo tool</span>
   </div>
 </header>
 
@@ -88,33 +88,33 @@
       </summary>
       <div class="advanced-content">
         <div class="sect">
-          <div class="mini-lbl" id="customSizeLabel">自定义尺寸 (mm)</div>
+          <div class="mini-lbl" id="customSizeLabel">Custom size (mm)</div>
           <div class="cs-row">
             <input class="cs-inp" type="number" id="csW" value="35" min="10" max="200" aria-label="Custom width in millimetres">
             <div class="cs-x">×</div>
             <input class="cs-inp" type="number" id="csH" value="45" min="10" max="200" aria-label="Custom height in millimetres">
           </div>
-          <button class="btn btn-ghost" id="applyCustomBtn" style="width:100%;margin-top:6px;font-size:12px" onclick="applyCustom()">应用自定义</button>
+          <button class="btn btn-ghost" id="applyCustomBtn" style="width:100%;margin-top:6px;font-size:12px" onclick="applyCustom()">Apply size</button>
         </div>
 
         <div class="sect">
-          <div class="mini-lbl" id="sectGuides">参考线</div>
+          <div class="mini-lbl" id="sectGuides">Alignment guides</div>
           <div class="tog-row">
-            <span id="guideToggleLabel">显示参考线</span>
+            <span id="guideToggleLabel">Show guides</span>
             <label class="toggle"><input type="checkbox" id="guideChk" checked onchange="S.showGuides=this.checked;drawEdit()" aria-label="Show alignment guides"><div class="t-tr"></div></label>
           </div>
           <div class="tog-row">
-            <span id="silToggleLabel">显示对齐剪影 (Beta)</span>
+            <span id="silToggleLabel">Show portrait outline (Beta)</span>
             <label class="toggle"><input type="checkbox" id="silChk" checked onchange="S.showSil=this.checked;drawEdit()" aria-label="Show portrait silhouette"><div class="t-tr"></div></label>
           </div>
           <div class="guide-legend" id="guideLegend">
-            <div class="gl-item"><div class="gl-dot" style="background:rgba(200,50,40,0.35)"></div><span id="guideLegend1">禁区（头顶/下巴不得进入红色区）</span></div>
-            <div class="gl-item"><div class="gl-dot" style="background:rgba(200,160,20,0.4)"></div><span id="guideLegend2">头顶目标区（距上边 3–5mm）</span></div>
-            <div class="gl-item"><div class="gl-dot" style="background:rgba(40,160,80,0.3)"></div><span id="guideLegend3">下巴目标区（距底边 7–14mm）</span></div>
-            <div class="gl-item"><div class="gl-dot" style="border:1.5px solid rgba(40,160,80,0.8)"></div><span id="guideLegend4">脸宽外边界（最大 22mm）</span></div>
-            <div class="gl-item"><div class="gl-dot" style="border:1.5px dashed rgba(200,160,20,0.8)"></div><span id="guideLegend5">垂直中心线（HH线，对齐鼻梁）</span></div>
-            <div class="gl-item"><div class="gl-dot" style="border:1.5px solid var(--gold);border-radius:50%"></div><span id="guideLegend6">人像剪影（对齐头顶与眼睛基准）</span></div>
-            <div class="gl-item" style="color:var(--ink3);font-style:italic"><span id="guideLegend7">↑ 规格因所选证件而变化</span></div>
+            <div class="gl-item"><div class="gl-dot" style="background:rgba(200,50,40,0.35)"></div><span id="guideLegend1">Keep the top of the head and chin outside the red area</span></div>
+            <div class="gl-item"><div class="gl-dot" style="background:rgba(200,160,20,0.4)"></div><span id="guideLegend2">Top-of-head guide (3-5 mm from the top edge)</span></div>
+            <div class="gl-item"><div class="gl-dot" style="background:rgba(40,160,80,0.3)"></div><span id="guideLegend3">Chin guide (7-14 mm from the bottom edge)</span></div>
+            <div class="gl-item"><div class="gl-dot" style="border:1.5px solid rgba(40,160,80,0.8)"></div><span id="guideLegend4">Face width guide (up to 22 mm)</span></div>
+            <div class="gl-item"><div class="gl-dot" style="border:1.5px dashed rgba(200,160,20,0.8)"></div><span id="guideLegend5">Center line for the nose bridge</span></div>
+            <div class="gl-item"><div class="gl-dot" style="border:1.5px solid var(--gold);border-radius:50%"></div><span id="guideLegend6">Portrait outline for head and eye alignment</span></div>
+            <div class="gl-item" style="color:var(--ink3);font-style:italic"><span id="guideLegend7">↑ Guide changes with the selected document</span></div>
           </div>
         </div>
 
@@ -142,26 +142,6 @@
       </div>
     </details>
 
-    <div class="sect hidden" id="supportSect">
-      <div class="mini-lbl" id="sectSupport">支持项目</div>
-      <div class="api-box">
-        <div class="api-title" id="donationSettingsTitle">打赏设置 (PayPal)</div>
-        <p id="donationSettingsHint">填写 PayPal 邮箱或 paypal.me 链接。配置后，用户成功下载/保存后会看到轻提示。</p>
-        <div id="donationSettingsView" class="hidden">
-          <div class="report-note donation-account donation-settings-account" id="donationPaypalValue"></div>
-          <div class="modal-btns donation-settings-actions">
-            <button class="modal-decline" id="donationEditBtn" type="button">修改</button>
-            <button class="modal-decline" id="donationClearBtn" type="button">清除</button>
-          </div>
-        </div>
-        <div id="donationSettingsForm">
-          <input class="api-inp" id="donationPaypalInput" type="text" placeholder="例如：name@example.com 或 paypal.me/yourname">
-          <button class="api-save" id="donationSaveBtn" type="button">保存打赏账号</button>
-        </div>
-        <div class="api-st" id="donationPaypalStatus"></div>
-      </div>
-    </div>
-
   </div>
 
   <!-- ══ CENTER ══ -->
@@ -170,7 +150,7 @@
     <section class="product-hero">
       <div class="hero-copy">
         <div class="hero-eyebrow" id="heroEyebrow">Private browser-based photo tool</div>
-        <h2 class="hero-title" id="heroTitle">Create passport and visa photos privately in your browser</h2>
+        <h1 class="hero-title" id="heroTitle">Create passport and visa photos privately in your browser</h1>
         <p class="hero-subtitle" id="heroSubtitle">Choose a document type, upload a portrait, remove the background, and export a ready-to-use photo in minutes — without sending your image to a remote server.</p>
         <div class="hero-actions">
           <button class="btn btn-gold" id="heroUploadCta" type="button">Upload a Photo</button>
@@ -199,10 +179,10 @@
     </section>
 
     <div class="steps-bar">
-      <div class="step-item active" id="st1"><span class="step-n">1</span><span id="step1Label">上传照片</span></div>
-      <div class="step-item" id="st2"><span class="step-n">2</span><span id="step2Label">AI 抠图</span></div>
-      <div class="step-item" id="st3"><span class="step-n">3</span><span id="step3Label">调整位置</span></div>
-      <div class="step-item" id="st4"><span class="step-n">4</span><span id="step4Label">生成导出</span></div>
+      <div class="step-item active" id="st1"><span class="step-n">1</span><span id="step1Label">Upload</span></div>
+      <div class="step-item" id="st2"><span class="step-n">2</span><span id="step2Label">Remove Background</span></div>
+      <div class="step-item" id="st3"><span class="step-n">3</span><span id="step3Label">Adjust</span></div>
+      <div class="step-item" id="st4"><span class="step-n">4</span><span id="step4Label">Download</span></div>
     </div>
 
     <section class="start-card">
@@ -213,9 +193,9 @@
 
     <div class="drop-zone" id="dz" onclick="document.getElementById('fi').click()">
       <div class="dz-icon">📤</div>
-      <p id="dropTitle">点击或拖拽上传照片</p>
+      <p id="dropTitle">Upload a portrait photo</p>
       <span id="dropSubTitle">Drag and drop an image here, or click to choose a file</span>
-      <span id="dropHint">JPG / PNG · 建议正面免冠照</span>
+      <span id="dropHint">JPG / PNG · Portrait mode recommended · Solid background · Even front lighting · Avoid backlight</span>
       <input type="file" id="fi" accept="image/*" style="display:none" onchange="onFile(event)">
     </div>
 
