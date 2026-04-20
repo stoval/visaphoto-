@@ -419,10 +419,11 @@ body {
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
   gap: 18px;
   padding: 18px 20px;
-  background: linear-gradient(145deg, rgba(255,255,255,0.96), rgba(248,247,243,0.96));
+  background: linear-gradient(145deg, rgba(255,255,255,0.98), rgba(248,247,243,0.98));
   border: 1px solid var(--bg2);
+  border-left: 3px solid var(--gold);
   border-radius: 22px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 4px 6px rgba(44,44,42,0.04), 0 20px 48px rgba(44,44,42,0.12);
 }
 .hero-copy {
   display: flex;
@@ -451,8 +452,19 @@ body {
 .hero-subtitle {
   font-size: 14px;
   line-height: 1.7;
-  color: color-mix(in srgb, var(--ink) 84%, white 16%);
+  color: var(--ink2);
   font-weight: 500;
+}
+[data-theme="dark"] .product-hero {
+  background: linear-gradient(145deg, rgba(255,255,255,0.98), rgba(248,247,243,0.98));
+  border-color: #d9d5cc;
+}
+[data-theme="dark"] .product-hero .hero-copy,
+[data-theme="dark"] .product-hero .hero-title {
+  color: #2c2c2a;
+}
+[data-theme="dark"] .product-hero .hero-subtitle {
+  color: #444441;
 }
 .section-copy {
   font-size: 14px;
