@@ -456,7 +456,7 @@ body {
   font-weight: 500;
 }
 [data-theme="dark"] .product-hero {
-  background: linear-gradient(145deg, rgba(255,255,255,0.98), rgba(248,247,243,0.98));
+  background: linear-gradient(145deg, rgba(240,238,232,0.97), rgba(232,230,224,0.97));
   border-color: #d9d5cc;
   border-left: 1px solid rgba(29, 158, 117, 0.35);
 }
@@ -475,6 +475,9 @@ body {
 [data-theme="dark"] .info-card {
   background: var(--bg1);
   border-color: rgba(255,255,255,0.08);
+}
+[data-theme="dark"] .start-card {
+  border-right: 1px solid rgba(255,255,255,0.06);
 }
 .section-copy {
   font-size: 14px;
@@ -613,6 +616,7 @@ body {
 .dz-icon { font-size: 34px; }
 .drop-zone p { font-size: 16px; font-weight: 600; color: var(--ink); }
 .drop-zone span { font-size: 11px; color: var(--ink3); text-align: center; line-height: 1.6; max-width: 300px; }
+[data-theme="dark"] .drop-zone span { color: var(--ink2); }
 #dropSubTitle { font-size: 12px; color: var(--ink2); font-weight: 500; }
 .drop-zone input { display: none; }
 
