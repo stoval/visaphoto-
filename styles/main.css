@@ -424,7 +424,14 @@ body {
   border-radius: 22px;
   box-shadow: var(--shadow-lg);
 }
-.hero-copy { display: flex; flex-direction: column; gap: 10px; }
+.hero-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
 .hero-eyebrow,
 .section-kicker {
   font-size: 11px;
