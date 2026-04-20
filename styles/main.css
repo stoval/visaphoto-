@@ -514,8 +514,11 @@ body {
   border-color: #d8d5cd;
   box-shadow: 0 2px 8px rgba(44,44,42,0.06);
 }
-.hero-features .feature-card {
+:root:not([data-theme="dark"]) .hero-features .feature-card {
   background: #f8f7f3;
+}
+[data-theme="dark"] .hero-features .feature-card {
+  background: var(--bg1);
 }
 .feature-card h3 {
   font-size: 13px;
@@ -611,6 +614,7 @@ body {
   box-shadow: var(--shadow);
 }
 [data-theme="dark"] .drop-zone {
+  background: var(--bg1);
   border-color: rgba(255,255,255,0.22);
 }
 .drop-zone:hover, .drop-zone.drag-over {
