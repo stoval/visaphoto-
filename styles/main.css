@@ -514,10 +514,14 @@ body {
   border-color: #d8d5cd;
   box-shadow: 0 2px 8px rgba(44,44,42,0.06);
 }
+.hero-features .feature-card {
+  background: #f8f7f3;
+}
 .feature-card h3 {
   font-size: 13px;
   margin-bottom: 4px;
   color: var(--ink);
+  font-weight: 600;
 }
 .feature-card p {
   font-size: 11px;
@@ -603,7 +607,7 @@ body {
   width: 100%; max-width: 470px; aspect-ratio: 4/3;
   border: 2px dashed #c8c4ba; border-radius: 12px;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px;
-  cursor: pointer; transition: all .2s; background: var(--bg1); border-color: #c8c4ba;
+  cursor: pointer; transition: all .2s; background: #f5f4f0; border-color: #c8c4ba;
   box-shadow: var(--shadow);
 }
 [data-theme="dark"] .drop-zone {
@@ -645,6 +649,10 @@ body {
 .btn-ghost { background: transparent; color: var(--ink); border-color: var(--bg2); }
 .btn-ghost:hover { border-color: var(--ink); }
 .btn-ghost:disabled { opacity: .4; cursor: not-allowed; }
+[data-theme="dark"] .product-hero .btn-ghost {
+  border-color: rgba(44, 44, 42, 0.35);
+  color: #2c2c2a;
+}
 
 /* LOADER */
 .loader { display: none; align-items: center; gap: 7px; font-size: 12px; font-family: 'DM Mono', monospace; color: var(--blue); }
