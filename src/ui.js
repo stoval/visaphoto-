@@ -301,6 +301,11 @@ function syncPresetUI() {
     const isChina = S.preset?.id === 'cn_pass' || S.preset?.id === 'cn_visa';
     dropHint.textContent = isChina ? t('dropHintChina') : t('dropHint');
   }
+  const selectedFormatValue = document.getElementById('selectedFormatValue');
+  if (selectedFormatValue && S.preset) {
+    const localized = localizePreset(S.preset);
+    selectedFormatValue.textContent = `${localized.name} (${S.preset.w}×${S.preset.h}mm${localized.note ? ` · ${localized.note}` : ''})`;
+  }
   smartPrintDefaults(S.preset || PRESETS[0]);
 }
 
@@ -502,6 +507,7 @@ export function bootstrap() {
     document.getElementById('heroUploadCta')?.addEventListener('click', triggerUp);
     document.getElementById('heroFormatsCta')?.addEventListener('click', () => {
       document.getElementById('startPanel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('presetSelect')?.focus();
     });
     document.getElementById('btnReupload')?.addEventListener('click', triggerUp);
     document.getElementById('releaseTog')?.addEventListener('click', openReleaseModal);

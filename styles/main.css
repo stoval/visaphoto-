@@ -418,13 +418,13 @@ body {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
   gap: 18px;
-  padding: 22px;
+  padding: 18px 20px;
   background: linear-gradient(145deg, rgba(255,255,255,0.96), rgba(248,247,243,0.96));
   border: 1px solid var(--bg2);
   border-radius: 22px;
   box-shadow: var(--shadow-lg);
 }
-.hero-copy { display: flex; flex-direction: column; gap: 12px; }
+.hero-copy { display: flex; flex-direction: column; gap: 10px; }
 .hero-eyebrow,
 .section-kicker {
   font-size: 11px;
@@ -435,8 +435,8 @@ body {
   color: var(--gold);
 }
 .hero-title {
-  font-size: 34px;
-  line-height: 1.12;
+  font-size: 30px;
+  line-height: 1.1;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--ink);
@@ -452,17 +452,17 @@ body {
 .hero-trust {
   display: inline-flex;
   align-self: flex-start;
-  padding: 7px 12px;
+  padding: 6px 11px;
   border-radius: 999px;
   background: rgba(29,158,117,0.1);
   color: #14674d;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
 }
 .hero-features {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 .feature-card,
 .start-card,
@@ -472,15 +472,15 @@ body {
   border-radius: 16px;
   box-shadow: var(--shadow);
 }
-.feature-card { padding: 14px; }
+.feature-card { padding: 12px; }
 .feature-card h3 {
-  font-size: 14px;
-  margin-bottom: 6px;
+  font-size: 13px;
+  margin-bottom: 4px;
   color: var(--ink);
 }
 .feature-card p {
-  font-size: 12px;
-  line-height: 1.6;
+  font-size: 11px;
+  line-height: 1.55;
   color: var(--ink2);
 }
 .start-card,
@@ -494,6 +494,29 @@ body {
   font-size: 24px;
   line-height: 1.2;
   color: var(--ink);
+}
+.selected-format {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--gold) 8%, var(--bg1));
+  border: 1px solid rgba(29, 158, 117, 0.18);
+}
+.selected-format-label {
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink3);
+}
+.selected-format-value {
+  font-size: 13px;
+  color: var(--ink);
+  font-weight: 600;
 }
 .workflow-grid {
   width: 100%;
@@ -538,6 +561,7 @@ body {
   border: 2px dashed var(--bg2); border-radius: 12px;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px;
   cursor: pointer; transition: all .2s; background: var(--bg1); border-color: var(--bg2);
+  box-shadow: var(--shadow);
 }
 .drop-zone:hover, .drop-zone.drag-over {
   border-color: var(--gold);
@@ -690,4 +714,5 @@ body {
   .header-sub { display: none; }
   .header-side-left { min-width: 36px; }
   .header h1 { font-size: 15px; }
+  .selected-format { align-items: flex-start; }
 }
