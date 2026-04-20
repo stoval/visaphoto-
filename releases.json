@@ -1,7 +1,38 @@
 {
-    "currentVersion":  "1.4",
-    "updatedAt":  "2026-04-12",
+    "currentVersion":  "1.5",
+    "updatedAt":  "2026-04-20",
     "releases":  [
+                     {
+                         "version":  "1.5",
+                         "date":  "2026-04-20",
+                         "notes":  {
+                                       "zh":  [
+                                                  "完成 /app/ 首屏与主题视觉收尾，分别修正浅色与深色模式下的 Hero、功能卡片、上传区和步骤层级。",
+                                                  "修复主题样式串色问题，避免浅色模式的卡片与上传区背景误污染深色模式。",
+                                                  "提升多语言 /app/ 页面在真实使用前的可读性、一致性与上传入口辨识度。"
+                                              ],
+                                       "en":  [
+                                                  "Finished the /app/ first-screen and theme polish across hero, feature cards, upload area, and step hierarchy in both light and dark modes.",
+                                                  "Fixed theme-style leakage so light-mode surface tweaks no longer bleed into dark mode cards or upload areas.",
+                                                  "Improved readability, consistency, and upload-target clarity across the multilingual /app/ experience."
+                                              ],
+                                       "zh-TW":  [
+                                                     "完成 /app/ 首屏與主題視覺收尾，分別修正淺色與深色模式下的 Hero、功能卡片、上傳區與步驟層級。",
+                                                     "修復主題樣式串色問題，避免淺色模式的卡片與上傳區背景誤污染深色模式。",
+                                                     "提升多語 /app/ 頁面在真實使用前的可讀性、一致性與上傳入口辨識度。"
+                                                 ],
+                                       "ja":  [
+                                                  "/app/ のファーストスクリーンとテーマ表現を仕上げ、ライト/ダーク両モードでヒーロー、機能カード、アップロード領域、ステップ階層を調整しました。",
+                                                  "ライトモードのサーフェス調整がダークモードのカードやアップロード領域へ漏れないよう、テーマ別スタイルの混線を修正しました。",
+                                                  "多言語対応した /app/ 画面で、可読性・一貫性・アップロード入口の見つけやすさを高めました。"
+                                              ],
+                                       "ko":  [
+                                                  "/app/ 첫 화면과 테마 시각 마감을 완료해 라이트/다크 모드에서 히어로, 기능 카드, 업로드 영역, 단계 위계를 각각 다듬었습니다.",
+                                                  "라이트 모드의 표면 스타일이 다크 모드 카드나 업로드 영역으로 번지지 않도록 테마 스타일 누수를 수정했습니다.",
+                                                  "다국어 /app/ 화면에서 실제 사용 전 가독성, 일관성, 업로드 진입점 식별성을 높였습니다."
+                                              ]
+                                   }
+                     },
                      {
                          "version":  "1.4",
                          "date":  "2026-04-12",
