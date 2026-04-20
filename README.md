@@ -4,10 +4,11 @@ Public web and PWA source for [visapics.app](https://visapics.app).
 
 ## What this repo contains
 
-- The web app entry at [index.html](D:/dev/visaphoto/index.html)
-- App code in [src](D:/dev/visaphoto/src)
+- The landing page at [index.html](D:/dev/visaphoto/index.html)
+- The browser app entry at [app/index.html](D:/dev/visaphoto/app/index.html)
+- Shared app code in [src](D:/dev/visaphoto/src)
 - Styles in [styles](D:/dev/visaphoto/styles)
-- Offline/PWA assets such as [sw.js](D:/dev/visaphoto/sw.js) and [manifest.json](D:/dev/visaphoto/manifest.json)
+- Offline/PWA assets such as [sw.js](D:/dev/visaphoto/sw.js), [app/sw.js](D:/dev/visaphoto/app/sw.js), and [manifest.json](D:/dev/visaphoto/manifest.json)
 
 This repository is intended to stay focused on the browser-based product and GitHub Pages deployment for `visapics.app`.
 
@@ -42,6 +43,13 @@ Default preview URL:
 
 ```text
 http://127.0.0.1:4173
+```
+
+Key routes:
+
+```text
+/      landing page
+/app/  web app
 ```
 
 ## Deploy notes

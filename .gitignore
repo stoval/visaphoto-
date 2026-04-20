@@ -13,16 +13,12 @@ android/keystore.properties
 android/captures/
 android/*.iml
 
-# PWA Build (Only if using a separate src/ folder, but here www/ is the source)
-# www/ 
-
 # Misc
 *.jks
 *.patch
 *.bak
 *.txt
 donation-config.json
-www/donation-config.json
 docs/bayside-wordpress-rest-api-cheatsheet.md
 docs/bayside-og-twitter-functions-snippet.php
 docs/bayside-og-twitter-implementation.md

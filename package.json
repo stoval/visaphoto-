@@ -4,7 +4,6 @@
   "description": "Static site source for visapics.app",
   "main": "sw.js",
   "scripts": {
-    "sync:html": "powershell -ExecutionPolicy Bypass -File scripts/sync-html-copy.ps1",
     "preview": "node scripts/serve.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
