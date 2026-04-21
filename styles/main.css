@@ -126,6 +126,10 @@
     color: #444441;
     border-color: #e7e4dc;
   }
+  .mobile-toolbar .m-ctl.is-target {
+    border-color: rgba(29,158,117,0.55);
+    box-shadow: 0 0 0 4px rgba(29,158,117,0.14);
+  }
 
   .mobile-toolbar .m-row.row-export #btnExportMain {
     min-height: 34px;
@@ -562,10 +566,30 @@ body {
   text-transform: uppercase;
   color: var(--ink3);
 }
+
 .selected-format-value {
   font-size: 13px;
   color: var(--ink);
   font-weight: 600;
+}
+.selected-format-action {
+  margin-left: auto;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(29, 158, 117, 0.26);
+  background: rgba(29, 158, 117, 0.08);
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.selected-format-action:hover {
+  background: rgba(29, 158, 117, 0.14);
+  border-color: rgba(29, 158, 117, 0.4);
+}
+.selected-format.is-target {
+  box-shadow: 0 0 0 4px rgba(29, 158, 117, 0.12), var(--shadow);
+  border-color: rgba(29, 158, 117, 0.34);
 }
 .workflow-grid {
   width: 100%;
@@ -778,4 +802,5 @@ body {
   .header-side-left { min-width: 36px; }
   .header h1 { font-size: 15px; }
   .selected-format { align-items: flex-start; }
+  .selected-format-action { margin-left: 0; }
 }

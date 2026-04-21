@@ -289,6 +289,7 @@ function syncPresetUI() {
     presetSelect.value = String(Math.max(0, PRESETS.findIndex(p => p.id === S.preset?.id)));
   }
   const mPreset = document.getElementById('mPreset');
+  document.querySelectorAll('.mobile-toolbar .m-ctl').forEach(el => el.classList.remove('is-target'));
   if (mPreset) {
     mPreset.value = String(Math.max(0, PRESETS.findIndex(p => p.id === S.preset?.id)));
   }
@@ -314,6 +315,43 @@ function syncMobileUI() {
   syncBgSelects(S.bgColor);
   syncBgSwatches(S.bgColor);
   syncBgControlState();
+}
+
+function highlightSelectedFormatTarget() {
+  const target = document.querySelector('.selected-format');
+  if (!target) return;
+  target.classList.add('is-target');
+  window.clearTimeout(highlightSelectedFormatTarget._timer);
+  highlightSelectedFormatTarget._timer = window.setTimeout(() => {
+    target.classList.remove('is-target');
+  }, 1600);
+}
+
+function openFormatSelector() {
+  const mobilePreset = document.getElementById('mPreset');
+  const desktopPreset = document.getElementById('presetSelect');
+  const selectedFormat = document.querySelector('.selected-format');
+  const desktopStartPanel = document.getElementById('startPanel');
+  const isMobilePresetVisible = mobilePreset && getComputedStyle(mobilePreset).display !== 'none';
+
+  if (isMobilePresetVisible) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    mobilePreset.classList.add('is-target');
+    window.clearTimeout(openFormatSelector._mobileTimer);
+    openFormatSelector._mobileTimer = window.setTimeout(() => {
+      mobilePreset.classList.remove('is-target');
+      mobilePreset.focus();
+    }, 180);
+    return;
+  }
+
+  if (selectedFormat) {
+    selectedFormat.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    highlightSelectedFormatTarget();
+  } else {
+    desktopStartPanel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  desktopPreset?.focus();
 }
 
 function toggleTheme() {
@@ -505,21 +543,7 @@ export function bootstrap() {
     refreshDonationSettingsUI();
     initExportControls();
     document.getElementById('heroUploadCta')?.addEventListener('click', triggerUp);
-    document.getElementById('heroFormatsCta')?.addEventListener('click', () => {
-      const mobilePreset = document.getElementById('mPreset');
-      const desktopPreset = document.getElementById('presetSelect');
-      const desktopStartPanel = document.getElementById('startPanel');
-      const isMobilePresetVisible = mobilePreset && getComputedStyle(mobilePreset).display !== 'none';
-
-      if (isMobilePresetVisible) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        window.setTimeout(() => mobilePreset.focus(), 180);
-        return;
-      }
-
-      desktopStartPanel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      desktopPreset?.focus();
-    });
+    document.getElementById('selectedFormatAction')?.addEventListener('click', openFormatSelector);
     document.getElementById('btnReupload')?.addEventListener('click', triggerUp);
     document.getElementById('releaseTog')?.addEventListener('click', openReleaseModal);
     document.getElementById('mReleaseTog')?.addEventListener('click', openReleaseModal);
