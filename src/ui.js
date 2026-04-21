@@ -506,8 +506,19 @@ export function bootstrap() {
     initExportControls();
     document.getElementById('heroUploadCta')?.addEventListener('click', triggerUp);
     document.getElementById('heroFormatsCta')?.addEventListener('click', () => {
-      document.getElementById('startPanel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      document.getElementById('presetSelect')?.focus();
+      const mobilePreset = document.getElementById('mPreset');
+      const desktopPreset = document.getElementById('presetSelect');
+      const desktopStartPanel = document.getElementById('startPanel');
+      const isMobilePresetVisible = mobilePreset && getComputedStyle(mobilePreset).display !== 'none';
+
+      if (isMobilePresetVisible) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.setTimeout(() => mobilePreset.focus(), 180);
+        return;
+      }
+
+      desktopStartPanel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      desktopPreset?.focus();
     });
     document.getElementById('btnReupload')?.addEventListener('click', triggerUp);
     document.getElementById('releaseTog')?.addEventListener('click', openReleaseModal);
