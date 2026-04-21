@@ -45,6 +45,20 @@ Default preview URL:
 http://127.0.0.1:4173
 ```
 
+## Syncing web assets into the Android app
+
+To copy the `/app/` shell and its required shared assets into the standalone Android repository, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/sync-android-web-assets.ps1
+```
+
+Default target:
+
+```text
+D:\dev\VisaPics-Android\app\src\main\assets\public
+```
+
 Key routes:
 
 ```text
